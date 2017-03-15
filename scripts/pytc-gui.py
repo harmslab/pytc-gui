@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from pytc.qtgui import Main
+from pytc_gui import Main
 import sys
 from qtpy.QtWidgets import QApplication
 

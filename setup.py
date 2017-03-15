@@ -9,8 +9,8 @@ if sys.version_info[0] < 3:
 from setuptools import setup, find_packages
 
 # Need to add all dependencies to setup as we go!
-setup(name='pytc-gui',
-      packages=['pytc-gui'],
+setup(name='pytc_gui',
+      packages=['pytc_gui'],
       version='0.1.0',
       description="PyQt5 GUI for pytc API",
       author='Hiranmayi Duvvuri',
