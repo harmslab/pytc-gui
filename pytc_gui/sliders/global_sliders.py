@@ -37,3 +37,17 @@ class GlobalSliders(Sliders):
 		else:
 			min_range = exp_range[0]/100
 			max_range = exp_range[1]/100
+
+	def update_bounds(self):
+		"""
+		update min/max bounds and check if range needs to be updated as well
+		"""
+		bounds = [self._min, self._max]
+		self._fitter.update_bounds(self._param_name, bounds, self._exp)
+
+		# check if bounds are smaller than range, then update.
+		curr_range = self._exp.model.param_guess_ranges[self._param_name]
+		curr_bounds = self._exp.model.bounds[self._param_name]
+
+		if curr_range[0] < curr_bounds[0] or curr_range[1] > curr_bounds[1]:
+			self._fitter.update_range(self._param_name, bounds, self._exp)

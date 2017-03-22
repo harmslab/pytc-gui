@@ -7,6 +7,19 @@ if sys.version_info[0] < 3:
 
 # Try using setuptools first, if it's installed
 from setuptools import setup, find_packages
+import py2exe
+
+includes = ["sip", 
+            "PyQt5.QtGui", 
+            "PyQt5.QtCore", 
+            "PyQt5.QtWidgets",
+            "matplotlib.backends.backend_qt5agg", 
+            "seaborn", 
+            "qtpy", 
+            "pytc",
+            "matplotlib",
+            "numpy",
+            "scipy"]
 
 # Need to add all dependencies to setup as we go!
 setup(name='pytc_gui',
@@ -20,5 +33,6 @@ setup(name='pytc_gui',
       zip_safe=False,
       install_requires=["pytc","qtpy","seaborn"],
       classifiers=['Programming Language :: Python'],
-      scripts=['scripts/pytc-gui.py'])
+      scripts=['scripts/pytc-gui.py'],
+      options = [{"py2exe": {"includes": includes}}])
 
