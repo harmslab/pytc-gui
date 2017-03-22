@@ -45,7 +45,7 @@ class PlotBox(QWidget):
 		for i in reversed(range(self._main_layout.count())): 
 			self._main_layout.itemAt(i).widget().deleteLater()
 
-class ParamTable(QWidget):
+class ParamTable(QTableWidget):
 	"""
 	take csv style param string and put into table widget
 	"""
@@ -58,15 +58,15 @@ class ParamTable(QWidget):
 		self._col_name = []
 		self._data = []
 
-		self.layout()
+		#self.layout()
 
-	def layout(self):
-		"""
-		"""
-		main_layout = QVBoxLayout(self)
+	#def layout(self):
+		#"""
+		#"""
+		#main_layout = QVBoxLayout(self)
 
-		self._param_table = QTableWidget()
-		main_layout.addWidget(self._param_table)
+		#self._param_table = QTableWidget()
+		#main_layout.addWidget(self._param_table)
 
 	def load_table(self):
 		"""
@@ -75,7 +75,7 @@ class ParamTable(QWidget):
 		for i, row in enumerate(self._data):
 			for j, col in enumerate(row):
 				item = QTableWidgetItem(col)
-				self._param_table.setItem(i, j, item)
+				self.setItem(i, j, item)
 
 	def csv_to_table(self):
 		"""
@@ -104,16 +104,16 @@ class ParamTable(QWidget):
 		"""
 		self.csv_to_table()
 
-		self._param_table.setRowCount(len(self._data))
-		self._param_table.setColumnCount(len(self._data[0]))
-		self._param_table.setHorizontalHeaderLabels(self._col_name)
+		self.setRowCount(len(self._data))
+		self.setColumnCount(len(self._data[0]))
+		self.setHorizontalHeaderLabels(self._col_name)
 
 		self.load_table()
 
 	def clear(self):
 		"""
 		"""
-		self._param_table.clear()
+		super().clear()
 		self._header = []
 		self._col_name = []
 		self._data = []
@@ -161,11 +161,6 @@ class AllExp(QWidget):
 
 		self._main_layout.addWidget(self._splitter)
 
-		# for testing
-		print_exp = QPushButton("Print Experiments/Sliders (Testing)", self)
-		print_exp.clicked.connect(self.print_sliders)
-		self._main_layout.addWidget(print_exp)
-
 	def add_exp(self):
 		"""
 		update fit and parameters, update experiments added to fitter
@@ -208,12 +203,6 @@ class AllExp(QWidget):
 		else:
 			print("no experiments loaded in fitter")
 			self._param_box.clear()
-
-	def print_sliders(self):
-		"""
-		testing function, make sure sliders getting added to dictionary
-		"""
-		print(self._slider_list)
 
 	def clear(self):
 		"""
