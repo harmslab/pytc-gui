@@ -214,13 +214,3 @@ class Main(QMainWindow):
 		close window
 		"""
 		self.close()
-
-def main():
-	"""
-	"""
-	try:
-		app = QApplication(sys.argv)
-		pytc_run = Main()
-		sys.exit(app.exec_())
-	except KeyboardInterrupt:
-		sys.exit()
