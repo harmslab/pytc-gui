@@ -17,4 +17,4 @@ post_install: post_install.sh [unix]
 post_install: post.bat [win]
 
 # Other files and folders that should be installed
-license_file: /Users/hrnmy/Documents/Harms/pytc-gui/LICENSE
+#license_file: ~/pytc-gui/LICENSE
