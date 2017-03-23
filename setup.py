@@ -9,7 +9,7 @@ if sys.version_info[0] < 3:
 from setuptools import setup, find_packages
 
 # Need to add all dependencies to setup as we go!
-setup(name='pytc_gui',
+setup(name='pytc-gui',
       packages=find_packages(),
       version='0.1.0',
       description="PyQt5 GUI for pytc API",
@@ -18,7 +18,7 @@ setup(name='pytc_gui',
       url='https://github.com/harmslab/pytc-gui',
       download_url='https://github.com/harmslab/pytc-gui/tarball/0.1.0',
       zip_safe=False,
-      install_requires=["pytc","qtpy","seaborn"],
+      install_requires=["pytc-fitter","qtpy","seaborn"],
       classifiers=['Programming Language :: Python'],
-      scripts=['scripts/pytc-gui.py'])
+      scripts=['scripts/pytc-gui'])
 

@@ -9,19 +9,19 @@ from .. import sliders
 from .base import SliderPopUp
 
 class GlobalPopUp(SliderPopUp):
-	"""
-	pop-up window for slider widgets
-	"""
+    """
+    pop-up window for slider widgets
+    """
 
-	def __init__(self, parent):
-		"""
-		"""
-		super().__init__(parent)
+    def __init__(self, parent):
+        """
+        """
+        super().__init__(parent)
 
-	def populate(self):
-		"""
-		"""
-		sliders = self._slider_list["Global"][self._name]
+    def populate(self):
+        """
+        """
+        sliders = self._slider_list["Global"][self._name]
 
-		# add sliders to layout
-		self._main_layout.addWidget(sliders)
+        # add sliders to layout
+        self._main_layout.addWidget(sliders)
