@@ -8,31 +8,31 @@ import inspect
 from .. import sliders
 
 class SliderPopUp(QWidget):
-	"""
-	pop-up window for slider widgets
-	"""
+    """
+    pop-up window for slider widgets
+    """
 
-	def __init__(self, parent):
-		"""
-		"""
-		super().__init__()
+    def __init__(self, parent):
+        """
+        """
+        super().__init__()
 
-		self._name = parent._name
-		self._exp = parent._exp
-		self._fitter = parent._fitter
-		self._slider_list = parent._slider_list
+        self._name = parent._name
+        self._exp = parent._exp
+        self._fitter = parent._fitter
+        self._slider_list = parent._slider_list
 
-		self.layout()
+        self.layout()
 
-	def layout(self):
-		"""
-		"""
-		self._main_layout = QVBoxLayout(self)
-		self.setWindowTitle(self._name)
+    def layout(self):
+        """
+        """
+        self._main_layout = QVBoxLayout(self)
+        self.setWindowTitle(self._name)
 
-		self.populate()
+        self.populate()
 
-	def populate(self):
-		"""
-		"""
-		pass
+    def populate(self):
+        """
+        """
+        pass
