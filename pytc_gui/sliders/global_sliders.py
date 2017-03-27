@@ -23,22 +23,25 @@ class GlobalSliders(Sliders):
         """
         exp_range = self._fitter.param_ranges[0][self._param_name]
 
-        min_range = 0
-        max_range = 0
+        min_range = exp_range[0]
+        max_range = exp_range[1]
+
+        self._min = min_range
+        self._max = max_range
 
         # transform values based on parameter to allow floats to pass to fitter and 
         # make sliders easier to use, QtSlider only allows integers
-        diff = exp_range[1] - exp_range[0]
+        diff = self._max - self._min
 
         if diff < 10:
-            min_range = exp_range[0]*10
-            max_range = exp_range[1]*10
+            min_range *= 10
+            max_range *= 10
         elif diff < 100000:
-            min_range = exp_range[0]/100
-            max_range = exp_range[1]/100
+            min_range /= 100
+            max_range /= 100
         elif diff < 100000000.0:
-            min_range = exp_range[0]/100000
-            max_range = exp_range[1]/100000
+            min_range /= 100000
+            max_range /= 100000
 
     def update_bounds(self):
         """

@@ -131,7 +131,8 @@ class Main(QMainWindow):
         self._exp = Splitter(self)
         self.setCentralWidget(self._exp)
 
-        self.setGeometry(300, 150, 1000, 600)
+        self.resize(1000, 600)
+        self.move(QApplication.desktop().screen().rect().center()- self.rect().center())
         self.setWindowTitle('pytc')
         self.show()
 

@@ -38,22 +38,25 @@ class LocalSliders(Sliders):
         """
         exp_range = self._exp.model.param_guess_ranges[self._param_name]
 
-        min_range = 0
-        max_range = 0
+        min_range = exp_range[0]
+        max_range = exp_range[1]
+
+        self._min = min_range
+        self._max = max_range
 
         # transform values based on parameter to allow floats to pass to fitter and 
         # make sliders easier to use, QtSlider only allows integers
-        diff = exp_range[1] - exp_range[0]
+        diff = self._max - self._min
 
         if diff < 10:
-            min_range = exp_range[0]*10
-            max_range = exp_range[1]*10
+            min_range *= 10
+            max_range *= 10
         elif diff < 100000:
-            min_range = exp_range[0]/100
-            max_range = exp_range[1]/100
+            min_range /= 100
+            max_range /= 100
         elif diff < 100000000.0:
-            min_range = exp_range[0]/100000
-            max_range = exp_range[1]/100000
+            min_range /= 100000
+            max_range /= 100000
 
         self._slider.setMinimum(min_range)
         self._slider.setMaximum(max_range)
@@ -121,10 +124,10 @@ class LocalSliders(Sliders):
             self._fitter.link_to_global(self._exp, self._param_name, status)
             self._slider.hide()
             self._fix.hide()
-            self._update_min_label.hide()
-            self._update_min.hide()
-            self._update_max_label.hide()
-            self._update_max.hide()
+            #self._update_min_label.hide()
+            #self._update_min.hide()
+            #self._update_max_label.hide()
+            #self._update_max.hide()
 
             self._if_connected = status
 
@@ -142,10 +145,10 @@ class LocalSliders(Sliders):
             # connect to global connector
             self._slider.hide()
             self._fix.hide()
-            self._update_min_label.hide()
-            self._update_min.hide()
-            self._update_max_label.hide()
-            self._update_max.hide()
+            #self._update_min_label.hide()
+            #self._update_min.hide()
+            #self._update_max_label.hide()
+            #self._update_max.hide()
 
             curr_connector = self._global_connectors[status]
             name = curr_connector.name
@@ -180,10 +183,10 @@ class LocalSliders(Sliders):
         """
         self._slider.show()
         self._fix.show()
-        self._update_min_label.show()
-        self._update_min.show()
-        self._update_max_label.show()
-        self._update_max.show()
+        #self._update_min_label.show()
+        #self._update_min.show()
+        #self._update_max_label.show()
+        #self._update_max.show()
 
         unlink_index = self._link.findText("Unlink", Qt.MatchFixedString)
         self._link.setCurrentIndex(unlink_index)

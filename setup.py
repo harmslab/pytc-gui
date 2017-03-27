@@ -10,7 +10,7 @@ from setuptools import setup, find_packages
 
 # Need to add all dependencies to setup as we go!
 setup(name='pytc-gui',
-      packages=find_packages(),
+      packages=find_packages(exclude=['pytc']),
       version='0.1.0',
       description="PyQt5 GUI for pytc API",
       author='Hiranmayi Duvvuri',
