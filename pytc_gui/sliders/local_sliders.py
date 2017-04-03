@@ -2,8 +2,6 @@ from qtpy.QtGui import *
 from qtpy.QtCore import *
 from qtpy.QtWidgets import *
 
-from math import log10
-
 import pytc
 import inspect
 
@@ -22,11 +20,8 @@ class LocalSliders(Sliders):
         self._global_var = parent._global_var
         self._slider_list = parent._slider_list
         self._connectors_seen = parent._connectors_seen
-        self._glob_connect_req = parent._glob_connect_req
-        self._local_appended = parent._local_appended
-        self._connectors_to_add = parent._connectors_to_add
-        self._global_tracker = parent._global_tracker
         self._global_connectors = parent._global_connectors
+        self._global_tracker = parent._global_tracker
         self._exp_box = parent._exp_box
         self._if_connected = None
 
@@ -107,8 +102,7 @@ class LocalSliders(Sliders):
         
                 self._global_var.append(connector)
                 for v in var_names:
-                    self._glob_connect_req[v] = connector.local_methods[v]
-                    self._global_connectors[v] = connector
+                    self._global_connectors[v] = [connector.local_methods[v], connector]
 
                 # Append connector methods to dropbdown lists
                 for p, v in connector.local_methods.items():
@@ -119,7 +113,7 @@ class LocalSliders(Sliders):
             self.diag = AddGlobalConnectorWindow(connector_handler)
             self.diag.show()
 
-        elif status not in self._glob_connect_req:
+        elif status not in self._global_connectors:
             # connect to a simple global variable
             self._fitter.link_to_global(self._exp, self._param_name, status)
             self._slider.hide()
@@ -129,6 +123,7 @@ class LocalSliders(Sliders):
             #self._update_max_label.hide()
             #self._update_max.hide()
 
+            # set current connected name
             self._if_connected = status
 
             # add global exp to experiments widget
@@ -140,7 +135,6 @@ class LocalSliders(Sliders):
                 self._exp_box.addWidget(global_e)
 
             self._global_tracker[status].linked(self)
-
         else:
             # connect to global connector
             self._slider.hide()
@@ -150,11 +144,10 @@ class LocalSliders(Sliders):
             #self._update_max_label.hide()
             #self._update_max.hide()
 
-            curr_connector = self._global_connectors[status]
+            curr_connector = self._global_connectors[status][1]
             name = curr_connector.name
             self._connectors_seen[self._exp].append(curr_connector)
-            self._connectors_to_add[curr_connector.name] = curr_connector
-            self._fitter.link_to_global(self._exp, self._param_name, self._glob_connect_req[status])
+            self._fitter.link_to_global(self._exp, self._param_name, self._global_connectors[status][0])
 
             # add connector to experiments widget
             if name not in self._slider_list["Global"]:
@@ -166,10 +159,13 @@ class LocalSliders(Sliders):
                 self._global_tracker[name] = connector_e
 
             self._global_tracker[name].linked(self)
+
+            # set current connected name
             self._if_connected = name
 
-            for e in self._local_appended:
-                e.update_req()
+            # check for instances of LocalBox and update
+            for loc_obj in self._exp_box.parentWidget().findChildren(exp_frames.LocalBox):
+                loc_obj.update_req()
 
     def update_global(self, value):
         """

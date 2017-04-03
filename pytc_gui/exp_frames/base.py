@@ -20,11 +20,15 @@ class Experiments(QWidget):
         self._global_var = parent._global_var
         self._global_tracker = parent._global_tracker
         self._connectors_seen = parent._connectors_seen
-        self._glob_connect_req = parent._glob_connect_req
         self._global_connectors = parent._global_connectors
         self._plot_frame = parent._plot_frame
 
         self.layout()
+    @property
+    def name(self):
+        """
+        """
+        return self._name
 
     def layout(self):
         """

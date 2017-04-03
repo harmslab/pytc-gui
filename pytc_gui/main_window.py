@@ -176,7 +176,6 @@ class Main(QMainWindow):
         add a new pytc experiment.
         """
         self._new_exp = AddExperimentWindow(self._fitter, self._exp._plot_frame.update)
-        self._new_exp.setGeometry(530, 400, 100, 200)
         self._new_exp.show()
 
     def new_exp(self):

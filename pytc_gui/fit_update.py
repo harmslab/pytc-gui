@@ -17,6 +17,8 @@ class PlotBox(QWidget):
     """
 
     def __init__(self, parent):
+        """
+        """
         super().__init__()
 
         self._fitter = parent._fitter
@@ -27,7 +29,6 @@ class PlotBox(QWidget):
         """
         """
         self._main_layout = QVBoxLayout(self)
-
 
     def update(self):
         """
@@ -41,8 +42,9 @@ class PlotBox(QWidget):
 
     def clear(self):
         """
+        clear table
         """
-        for i in reversed(range(self._main_layout.count())): 
+        for i in range(self._main_layout.count()): 
             self._main_layout.itemAt(i).widget().deleteLater()
 
 class ParamTable(QTableWidget):
@@ -78,6 +80,7 @@ class ParamTable(QTableWidget):
         file_data = self._fitter.fit_as_csv
         string_file = StringIO(file_data)
 
+        # break up the file data
         for i in string_file:
             if i.startswith("#"):
                 self._header.append(i.rstrip())
@@ -121,11 +124,8 @@ class AllExp(QWidget):
         self._fitter = parent._fitter
         self._slider_list = {"Global" : {}, "Local" : {}}
         self._global_var = []
-        self._local_appended = []
         self._global_tracker = {}
-        self._glob_connect_req = {}
         self._global_connectors = {}
-        self._connectors_to_add = {}
         self._connectors_seen = {}
         self._plot_frame = parent._plot_frame
 
@@ -136,14 +136,17 @@ class AllExp(QWidget):
         """
         self._main_layout = QVBoxLayout(self)
 
+        # scroll box for experiments
         self._scroll = QScrollArea(self)
         self._exp_content = QWidget()
         self._exp_box = QVBoxLayout(self._exp_content)
         self._scroll.setWidget(self._exp_content)
         self._scroll.setWidgetResizable(True)
 
+        # paramater table
         self._param_box = ParamTable(self._fitter)
 
+        # splitter for experiments and parameter widgets
         self._splitter = QSplitter(Qt.Vertical)
         self._splitter.addWidget(self._scroll)
         self._splitter.addWidget(self._param_box)
@@ -158,10 +161,8 @@ class AllExp(QWidget):
         self._experiments = self._fitter.experiments
 
         if len(self._experiments) != 0:
-
             # create local holder if doesn't exist
             for e in self._experiments:
-
                 if e in self._slider_list["Local"]:
                     continue
 
@@ -174,17 +175,16 @@ class AllExp(QWidget):
                 exp = LocalBox(e, exp_name, self)
                 self._exp_box.addWidget(exp)
 
-            for ex in self._local_appended:
-                ex.set_attr()
+            # check for instances of LocalBox and set attributes
+            for loc_obj in self._exp_box.parentWidget().findChildren(LocalBox):
+                loc_obj.set_attr()
 
             try:
                 self._fitter.fit()
 
-                for e in self._local_appended:
-                    e.set_fit_true()
-
-                for n, e in self._global_tracker.items():
-                    e.set_fit_true()
+                # for main experiment widgets in layout, set each to fit = True
+                for exp_obj in range(self._exp_box.count()): 
+                    self._exp_box.itemAt(exp_obj).widget().set_fit_true()
 
                 self._param_box.update()
             except:
@@ -196,22 +196,25 @@ class AllExp(QWidget):
 
     def clear(self):
         """
+        for clearing the application
         """
         try:
-            for l in self._local_appended:
-                self._fitter.remove_experiment(l._exp)
+            # try and clear any remaining experiments in GlobalFit()
+            for loc_obj in self._exp_box.parentWidget().findChildren(LocalBox):
+                self._fitter.remove_experiment(loc_obj._exp)
         except:
             pass
 
+        # reset all lists/dictionaries
         self._slider_list = {"Global" : {}, "Local" : {}}
         self._global_var = []
         self._connectors_seen = {}
-        self._local_appended = []
-        self._connectors_to_add = {}
-        self._global_tracker = {}
-        self._glob_connect_req = {}
         self._global_connectors = {}
+        self._global_tracker = {}
+
         self._param_box.clear()
-        for i in reversed(range(self._exp_box.count())): 
+
+        # remove any remaining widgets in layout
+        for i in range(self._exp_box.count()): 
             self._exp_box.itemAt(i).widget().deleteLater()
 
