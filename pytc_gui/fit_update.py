@@ -1,6 +1,6 @@
-from qtpy.QtGui import *
-from qtpy.QtCore import *
-from qtpy.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -9,6 +9,7 @@ import seaborn
 from io import StringIO
 
 from .exp_frames import LocalBox, GlobalBox, ConnectorsBox
+from .threading import AddExpWorker
 import pytc
 
 class PlotBox(QWidget):
@@ -111,14 +112,14 @@ class ParamTable(QTableWidget):
         self._col_name = []
         self._data = []
 
-
 class AllExp(QWidget):
     """
     experiment box widget
     """
 
     def __init__(self, parent):
-
+        """
+        """
         super().__init__()
 
         self._fitter = parent._fitter
@@ -161,30 +162,31 @@ class AllExp(QWidget):
         self._experiments = self._fitter.experiments
 
         if len(self._experiments) != 0:
-            # create local holder if doesn't exist
-            for e in self._experiments:
-                if e in self._slider_list["Local"]:
-                    continue
+            # create worker and thread
+            self.thread = QThread()
+            self.exp_worker = AddExpWorker(self)
 
-                self._slider_list["Local"][e] = []
-                self._connectors_seen[e] = []
+            # connect signals and move worker to thread
+            self.exp_worker.loc_signal.connect(self.finished_running)
+            self.exp_worker.moveToThread(self.thread)
 
-                file_name = e.dh_file
-                exp_name = file_name.split("/")[-1]
+            # connect signals to thread
+            self.exp_worker.finished.connect(self.thread.quit)
+            self.thread.started.connect(self.exp_worker.loop_creation)
+            self.thread.started.connect(self.exp_worker.set_attr)
 
-                exp = LocalBox(e, exp_name, self)
-                self._exp_box.addWidget(exp)
+            # start!
+            self.thread.start()
 
             # check for instances of LocalBox and set attributes
-            for loc_obj in self._exp_box.parentWidget().findChildren(LocalBox):
-                loc_obj.set_attr()
-
+            #for loc_obj in self._exp_box.parentWidget().findChildren(LocalBox):
+            #    loc_obj.set_attr()
             try:
                 self._fitter.fit()
 
                 # for main experiment widgets in layout, set each to fit = True
-                for exp_obj in range(self._exp_box.count()): 
-                    self._exp_box.itemAt(exp_obj).widget().set_fit_true()
+                #for exp_obj in range(self._exp_box.count()): 
+                #    self._exp_box.itemAt(exp_obj).widget().set_fit_true()
 
                 self._param_box.update()
             except:
@@ -193,6 +195,13 @@ class AllExp(QWidget):
         else:
             print("no experiments loaded in fitter")
             self._param_box.clear()
+
+    def finished_running(self, loc_exp):
+        """
+        connect to slot in thread for creating loc_exp objects
+        """
+        exp = LocalBox(*loc_exp, self)
+        self._exp_box.addWidget(exp)
 
     def clear(self):
         """

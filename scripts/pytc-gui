@@ -2,7 +2,7 @@
 
 from pytc_gui import Main
 import sys
-from qtpy.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication
 
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)

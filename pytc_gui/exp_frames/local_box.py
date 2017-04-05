@@ -1,6 +1,6 @@
-from qtpy.QtGui import *
-from qtpy.QtCore import *
-from qtpy.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
 
 import pytc
 import inspect
@@ -16,7 +16,6 @@ class LocalBox(Experiments):
     def __init__(self, exp, name, parent):
 
         self._exp = exp
-        #self._local_appended = parent._local_appended
         self._required_fields = {}
         self._experiments = parent._experiments
         self._exp_box = parent._exp_box
@@ -27,8 +26,6 @@ class LocalBox(Experiments):
         """
         create sliders for experiment
         """
-        #self._local_appended.append(self)
-
         parameters = self._exp.param_values
 
         for p, v in parameters.items():

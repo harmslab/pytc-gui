@@ -3,9 +3,9 @@ pytc GUI using qtpy bindings
 """
 from pytc.global_fit import GlobalFit
 
-from qtpy.QtGui import *
-from qtpy.QtCore import *
-from qtpy.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
 
 from .exp_setup import AddExperimentWindow
 from .fit_update import AllExp, PlotBox
