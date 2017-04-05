@@ -9,7 +9,6 @@ import seaborn
 from io import StringIO
 
 from .exp_frames import LocalBox, GlobalBox, ConnectorsBox
-from .threading import AddExpWorker
 import pytc
 
 class PlotBox(QWidget):
@@ -162,31 +161,30 @@ class AllExp(QWidget):
         self._experiments = self._fitter.experiments
 
         if len(self._experiments) != 0:
-            # create worker and thread
-            self.thread = QThread()
-            self.exp_worker = AddExpWorker(self)
+            # create local holder if doesn't exist
+            for e in self._experiments:
+                if e in self._slider_list["Local"]:
+                    continue
 
-            # connect signals and move worker to thread
-            self.exp_worker.loc_signal.connect(self.finished_running)
-            self.exp_worker.moveToThread(self.thread)
+                self._slider_list["Local"][e] = []
+                self._connectors_seen[e] = []
 
-            # connect signals to thread
-            self.exp_worker.finished.connect(self.thread.quit)
-            self.thread.started.connect(self.exp_worker.loop_creation)
-            self.thread.started.connect(self.exp_worker.set_attr)
+                file_name = e.dh_file
+                exp_name = file_name.split("/")[-1]
 
-            # start!
-            self.thread.start()
+                exp = LocalBox(e, exp_name, self)
+                self._exp_box.addWidget(exp)
 
             # check for instances of LocalBox and set attributes
-            #for loc_obj in self._exp_box.parentWidget().findChildren(LocalBox):
-            #    loc_obj.set_attr()
+            for loc_obj in self._exp_box.parentWidget().findChildren(LocalBox):
+                loc_obj.set_attr()
+
             try:
                 self._fitter.fit()
 
                 # for main experiment widgets in layout, set each to fit = True
-                #for exp_obj in range(self._exp_box.count()): 
-                #    self._exp_box.itemAt(exp_obj).widget().set_fit_true()
+                for exp_obj in range(self._exp_box.count()): 
+                    self._exp_box.itemAt(exp_obj).widget().set_fit_true()
 
                 self._param_box.update()
             except:
