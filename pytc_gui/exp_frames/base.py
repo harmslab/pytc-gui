@@ -25,6 +25,7 @@ class Experiments(QWidget):
         self._main_box = parent
 
         self.layout()
+
     @property
     def name(self):
         """
@@ -69,6 +70,8 @@ class Experiments(QWidget):
         self._main_layout.addWidget(self._divider)
 
         self.exp_widgets()
+
+        self.setFixedHeight(100)
 
     def exp_widgets(self):
         """

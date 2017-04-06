@@ -7,7 +7,7 @@ import inspect
 
 from .. import sliders
 
-class SliderPopUp(QWidget):
+class SliderPopUp(QDialog):
     """
     pop-up window for slider widgets
     """
@@ -21,7 +21,7 @@ class SliderPopUp(QWidget):
         self._exp = parent._exp
         self._fitter = parent._fitter
         self._slider_list = parent._slider_list
-
+        
         self.layout()
 
     def layout(self):

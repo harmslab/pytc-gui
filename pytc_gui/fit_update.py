@@ -182,7 +182,7 @@ class AllExp(QWidget):
                 loc_obj.set_attr()
 
             try:
-                # after doing fit, emit signal to sliders and update paramter table
+                # after doing fit, emit signal to sliders and update parameter table
                 self._fitter.fit()
                 self.fit_signal.emit()
                 self._param_box.update()

@@ -33,7 +33,6 @@ class GlobalBox(Experiments):
         hide and show slider window
         """
         self._slider_window = slider_popup.GlobalPopUp(self)
-        self._slider_window.resize(500, 100)
         self._slider_window.show()
 
     def linked(self, loc_slider):

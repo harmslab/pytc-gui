@@ -3,7 +3,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
 import pytc
-import inspect
+import inspect, math
 
 class Sliders(QWidget):
     """
@@ -33,7 +33,6 @@ class Sliders(QWidget):
         """
         return self._param_name
 
-
     def layout(self):
         """
         """
@@ -52,6 +51,7 @@ class Sliders(QWidget):
         self._slider = QSlider(Qt.Horizontal)
         self._slider.sliderReleased.connect(self.update_val)
         self._main_layout.addWidget(self._slider, 1, 1)
+        self._slider.setMinimumWidth(100)
 
         self._param_guess_label = QLabel("", self)
         self._main_layout.addWidget(self._param_guess_label, 1, 2)
@@ -71,7 +71,7 @@ class Sliders(QWidget):
         self._update_min = QLineEdit(self)
         self._main_layout.addWidget(self._update_min, 1, 5)
         self._update_min.returnPressed.connect(self.min_bounds)
-        self._update_min.setFixedWidth(100)
+        self._update_min.setFixedWidth(60)
 
         self._update_max_label = QLabel("max: ", self)
         self._main_layout.addWidget(self._update_max_label, 1, 6)
@@ -79,7 +79,7 @@ class Sliders(QWidget):
         self._update_max = QLineEdit(self)
         self._main_layout.addWidget(self._update_max, 1, 7)
         self._update_max.returnPressed.connect(self.max_bounds)
-        self._update_max.setFixedWidth(100)
+        self._update_max.setFixedWidth(60)
 
         self._main_box.fit_signal.connect(self.set_fit_true)
 
@@ -140,7 +140,8 @@ class Sliders(QWidget):
         elif self._range_diff < 100000:
             value *= 100
         elif self._range_diff < 100000000:
-            value *= 100000
+            value = 10 ** value
+            #value *= 100000
 
         print(value)
 
@@ -177,17 +178,17 @@ class Sliders(QWidget):
             elif self._range_diff < 100000:
                 self._slider_min /= 100
             elif self._range_diff < 100000000:
-                self._slider_min /= 100000
+                self._slider_min = math.log10(self._min)
 
-
-            if self._slider_min > 0:
+            if isinstance(self._slider_min, int):
                 self._slider.setMinimum(self._slider_min)
+                print("slider min: ", self._slider_min)
                 self.update()
             else:
                 print("please enter new value! range is too small")
 
-            print("slider minimum: ", self._slider.minimum())
-            print("true minimum: ", self._min)
+            #print("slider minimum: ", self._slider.minimum())
+            #print("true minimum: ", self._min)
         except:
             print('invalid value')
 

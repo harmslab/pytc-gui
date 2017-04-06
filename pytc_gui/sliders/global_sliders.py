@@ -3,7 +3,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
 import pytc
-import inspect
+import inspect, math
 
 from .base import Sliders
 
@@ -40,8 +40,8 @@ class GlobalSliders(Sliders):
             min_range /= 100
             max_range /= 100
         elif self._range_diff < 100000000.0:
-            min_range /= 100000
-            max_range /= 100000
+            min_range = math.log10(self._min)
+            max_range = math.log10(self._max)
 
     def update_bounds(self):
         """
