@@ -117,7 +117,6 @@ class AllExp(QWidget):
     """
 
     fit_signal = pyqtSignal()
-    #attr_signal = pyqtSignal()
 
     def __init__(self, parent):
         """
@@ -178,14 +177,13 @@ class AllExp(QWidget):
                 exp = LocalBox(e, exp_name, self)
                 self._exp_box.addWidget(exp)
 
-            # check for instances of LocalBox and set attributes
+            # check for instances of LocalBox and set any attributes
             for loc_obj in self._exp_box.parentWidget().findChildren(LocalBox):
                 loc_obj.set_attr()
 
             try:
+                # after doing fit, emit signal to sliders and update paramter table
                 self._fitter.fit()
-
-                # emit signal to sliders that fit has been done
                 self.fit_signal.emit()
                 self._param_box.update()
             except:

@@ -31,15 +31,15 @@ class GlobalSliders(Sliders):
 
         # transform values based on parameter to allow floats to pass to fitter and 
         # make sliders easier to use, QtSlider only allows integers
-        diff = self._max - self._min
+        self._range_diff = self._max - self._min
 
-        if diff < 10:
+        if self._range_diff < 10:
             min_range *= 10
             max_range *= 10
-        elif diff < 100000:
+        elif self._range_diff < 100000:
             min_range /= 100
             max_range /= 100
-        elif diff < 100000000.0:
+        elif self._range_diff < 100000000.0:
             min_range /= 100000
             max_range /= 100000
 

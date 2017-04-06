@@ -13,6 +13,7 @@ class LocalBox(Experiments):
     """
     hold local parameters/sliders
     """
+
     def __init__(self, exp, name, parent):
 
         self._exp = exp
