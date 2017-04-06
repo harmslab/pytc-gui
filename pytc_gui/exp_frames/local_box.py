@@ -64,6 +64,7 @@ class LocalBox(Experiments):
                 else:
                     print("already there")
 
+    @pyqtSlot()
     def set_attr(self):
         """
         update data from global connector fields
@@ -75,14 +76,6 @@ class LocalBox(Experiments):
                 val = v.text()
 
             setattr(self._exp, n, val)
-
-    def set_fit_true(self):
-        """
-        """
-        sliders = self._slider_list["Local"][self._exp]
-
-        for s in sliders:
-            s._fit_run = True
 
     def remove(self):
         """

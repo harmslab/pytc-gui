@@ -10,8 +10,6 @@ class Experiments(QWidget):
     Experiment box widget
     """
 
-    #fit_signal = 
-
     def __init__(self, name, parent):
 
         super().__init__()
@@ -24,6 +22,7 @@ class Experiments(QWidget):
         self._connectors_seen = parent._connectors_seen
         self._global_connectors = parent._global_connectors
         self._plot_frame = parent._plot_frame
+        self._main_box = parent
 
         self.layout()
     @property

@@ -116,6 +116,9 @@ class AllExp(QWidget):
     experiment box widget
     """
 
+    fit_signal = pyqtSignal()
+    #attr_signal = pyqtSignal()
+
     def __init__(self, parent):
         """
         """
@@ -182,10 +185,8 @@ class AllExp(QWidget):
             try:
                 self._fitter.fit()
 
-                # for main experiment widgets in layout, set each to fit = True
-                for exp_obj in range(self._exp_box.count()): 
-                    self._exp_box.itemAt(exp_obj).widget().set_fit_true()
-
+                # emit signal to sliders that fit has been done
+                self.fit_signal.emit()
                 self._param_box.update()
             except:
                 fit_status = self._fitter.fit_status
@@ -193,13 +194,6 @@ class AllExp(QWidget):
         else:
             print("no experiments loaded in fitter")
             self._param_box.clear()
-
-    def finished_running(self, loc_exp):
-        """
-        connect to slot in thread for creating loc_exp objects
-        """
-        exp = LocalBox(*loc_exp, self)
-        self._exp_box.addWidget(exp)
 
     def clear(self):
         """

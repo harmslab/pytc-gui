@@ -17,6 +17,7 @@ class Sliders(QWidget):
         self._param_name = param_name
         self._fitter = parent._fitter
         self._fit_run = False
+        self._main_box = parent._main_box
         self._plot_frame = parent._plot_frame
 
         self.layout()
@@ -79,6 +80,13 @@ class Sliders(QWidget):
         #self._main_layout.addWidget(self._update_max, 1, 7)
         #self._update_max.textChanged[str].connect(self.max_bounds)
         #self._update_max.setFixedWidth(100)
+
+        self._main_box.fit_signal.connect(self.set_fit_true)
+
+    @pyqtSlot()
+    def set_fit_true(self):
+
+        self._fit_run = True
 
     def check_if_fit(self):
         """
