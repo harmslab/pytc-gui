@@ -7,18 +7,18 @@ Setting Up
 
 Single-Site Model
 -----------------
-.. image:: screenshot.png
+.. image:: /screenshots/general/01.png
 
 Connecting to Global Variables
 ==============================
 
 Simple Global
 -------------
-.. image:: screenshot.png
+.. image:: /screenshots/general/02.png
 
 Connectors
 ----------
-.. image:: screenshot.png
+.. image:: /screenshots/general/03.png
 
 
 
