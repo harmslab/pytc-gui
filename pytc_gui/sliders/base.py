@@ -140,7 +140,7 @@ class Sliders(QWidget):
         elif self._range_diff < 100000:
             value *= 100
         elif self._range_diff < 100000000:
-            value = 10 ** value
+            value = 10 ** (value/10)
             #value *= 100000
 
         print(value)
@@ -154,6 +154,19 @@ class Sliders(QWidget):
 
         self.check_if_fit()
 
+    def transform_forward(self, val):
+        """
+        transform values for use in slider
+        """
+        if self._range_diff < 10:
+            slider = val * 10
+        elif self._range_diff < 100000:
+            slider = val / 100
+        elif self._range_diff < 100000000:
+            slider = math.log10(val)*10
+
+        return slider
+
     def min_bounds(self):
         """
         update the minimum bounds when enter/return key pressed
@@ -161,34 +174,23 @@ class Sliders(QWidget):
         try:
             self._min = int(self._update_min.text())
 
-            #new_diff = self._max - self._min
-            #if new_diff != 0:
-            #    self._range_diff = new_diff
-
             # make sure K min bound isn't negative
             if "K" in self._param_name and self._min < 0:
                 self._min = 1
                 print("K cannot be negative", self._min)
 
-            self._slider_min = self._min
+            # set new range
+            self._range_diff = self._max - self._min
 
-            # transform values 
-            if self._range_diff < 10:
-                self._slider_min *= 10
-            elif self._range_diff < 100000:
-                self._slider_min /= 100
-            elif self._range_diff < 100000000:
-                self._slider_min = math.log10(self._min)
+            # if range has significantly changed, update value transformations
+            self._slider_max = self.transform_forward(self._max)
+            self._slider_min = self.transform_forward(self._min)
 
-            if isinstance(self._slider_min, int):
-                self._slider.setMinimum(self._slider_min)
-                print("slider min: ", self._slider_min)
-                self.update()
-            else:
-                print("please enter new value! range is too small")
+            # set slider min
+            self._slider.setMinimum(self._slider_min)
+            self.update_bounds()
 
-            #print("slider minimum: ", self._slider.minimum())
-            #print("true minimum: ", self._min)
+            print("min bound updated: " + value)
         except:
             print('invalid value')
 
@@ -198,16 +200,15 @@ class Sliders(QWidget):
         """
         try:
             self._max = int(self._update_max.text())
-            self._slider_max = self._max
 
-            # transform values 
-            if "fx_competent" in self._param_name:
-                self._slider_max *= 10
-            elif "K" in self._param_name:
-                self._slider_max /= 100000
-            else:
-                self._slider_max /= 100
+            # set new range
+            self._range_diff = self._max - self._min
 
+            # if range has significantly changed, update the value transformations
+            self._slider_max = self.transform_forward(self._max)
+            self._slider_min = self.transform_forward(self._min)
+
+            # set slider max
             self._slider.setMaximum(self._slider_max)
             self.update_bounds()
 

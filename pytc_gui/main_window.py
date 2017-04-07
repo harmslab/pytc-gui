@@ -64,28 +64,30 @@ class Main(QMainWindow):
 
         self._fitter = GlobalFit()
 
-        self.menu()
+        self.layout()
 
-    def menu(self):
+    def layout(self):
         """
         make the menu bar
         """
-        menu = self.menuBar()
-        menu.setNativeMenuBar(False)
+        menu = QMenuBar(self)
+        menu.setNativeMenuBar(True)
 
-        file_menu = menu.addMenu("Experiments")
-        testing_commands = menu.addMenu("Testing")
-        fitting_commands = menu.addMenu("Fitting")
+        file_menu = QMenu("File", self)
+        menu.addMenu(file_menu)
+        #testing_commands = menu.addMenu("Testing")
+        fitting_commands = QMenu("Fitting", self)
+        menu.addMenu(fitting_commands)
 
         fit_exp = QAction("Fit Experiments", self)
         fit_exp.setShortcut("Ctrl+F")
         fit_exp.triggered.connect(self.fit_exp)
         fitting_commands.addAction(fit_exp)
 
-        return_exp = QAction("Print Experiments", self)
-        return_exp.setShortcut("Ctrl+P")
-        return_exp.triggered.connect(self.print_exp)
-        testing_commands.addAction(return_exp)
+        #return_exp = QAction("Print Experiments", self)
+        #return_exp.setShortcut("Ctrl+P")
+        #return_exp.triggered.connect(self.print_exp)
+        #testing_commands.addAction(return_exp)
 
         #return_fitter = QAction("Print Fitter", self)
         #return_fitter.setShortcut("Ctrl+P")

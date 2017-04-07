@@ -144,6 +144,7 @@ class AllExp(QWidget):
         self._exp_box = QVBoxLayout(self._exp_content)
         self._scroll.setWidget(self._exp_content)
         self._scroll.setWidgetResizable(True)
+        self._exp_box.setAlignment(Qt.AlignTop)
 
         # paramater table
         self._param_box = ParamTable(self._fitter)
