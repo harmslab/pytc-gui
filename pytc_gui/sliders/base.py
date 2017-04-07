@@ -140,8 +140,7 @@ class Sliders(QWidget):
         elif self._range_diff < 100000:
             value *= 100
         elif self._range_diff < 100000000:
-            value = 10 ** (value/10)
-            #value *= 100000
+            value = 10 ** value
 
         print(value)
 
@@ -163,7 +162,7 @@ class Sliders(QWidget):
         elif self._range_diff < 100000:
             slider = val / 100
         elif self._range_diff < 100000000:
-            slider = math.log10(val)*10
+            slider = math.log10(val)
 
         return slider
 

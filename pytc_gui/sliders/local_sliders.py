@@ -51,8 +51,8 @@ class LocalSliders(Sliders):
             min_range /= 100
             max_range /= 100
         elif self._range_diff < 100000000.0:
-            min_range = math.log10(self._min)*10
-            max_range = math.log10(self._max)*10
+            min_range = math.log10(self._min)
+            max_range = math.log10(self._max)
 
         self._slider.setMinimum(min_range)
         self._slider.setMaximum(max_range)
