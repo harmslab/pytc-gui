@@ -1,13 +1,13 @@
-from qtpy.QtGui import *
-from qtpy.QtCore import *
-from qtpy.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
 
 import pytc
 import inspect
 
 from .. import sliders
 
-class SliderPopUp(QWidget):
+class SliderPopUp(QDialog):
     """
     pop-up window for slider widgets
     """
@@ -21,7 +21,7 @@ class SliderPopUp(QWidget):
         self._exp = parent._exp
         self._fitter = parent._fitter
         self._slider_list = parent._slider_list
-
+        
         self.layout()
 
     def layout(self):

@@ -1,11 +1,9 @@
-from qtpy.QtGui import *
-from qtpy.QtCore import *
-from qtpy.QtWidgets import *
-
-from math import log10
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
 
 import pytc
-import inspect
+import inspect, math
 
 from .add_global_connector import AddGlobalConnectorWindow
 from .base import Sliders
@@ -22,11 +20,8 @@ class LocalSliders(Sliders):
         self._global_var = parent._global_var
         self._slider_list = parent._slider_list
         self._connectors_seen = parent._connectors_seen
-        self._glob_connect_req = parent._glob_connect_req
-        self._local_appended = parent._local_appended
-        self._connectors_to_add = parent._connectors_to_add
-        self._global_tracker = parent._global_tracker
         self._global_connectors = parent._global_connectors
+        self._global_tracker = parent._global_tracker
         self._exp_box = parent._exp_box
         self._if_connected = None
 
@@ -38,22 +33,26 @@ class LocalSliders(Sliders):
         """
         exp_range = self._exp.model.param_guess_ranges[self._param_name]
 
-        min_range = 0
-        max_range = 0
+        min_range = exp_range[0]
+        max_range = exp_range[1]
+
+        self._min = min_range
+        self._max = max_range
 
         # transform values based on parameter to allow floats to pass to fitter and 
         # make sliders easier to use, QtSlider only allows integers
-        diff = exp_range[1] - exp_range[0]
+        self._range_diff = self._max - self._min
+        print(self._range_diff)
 
-        if diff < 10:
-            min_range = exp_range[0]*10
-            max_range = exp_range[1]*10
-        elif diff < 100000:
-            min_range = exp_range[0]/100
-            max_range = exp_range[1]/100
-        elif diff < 100000000.0:
-            min_range = exp_range[0]/100000
-            max_range = exp_range[1]/100000
+        if self._range_diff < 10:
+            min_range *= 10
+            max_range *= 10
+        elif self._range_diff < 100000:
+            min_range /= 100
+            max_range /= 100
+        elif self._range_diff < 100000000.0:
+            min_range = math.log10(self._min)
+            max_range = math.log10(self._max)
 
         self._slider.setMinimum(min_range)
         self._slider.setMaximum(max_range)
@@ -70,7 +69,6 @@ class LocalSliders(Sliders):
             else: 
                 for p, v in i.local_methods.items():
                     self._link.addItem(p)
-
 
         self._link.activated[str].connect(self.link_unlink)
         self._main_layout.addWidget(self._link, 1, 3)
@@ -104,8 +102,7 @@ class LocalSliders(Sliders):
         
                 self._global_var.append(connector)
                 for v in var_names:
-                    self._glob_connect_req[v] = connector.local_methods[v]
-                    self._global_connectors[v] = connector
+                    self._global_connectors[v] = [connector.local_methods[v], connector]
 
                 # Append connector methods to dropbdown lists
                 for p, v in connector.local_methods.items():
@@ -116,7 +113,7 @@ class LocalSliders(Sliders):
             self.diag = AddGlobalConnectorWindow(connector_handler)
             self.diag.show()
 
-        elif status not in self._glob_connect_req:
+        elif status not in self._global_connectors:
             # connect to a simple global variable
             self._fitter.link_to_global(self._exp, self._param_name, status)
             self._slider.hide()
@@ -126,6 +123,7 @@ class LocalSliders(Sliders):
             self._update_max_label.hide()
             self._update_max.hide()
 
+            # set current connected name
             self._if_connected = status
 
             # add global exp to experiments widget
@@ -137,7 +135,6 @@ class LocalSliders(Sliders):
                 self._exp_box.addWidget(global_e)
 
             self._global_tracker[status].linked(self)
-
         else:
             # connect to global connector
             self._slider.hide()
@@ -147,11 +144,10 @@ class LocalSliders(Sliders):
             self._update_max_label.hide()
             self._update_max.hide()
 
-            curr_connector = self._global_connectors[status]
+            curr_connector = self._global_connectors[status][1]
             name = curr_connector.name
             self._connectors_seen[self._exp].append(curr_connector)
-            self._connectors_to_add[curr_connector.name] = curr_connector
-            self._fitter.link_to_global(self._exp, self._param_name, self._glob_connect_req[status])
+            self._fitter.link_to_global(self._exp, self._param_name, self._global_connectors[status][0])
 
             # add connector to experiments widget
             if name not in self._slider_list["Global"]:
@@ -163,10 +159,13 @@ class LocalSliders(Sliders):
                 self._global_tracker[name] = connector_e
 
             self._global_tracker[name].linked(self)
+
+            # set current connected name
             self._if_connected = name
 
-            for e in self._local_appended:
-                e.update_req()
+            # check for instances of LocalBox and update
+            for loc_obj in self._exp_box.parentWidget().findChildren(exp_frames.LocalBox):
+                loc_obj.update_req()
 
     def update_global(self, value):
         """

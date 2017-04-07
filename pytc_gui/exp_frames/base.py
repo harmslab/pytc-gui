@@ -1,6 +1,6 @@
-from qtpy.QtGui import *
-from qtpy.QtCore import *
-from qtpy.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
 
 import pytc
 import inspect
@@ -20,11 +20,17 @@ class Experiments(QWidget):
         self._global_var = parent._global_var
         self._global_tracker = parent._global_tracker
         self._connectors_seen = parent._connectors_seen
-        self._glob_connect_req = parent._glob_connect_req
         self._global_connectors = parent._global_connectors
         self._plot_frame = parent._plot_frame
+        self._main_box = parent
 
         self.layout()
+
+    @property
+    def name(self):
+        """
+        """
+        return self._name
 
     def layout(self):
         """
@@ -64,6 +70,8 @@ class Experiments(QWidget):
         self._main_layout.addWidget(self._divider)
 
         self.exp_widgets()
+
+        self.setFixedHeight(100)
 
     def exp_widgets(self):
         """

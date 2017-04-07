@@ -1,6 +1,6 @@
-from qtpy.QtGui import *
-from qtpy.QtCore import *
-from qtpy.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
 
 import pytc
 import inspect
@@ -13,13 +13,12 @@ class LocalBox(Experiments):
     """
     hold local parameters/sliders
     """
+
     def __init__(self, exp, name, parent):
 
         self._exp = exp
-        self._local_appended = parent._local_appended
         self._required_fields = {}
         self._experiments = parent._experiments
-        self._connectors_to_add = parent._connectors_to_add
         self._exp_box = parent._exp_box
 
         super().__init__(name, parent)
@@ -28,8 +27,6 @@ class LocalBox(Experiments):
         """
         create sliders for experiment
         """
-        self._local_appended.append(self)
-
         parameters = self._exp.param_values
 
         for p, v in parameters.items():
@@ -41,7 +38,6 @@ class LocalBox(Experiments):
         hide and show slider window
         """
         self._slider_window = slider_popup.LocalPopUp(self)
-        self._slider_window.setGeometry(450, 200, 700, 300)
         self._slider_window.show()
                 
     def update_req(self):
@@ -68,6 +64,7 @@ class LocalBox(Experiments):
                 else:
                     print("already there")
 
+    @pyqtSlot()
     def set_attr(self):
         """
         update data from global connector fields
@@ -80,18 +77,9 @@ class LocalBox(Experiments):
 
             setattr(self._exp, n, val)
 
-    def set_fit_true(self):
-        """
-        """
-        sliders = self._slider_list["Local"][self._exp]
-
-        for s in sliders:
-            s._fit_run = True
-
     def remove(self):
         """
         """
         self._fitter.remove_experiment(self._exp)
         self._slider_list["Local"].pop(self._exp, None)
-        self._local_appended.remove(self)
         self.close()

@@ -1,12 +1,12 @@
 import pytc
-from qtpy.QtGui import *
-from qtpy.QtCore import *
-from qtpy.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
 
 import inspect
 import re
 
-class AddExperimentWindow(QWidget):
+class AddExperimentWindow(QDialog):
     """
     add experiment pop-up box
     """
@@ -30,12 +30,8 @@ class AddExperimentWindow(QWidget):
         """
         """
         # exp text, model dropdown, shots select
-        main_layout = QGridLayout(self)
-
-        new_widgets = QFrame()
-        self._new_w_layout = QGridLayout()
-        new_widgets.setLayout(self._new_w_layout)
-        new_widgets.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        main_layout = QVBoxLayout(self)
+        self._form_layout = QFormLayout()
 
         self._gen_widgets = {}
 
@@ -53,8 +49,6 @@ class AddExperimentWindow(QWidget):
         load_exp.clicked.connect(self.add_file)
 
         self._exp_label = QLabel("...", self)
-        model_label = QLabel("Select Model: ", self)
-        shot_label = QLabel("Shot Start: ", self)
 
         shot_start_text = QLineEdit(self)
         shot_start_text.setText("0")
@@ -63,16 +57,14 @@ class AddExperimentWindow(QWidget):
         gen_exp = QPushButton("OK", self)
         gen_exp.clicked.connect(self.generate)
 
+        self._form_layout.addRow(load_exp, self._exp_label)
+        self._form_layout.addRow(QLabel("Select Model:"), model_select)
+        self._form_layout.addRow(QLabel("Shot Start:"), shot_start_text)
+
         self.update_widgets()
 
-        main_layout.addWidget(load_exp, 0, 0)
-        main_layout.addWidget(self._exp_label, 0, 1)
-        main_layout.addWidget(model_label, 1, 0)
-        main_layout.addWidget(model_select, 1, 1)
-        main_layout.addWidget(shot_label, 2, 0)
-        main_layout.addWidget(shot_start_text, 2, 1)
-        main_layout.addWidget(new_widgets, 3, 0, 1, 2)
-        main_layout.addWidget(gen_exp, 4, 1)
+        main_layout.addLayout(self._form_layout)
+        main_layout.addWidget(gen_exp)
 
         self.setWindowTitle('Add Experiment to Fitter')
 
@@ -80,10 +72,14 @@ class AddExperimentWindow(QWidget):
         """
         """
         # check for any model specific parameters and update text fields with those values
-        self._gen_widgets = {}
+        for l in self._gen_widgets.values():
+            widget_labeled = self._form_layout.labelForField(l)
+            if widget_labeled is not None:
+                widget_labeled.deleteLater()
+            l.deleteLater()
 
-        for i in reversed(range(self._new_w_layout.count())): 
-            self._new_w_layout.itemAt(i).widget().deleteLater()
+        self.adjustSize()
+        self._gen_widgets = {}
 
         parent_req = pytc.indiv_models.ITCModel()
 
@@ -99,16 +95,11 @@ class AddExperimentWindow(QWidget):
             self._gen_widgets[i].setText(str(args[i]))
 
         # add widgets to the pop-up box
-        position = 0
-
         for name, entry in self._gen_widgets.items():
             label_name = str(name).replace("_", " ") + ": "
             label = QLabel(label_name.title(), self)
 
-            self._new_w_layout.addWidget(label, position, 0)
-            self._new_w_layout.addWidget(entry, position, 1)
-
-            position += 1
+            self._form_layout.addRow(label, entry)
 
     def model_select(self, model):
         """

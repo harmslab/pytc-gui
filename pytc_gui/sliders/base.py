@@ -1,11 +1,9 @@
-from qtpy.QtGui import *
-from qtpy.QtCore import *
-from qtpy.QtWidgets import *
-
-from math import pow
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
 
 import pytc
-import inspect
+import inspect, math
 
 class Sliders(QWidget):
     """
@@ -19,6 +17,7 @@ class Sliders(QWidget):
         self._param_name = param_name
         self._fitter = parent._fitter
         self._fit_run = False
+        self._main_box = parent._main_box
         self._plot_frame = parent._plot_frame
 
         self.layout()
@@ -33,7 +32,6 @@ class Sliders(QWidget):
         """
         """
         return self._param_name
-
 
     def layout(self):
         """
@@ -53,36 +51,43 @@ class Sliders(QWidget):
         self._slider = QSlider(Qt.Horizontal)
         self._slider.sliderReleased.connect(self.update_val)
         self._main_layout.addWidget(self._slider, 1, 1)
+        self._slider.setMinimumWidth(100)
 
         self._param_guess_label = QLabel("", self)
         self._main_layout.addWidget(self._param_guess_label, 1, 2)
 
         self.bounds()
 
-        self._min = self._slider.minimum()
-        self._max = self._slider.maximum()
-
         self._fix_int = QLineEdit(self)
         self._main_layout.addWidget(self._fix_int, 1, 3)
         self._fix_int.setText(str(1))
-        self._fix_int.textChanged[str].connect(self.fix)
+        self._fix_int.returnPressed.connect(self.fix)
         self._fix_int.hide()
 
+        # need to fix
         self._update_min_label = QLabel("min: ", self)
         self._main_layout.addWidget(self._update_min_label, 1, 4)
 
         self._update_min = QLineEdit(self)
         self._main_layout.addWidget(self._update_min, 1, 5)
-        self._update_min.textChanged[str].connect(self.min_bounds)
-        self._update_min.setFixedWidth(100)
+        self._update_min.returnPressed.connect(self.min_bounds)
+        self._update_min.setFixedWidth(60)
 
         self._update_max_label = QLabel("max: ", self)
         self._main_layout.addWidget(self._update_max_label, 1, 6)
 
         self._update_max = QLineEdit(self)
         self._main_layout.addWidget(self._update_max, 1, 7)
-        self._update_max.textChanged[str].connect(self.max_bounds)
-        self._update_max.setFixedWidth(100)
+        self._update_max.returnPressed.connect(self.max_bounds)
+        self._update_max.setFixedWidth(60)
+
+        self._main_box.fit_signal.connect(self.set_fit_true)
+
+    @pyqtSlot()
+    def set_fit_true(self):
+        """
+        """
+        self._fit_run = True
 
     def check_if_fit(self):
         """
@@ -90,6 +95,7 @@ class Sliders(QWidget):
         """
         if self._fit_run:
             self._fitter.guess_to_value()
+            self._plot_frame.update()
             self._fit_run = False
 
     def fix_layout(self, state):
@@ -102,8 +108,6 @@ class Sliders(QWidget):
             self._slider.hide()
             self._fitter.update_fixed(self._param_name, int(self._fix_int.text()), self._exp)
             self.check_if_fit()
-
-            self._plot_frame.update()
         else:
             #change widget views
             self._fix_int.hide()
@@ -111,15 +115,14 @@ class Sliders(QWidget):
 
             self._fitter.update_fixed(self._param_name, None, self._exp)
 
-    def fix(self, value):
+    def fix(self):
         """
-        update fixed value if changed
+        update fixed value when enter/return key pressed
         """
-        if value:
-            self._fitter.update_fixed(self._param_name, int(value), self._exp)
+        try:
+            self._fitter.update_fixed(self._param_name, int(self._fix_int.text()), self._exp)
             self.check_if_fit()
-            self._plot_frame.update()
-        else:
+        except:
             pass
 
     def update_val(self):
@@ -132,12 +135,12 @@ class Sliders(QWidget):
         self._param_guess_label.setText(str(value))
 
         # transform values back
-        if "fx_competent" in self._param_name:
-            value = value/10
-        elif "K" in self._param_name:
-            value *= 100000
-        else:
+        if self._range_diff < 10:
+            value /= 10
+        elif self._range_diff < 100000:
             value *= 100
+        elif self._range_diff < 100000000:
+            value = 10 ** value
 
         print(value)
 
@@ -149,54 +152,68 @@ class Sliders(QWidget):
             pass
 
         self.check_if_fit()
-        self._plot_frame.update()
 
-    def min_bounds(self, value):
+    def transform_forward(self, val):
         """
-        update the minimum bounds
+        transform values for use in slider
+        """
+        if self._range_diff < 10:
+            slider = val * 10
+        elif self._range_diff < 100000:
+            slider = val / 100
+        elif self._range_diff < 100000000:
+            slider = math.log10(val)
+
+        return slider
+
+    def min_bounds(self):
+        """
+        update the minimum bounds when enter/return key pressed
         """
         try:
-            self._min = int(value)
-            self._slider_min = 0
+            self._min = int(self._update_min.text())
 
-            # transform values 
-            if "fx_competent" in self._param_name:
-                self._slider_min = self._min*10
-            elif "K" in self._param_name:
-                self._slider_min = self._min/100000
-            else:
-                self._slider_min = self._min/100
+            # make sure K min bound isn't negative
+            if "K" in self._param_name and self._min < 0:
+                self._min = 1
+                print("K cannot be negative", self._min)
 
+            # set new range
+            self._range_diff = self._max - self._min
+
+            # if range has significantly changed, update value transformations
+            self._slider_max = self.transform_forward(self._max)
+            self._slider_min = self.transform_forward(self._min)
+
+            # set slider min
             self._slider.setMinimum(self._slider_min)
-            self.update()
+            self.update_bounds()
 
             print("min bound updated: " + value)
         except:
-            pass
+            print('invalid value')
 
-    def max_bounds(self, value):
+    def max_bounds(self):
         """
-        update maximum bounds
+        update maximum bounds when enter/return key pressed
         """
         try:
-            self._max = int(value)
-            self._slider_max = 0
+            self._max = int(self._update_max.text())
 
-            # transform values 
-            if "fx_competent" in self._param_name:
-                self._slider_max = self._max*10
-            elif "K" in self._param_name:
-                self._slider_max = self._max/100000
-            else:
-                self._slider_max = self._max/100
+            # set new range
+            self._range_diff = self._max - self._min
 
+            # if range has significantly changed, update the value transformations
+            self._slider_max = self.transform_forward(self._max)
+            self._slider_min = self.transform_forward(self._min)
+
+            # set slider max
             self._slider.setMaximum(self._slider_max)
             self.update_bounds()
 
             print("max bound updated: " + value)
         except:
             pass
-
 
     def update_bounds(self):
         """

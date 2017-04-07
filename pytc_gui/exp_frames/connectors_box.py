@@ -1,6 +1,6 @@
-from qtpy.QtGui import *
-from qtpy.QtCore import *
-from qtpy.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
 
 import pytc
 import inspect
@@ -40,7 +40,6 @@ class ConnectorsBox(Experiments):
         hide and show slider window
         """
         self._slider_window = slider_popup.ConnectorPopUp(self)
-        self._slider_window.setGeometry(450, 200, 600, 100)
         self._slider_window.show()
 
     def linked(self, loc_slider):
@@ -57,14 +56,6 @@ class ConnectorsBox(Experiments):
         # if nothing linked, delete the glob exp object
         if len(self._linked_list) == 0:
             self.remove()
-
-    def set_fit_true(self):
-        """
-        """
-        sliders = self._slider_list["Global"][self._name]
-
-        for s in sliders:
-            s._fit_run = True
 
     def remove(self):
         """
