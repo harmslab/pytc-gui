@@ -22,11 +22,6 @@ class Sliders(QWidget):
 
         self.layout()
 
-    def bounds(self):
-        """
-        """
-        pass
-
     @property
     def name(self):
         """
@@ -153,18 +148,18 @@ class Sliders(QWidget):
 
         self.check_if_fit()
 
-    def transform_forward(self, val):
+    def transform_init(self, val):
         """
         transform values for use in slider
         """
         if self._range_diff < 10:
-            slider = val * 10
+            new_val = val * 10
         elif self._range_diff < 100000:
-            slider = val / 100
+            new_val = val / 100
         elif self._range_diff < 100000000:
-            slider = math.log10(val)
+            new_val = math.log10(val)
 
-        return slider
+        return new_val
 
     def min_bounds(self):
         """
@@ -182,8 +177,8 @@ class Sliders(QWidget):
             self._range_diff = self._max - self._min
 
             # if range has significantly changed, update value transformations
-            self._slider_max = self.transform_forward(self._max)
-            self._slider_min = self.transform_forward(self._min)
+            self._slider_max = self.transform_init(self._max)
+            self._slider_min = self.transform_init(self._min)
 
             # set slider min
             self._slider.setMinimum(self._slider_min)
@@ -204,8 +199,8 @@ class Sliders(QWidget):
             self._range_diff = self._max - self._min
 
             # if range has significantly changed, update the value transformations
-            self._slider_max = self.transform_forward(self._max)
-            self._slider_min = self.transform_forward(self._min)
+            self._slider_max = self.transform_init(self._max)
+            self._slider_min = self.transform_init(self._min)
 
             # set slider max
             self._slider.setMaximum(self._slider_max)
@@ -214,6 +209,20 @@ class Sliders(QWidget):
             print("max bound updated: " + value)
         except:
             pass
+
+    def bounds(self):
+        """
+        for anything specific to child class
+        """
+        # transform values based on parameter to allow floats to pass to fitter and 
+        # make sliders easier to use, QtSlider only allows integers
+        self._range_diff = self._max - self._min
+
+        min_range = self.transform_init(self._min)
+        max_range = self.transform_init(self._max)
+
+        self._slider.setMinimum(min_range)
+        self._slider.setMaximum(max_range)
 
     def update_bounds(self):
         """

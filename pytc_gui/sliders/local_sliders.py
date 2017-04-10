@@ -33,29 +33,10 @@ class LocalSliders(Sliders):
         """
         exp_range = self._exp.model.param_guess_ranges[self._param_name]
 
-        min_range = exp_range[0]
-        max_range = exp_range[1]
+        self._min = exp_range[0]
+        self._max = exp_range[1]
 
-        self._min = min_range
-        self._max = max_range
-
-        # transform values based on parameter to allow floats to pass to fitter and 
-        # make sliders easier to use, QtSlider only allows integers
-        self._range_diff = self._max - self._min
-        print(self._range_diff)
-
-        if self._range_diff < 10:
-            min_range *= 10
-            max_range *= 10
-        elif self._range_diff < 100000:
-            min_range /= 100
-            max_range /= 100
-        elif self._range_diff < 100000000.0:
-            min_range = math.log10(self._min)
-            max_range = math.log10(self._max)
-
-        self._slider.setMinimum(min_range)
-        self._slider.setMaximum(max_range)
+        super().bounds()
 
         self._link = QComboBox(self)
         self._link.addItem("Unlink")
@@ -130,7 +111,7 @@ class LocalSliders(Sliders):
             if status not in self._slider_list["Global"]:
                 # create global exp object and add to layout
                 param_obj = self._fitter.global_param[status]
-                global_e = exp_frames.GlobalBox(status, param_obj, self)
+                global_e = exp_frames.GlobalBox(status, param_obj, self._main_box)
                 self._global_tracker[status] = global_e
                 self._exp_box.addWidget(global_e)
 
@@ -154,7 +135,7 @@ class LocalSliders(Sliders):
                 self._slider_list["Global"][name] = []
 
                 # create a connector holder and add to layout
-                connector_e = exp_frames.ConnectorsBox(name, curr_connector, self)
+                connector_e = exp_frames.ConnectorsBox(name, curr_connector, self._main_box)
                 self._exp_box.addWidget(connector_e)
                 self._global_tracker[name] = connector_e
 

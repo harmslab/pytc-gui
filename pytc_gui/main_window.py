@@ -70,8 +70,8 @@ class Main(QMainWindow):
         """
         make the menu bar
         """
-        menu = QMenuBar(self)
-        menu.setNativeMenuBar(True)
+        menu = self.menuBar()
+        menu.setNativeMenuBar(False)
 
         file_menu = QMenu("File", self)
         menu.addMenu(file_menu)
