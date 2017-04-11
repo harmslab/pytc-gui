@@ -1,1 +1,1 @@
-pip install pytc-gui
+pip3 install pytc-gui

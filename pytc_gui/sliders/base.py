@@ -59,7 +59,6 @@ class Sliders(QWidget):
         self._fix_int.returnPressed.connect(self.fix)
         self._fix_int.hide()
 
-        # need to fix
         self._update_min_label = QLabel("min: ", self)
         self._main_layout.addWidget(self._update_min_label, 1, 4)
 
@@ -76,8 +75,6 @@ class Sliders(QWidget):
         self._update_max.returnPressed.connect(self.max_bounds)
         self._update_max.setFixedWidth(60)
 
-        self._main_box.fit_signal.connect(self.set_fit_true)
-
     @pyqtSlot()
     def set_fit_true(self):
         """
@@ -90,8 +87,9 @@ class Sliders(QWidget):
         """
         if self._fit_run:
             self._fitter.guess_to_value()
-            self._plot_frame.update()
             self._fit_run = False
+
+        self._plot_frame.update()
 
     def fix_layout(self, state):
         """
@@ -101,12 +99,14 @@ class Sliders(QWidget):
             # change widget views
             self._fix_int.show()
             self._slider.hide()
+            self._param_guess_label.hide()
             self._fitter.update_fixed(self._param_name, int(self._fix_int.text()), self._exp)
             self.check_if_fit()
         else:
             #change widget views
             self._fix_int.hide()
             self._slider.show()
+            self._param_guess_label.show()
 
             self._fitter.update_fixed(self._param_name, None, self._exp)
 
@@ -136,8 +136,6 @@ class Sliders(QWidget):
             value *= 100
         elif self._range_diff < 100000000:
             value = 10 ** value
-
-        print(value)
 
         if value != 0:
             # if guess update, update parameter as well for plot

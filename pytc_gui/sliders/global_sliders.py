@@ -28,6 +28,8 @@ class GlobalSliders(Sliders):
 
         super().bounds()
 
+        self._main_box.fit_signal.connect(self.set_fit_true)
+
     def update_bounds(self):
         """
         update min/max bounds and check if range needs to be updated as well

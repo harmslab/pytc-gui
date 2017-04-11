@@ -20,6 +20,7 @@ class LocalBox(Experiments):
         self._required_fields = {}
         self._experiments = parent._experiments
         self._exp_box = parent._exp_box
+        self._main_box = parent
 
         super().__init__(name, parent)
 
@@ -61,10 +62,10 @@ class LocalBox(Experiments):
                     stretch.addStretch(1)
 
                     self._req_layout.addLayout(stretch)
+                    self.setFixedHeight(self.height()+20)
                 else:
                     print("already there")
-
-    @pyqtSlot()
+                    
     def set_attr(self):
         """
         update data from global connector fields

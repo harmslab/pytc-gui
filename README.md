@@ -6,6 +6,6 @@ PyQt5 GUI for pytc API
 
 ## installation files
 
- + windows
- + mac
- + linux
+ + [windows]()
+ + [mac]()
+ + [linux]()

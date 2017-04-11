@@ -73,11 +73,9 @@ class Main(QMainWindow):
         menu = self.menuBar()
         menu.setNativeMenuBar(False)
 
-        file_menu = QMenu("File", self)
-        menu.addMenu(file_menu)
+        file_menu = menu.addMenu("File")
         #testing_commands = menu.addMenu("Testing")
-        fitting_commands = QMenu("Fitting", self)
-        menu.addMenu(fitting_commands)
+        fitting_commands = menu.addMenu("Fitting")
 
         fit_exp = QAction("Fit Experiments", self)
         fit_exp.setShortcut("Ctrl+F")
@@ -134,7 +132,7 @@ class Main(QMainWindow):
         self.setCentralWidget(self._exp)
 
         self.resize(1000, 600)
-        self.move(QApplication.desktop().screen().rect().center()- self.rect().center())
+        self.move(QApplication.desktop().screen().rect().center()-self.rect().center())
         self.setWindowTitle('pytc')
         self.show()
 

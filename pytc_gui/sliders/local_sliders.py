@@ -23,6 +23,7 @@ class LocalSliders(Sliders):
         self._global_connectors = parent._global_connectors
         self._global_tracker = parent._global_tracker
         self._exp_box = parent._exp_box
+        self._main_box = parent._main_box
         self._if_connected = None
 
         super().__init__(param_name, parent)
@@ -53,6 +54,8 @@ class LocalSliders(Sliders):
 
         self._link.activated[str].connect(self.link_unlink)
         self._main_layout.addWidget(self._link, 1, 3)
+
+        self._main_box.fit_signal.connect(self.set_fit_true)
 
     def link_unlink(self, status):
         """
@@ -98,6 +101,7 @@ class LocalSliders(Sliders):
             # connect to a simple global variable
             self._fitter.link_to_global(self._exp, self._param_name, status)
             self._slider.hide()
+            self._param_guess_label.hide()
             self._fix.hide()
             self._update_min_label.hide()
             self._update_min.hide()
@@ -111,7 +115,7 @@ class LocalSliders(Sliders):
             if status not in self._slider_list["Global"]:
                 # create global exp object and add to layout
                 param_obj = self._fitter.global_param[status]
-                global_e = exp_frames.GlobalBox(status, param_obj, self._main_box)
+                global_e = exp_frames.GlobalBox(status, param_obj, self)
                 self._global_tracker[status] = global_e
                 self._exp_box.addWidget(global_e)
 
@@ -119,6 +123,7 @@ class LocalSliders(Sliders):
         else:
             # connect to global connector
             self._slider.hide()
+            self._param_guess_label.hide()
             self._fix.hide()
             self._update_min_label.hide()
             self._update_min.hide()
@@ -135,7 +140,7 @@ class LocalSliders(Sliders):
                 self._slider_list["Global"][name] = []
 
                 # create a connector holder and add to layout
-                connector_e = exp_frames.ConnectorsBox(name, curr_connector, self._main_box)
+                connector_e = exp_frames.ConnectorsBox(name, curr_connector, self)
                 self._exp_box.addWidget(connector_e)
                 self._global_tracker[name] = connector_e
 
@@ -159,6 +164,7 @@ class LocalSliders(Sliders):
         if global exp object deleted, return local slider object to unlinked state
         """
         self._slider.show()
+        self._param_guess_label.show()
         self._fix.show()
         self._update_min_label.show()
         self._update_min.show()
