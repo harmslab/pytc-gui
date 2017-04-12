@@ -85,6 +85,7 @@ Main Interface
    :caption: Contents:
 
    how_to_img.rst
+   videos.rst
    gui_module.rst
 
 Documentation - pytc
