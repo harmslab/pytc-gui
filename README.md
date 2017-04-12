@@ -6,6 +6,8 @@ PyQt5 GUI for pytc API
 
 ## installation files
 
- + [windows]()
- + [mac]()
+select **download** to get the file.
+
+ + [windows](install/install_scripts/pytcreqs-0.1.0-Windows-x86_64.exe)
+ + [mac](install/install_scripts/pytcreqs-0.1.0-MacOSX-x86_64.sh)
  + [linux]()
