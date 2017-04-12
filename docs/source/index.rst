@@ -78,6 +78,7 @@ Main Interface
  + add in new experiments
  + until a fit is performed, plot will show the guesses put in from the slider values
  + saving out the data saves out a .csv with fit data as well as the graph from the fit
+ + adjust each parameter for an experiment using the sliders
 
 .. toctree::
    :maxdepth: 2

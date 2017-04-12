@@ -127,8 +127,6 @@ class Sliders(QWidget):
 
         value = int(self._slider.value())
 
-        self._param_guess_label.setText(str(value))
-
         # transform values back
         if self._range_diff < 10:
             value /= 10
@@ -141,6 +139,7 @@ class Sliders(QWidget):
             # if guess update, update parameter as well for plot
             self._fitter.update_guess(self._param_name, value, self._exp)
             self._fitter.update_value(self._param_name, value, self._exp)
+            self._param_guess_label.setText(str(value))
         else:
             pass
 
