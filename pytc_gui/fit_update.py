@@ -199,13 +199,15 @@ class AllExp(QWidget):
         for clearing the application
         """
         try:
-            # clear any glob/loc experiments in layout and experiments from fitter
-            for glob_obj in self._exp_box.parentWidget().findChildren(GlobalBox):
-                glob_obj.remove()
+            # check for any global/connector vars, remove them first
+            for i in range(self._exp_box.count()): 
+                widget = self._exp_box.itemAt(i).widget()
+                if isinstance(widget, LocalBox):
+                    continue
 
-            for conn_obj in self._exp_box.parentWidget().findChildren(ConnectorsBox):
-                conn_obj.remove()
+                widget.remove()
 
+            # finally, remove local objects
             for loc_obj in self._exp_box.parentWidget().findChildren(LocalBox):
                 loc_obj.remove()
         except:
