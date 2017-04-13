@@ -18,6 +18,7 @@ class ConnectorsBox(Experiments):
         """
         self._connector = connector
         self._linked_list = []
+        self._main_box = parent._main_box
         self._exp = None
 
         super().__init__(name, parent)

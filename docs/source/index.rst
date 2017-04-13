@@ -6,11 +6,11 @@ Dependencies
 ============
 
 * python 3.x
-* qtpy
+* pyqt5
 * pytc
 * seaborn
 
-QtPy is a wrapper that allows the use of PyQt4, PyQt5, or PySide. The GUI was built using **PyQt5**.
+The GUI was built using **PyQt5**.
 
 Installation 
 =============
@@ -27,11 +27,33 @@ run:
   cd pytc-gui
   python3 setup.py install
 
-or
-
+the gui can also be pip installed
 ::
 
-  pip install pytc-gui
+  pip3 install pytc-gui
+
+
+installing PyQt5/sip yourself
+-----------------------------
+**if you frequently use python and have at least 3.5 installed, PyQt5/sip can be installed through pip**
+
+to check which version of python3 you are currently using, run the following on terminal:
+::
+
+  python3 -V
+
+run the following in terminal:
+::
+
+  pip3 install PyQt5
+
+sip will automatically be downloaded with PyQt5.
+
+if you use anaconda to manage your python3 packages, PyQt5 should already be installed. if not, it can
+be installed with the following command:
+::
+
+  conda install pyqt
 
 
 bash or .exe scripts
@@ -45,7 +67,6 @@ Mac/Linux: download the bash file and run the following on terminal and then fol
 
   bash pytcreqs-0.1.0-VERSION.sh 
 
-
 Start-up
 ========
 
@@ -57,6 +78,15 @@ Main Interface
  + add in new experiments
  + until a fit is performed, plot will show the guesses put in from the slider values
  + saving out the data saves out a .csv with fit data as well as the graph from the fit
+ + adjust each parameter for an experiment using the sliders
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   how_to_img.rst
+   videos.rst
+   gui_module.rst
 
 Documentation - pytc
 ====================

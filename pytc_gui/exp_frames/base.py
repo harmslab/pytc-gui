@@ -22,7 +22,6 @@ class Experiments(QWidget):
         self._connectors_seen = parent._connectors_seen
         self._global_connectors = parent._global_connectors
         self._plot_frame = parent._plot_frame
-        self._main_box = parent
 
         self.layout()
 
@@ -71,7 +70,7 @@ class Experiments(QWidget):
 
         self.exp_widgets()
 
-        self.setFixedHeight(100)
+        self.setFixedHeight(110)
 
     def exp_widgets(self):
         """

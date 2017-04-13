@@ -199,9 +199,15 @@ class AllExp(QWidget):
         for clearing the application
         """
         try:
-            # try and clear any remaining experiments in GlobalFit()
+            # clear any glob/loc experiments in layout and experiments from fitter
+            for glob_obj in self._exp_box.parentWidget().findChildren(GlobalBox):
+                glob_obj.remove()
+
+            for conn_obj in self._exp_box.parentWidget().findChildren(ConnectorsBox):
+                conn_obj.remove()
+
             for loc_obj in self._exp_box.parentWidget().findChildren(LocalBox):
-                self._fitter.remove_experiment(loc_obj._exp)
+                loc_obj.remove()
         except:
             pass
 
@@ -213,8 +219,3 @@ class AllExp(QWidget):
         self._global_tracker = {}
 
         self._param_box.clear()
-
-        # remove any remaining widgets in layout
-        for i in range(self._exp_box.count()): 
-            self._exp_box.itemAt(i).widget().deleteLater()
-

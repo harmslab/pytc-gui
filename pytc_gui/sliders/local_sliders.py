@@ -23,6 +23,7 @@ class LocalSliders(Sliders):
         self._global_connectors = parent._global_connectors
         self._global_tracker = parent._global_tracker
         self._exp_box = parent._exp_box
+        self._main_box = parent._main_box
         self._if_connected = None
 
         super().__init__(param_name, parent)
@@ -33,29 +34,10 @@ class LocalSliders(Sliders):
         """
         exp_range = self._exp.model.param_guess_ranges[self._param_name]
 
-        min_range = exp_range[0]
-        max_range = exp_range[1]
+        self._min = exp_range[0]
+        self._max = exp_range[1]
 
-        self._min = min_range
-        self._max = max_range
-
-        # transform values based on parameter to allow floats to pass to fitter and 
-        # make sliders easier to use, QtSlider only allows integers
-        self._range_diff = self._max - self._min
-        print(self._range_diff)
-
-        if self._range_diff < 10:
-            min_range *= 10
-            max_range *= 10
-        elif self._range_diff < 100000:
-            min_range /= 100
-            max_range /= 100
-        elif self._range_diff < 100000000.0:
-            min_range = math.log10(self._min)
-            max_range = math.log10(self._max)
-
-        self._slider.setMinimum(min_range)
-        self._slider.setMaximum(max_range)
+        super().bounds()
 
         self._link = QComboBox(self)
         self._link.addItem("Unlink")
@@ -72,6 +54,8 @@ class LocalSliders(Sliders):
 
         self._link.activated[str].connect(self.link_unlink)
         self._main_layout.addWidget(self._link, 1, 3)
+
+        self._main_box.fit_signal.connect(self.set_fit_true)
 
     def link_unlink(self, status):
         """
@@ -117,6 +101,7 @@ class LocalSliders(Sliders):
             # connect to a simple global variable
             self._fitter.link_to_global(self._exp, self._param_name, status)
             self._slider.hide()
+            self._param_guess_label.hide()
             self._fix.hide()
             self._update_min_label.hide()
             self._update_min.hide()
@@ -138,6 +123,7 @@ class LocalSliders(Sliders):
         else:
             # connect to global connector
             self._slider.hide()
+            self._param_guess_label.hide()
             self._fix.hide()
             self._update_min_label.hide()
             self._update_min.hide()
@@ -178,6 +164,7 @@ class LocalSliders(Sliders):
         if global exp object deleted, return local slider object to unlinked state
         """
         self._slider.show()
+        self._param_guess_label.show()
         self._fix.show()
         self._update_min_label.show()
         self._update_min.show()
