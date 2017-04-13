@@ -74,23 +74,12 @@ class Main(QMainWindow):
         menu.setNativeMenuBar(False)
 
         file_menu = menu.addMenu("File")
-        #testing_commands = menu.addMenu("Testing")
         fitting_commands = menu.addMenu("Fitting")
 
         fit_exp = QAction("Fit Experiments", self)
         fit_exp.setShortcut("Ctrl+F")
         fit_exp.triggered.connect(self.fit_exp)
         fitting_commands.addAction(fit_exp)
-
-        #return_exp = QAction("Print Experiments", self)
-        #return_exp.setShortcut("Ctrl+P")
-        #return_exp.triggered.connect(self.print_exp)
-        #testing_commands.addAction(return_exp)
-
-        #return_fitter = QAction("Print Fitter", self)
-        #return_fitter.setShortcut("Ctrl+P")
-        #return_fitter.triggered.connect(self.print_fitter)
-        #testing_commands.addAction(return_fitter)
 
         new_exp = QAction("New Session", self)
         new_exp.setShortcut("Ctrl+N")
@@ -104,22 +93,10 @@ class Main(QMainWindow):
         add_exp.triggered.connect(self.add_file)
         file_menu.addAction(add_exp)
 
-        file_menu.addSeparator()
-
         save_exp = QAction("Save", self)
         save_exp.setShortcut("Ctrl+S")
         save_exp.triggered.connect(self.save_file)
         file_menu.addAction(save_exp)
-
-        export_exp = QAction("Export", self)
-        export_exp.setShortcut("Ctrl+Shift+S")
-        export_exp.triggered.connect(self.save_fitter)
-        file_menu.addAction(export_exp)
-
-        open_exp = QAction("Open", self)
-        open_exp.setShortcut("Ctrl+O")
-        open_exp.triggered.connect(self.open_fitter)
-        file_menu.addAction(open_exp)
 
         file_menu.addSeparator()
 
@@ -141,29 +118,6 @@ class Main(QMainWindow):
         testing, check pytc experiments loading
         """
         print(self._fitter.experiments, self._fitter.global_param)
-
-    def save_fitter(self):
-        """
-        save a global_fit object
-        """
-        file_name, _ = QFileDialog.getSaveFileName(self, "Save Global Fit", "", "Pickle Files (*.pkl);;")
-        try:
-            pickle.dump(self._fitter.experiments, open(file_name, "wb"))
-        except:
-            print("fit not saved")
-
-    def open_fitter(self):
-        """
-        open a saved global_fit object
-        """
-        file_name, _ = QFileDialog.getOpenFileName(self, "Save Global Fit", "", "Pickle Files (*.pkl);;")
-        try:
-            experiments = pickle.load(open(file_name, "rb"))
-            for e in experiments:
-                self._fitter.add_experiment(e)
-            print(experiments)
-        except:
-            print("fit can't be opened")
 
     def fit_exp(self):
         """
