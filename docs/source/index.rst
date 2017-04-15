@@ -14,8 +14,8 @@ Start-up
 ========
 
 either:
-+ run :code:`pytc-gui` on command line to run the GUI script
 + double-click the icon for the installed program 
++ run :code:`pytc-gui` on command line
 
 Workflow
 ========
