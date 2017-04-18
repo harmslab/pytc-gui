@@ -26,6 +26,8 @@ class GlobalBox(Experiments):
         """
         create slider
         """
+        self._remove_name = "Unlink From All"
+        
         s = sliders.GlobalSliders(self._name, self)
         self._slider_list["Global"][self._name] = s
 

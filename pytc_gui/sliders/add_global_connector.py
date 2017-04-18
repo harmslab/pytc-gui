@@ -205,7 +205,7 @@ class AddGlobalConnectorWindow(QDialog):
         var_name = self._parameter_name_box.currentText()
 
         # Pass data back
-        self._end_function(self._selected_connector,self._param_names)
+        self._end_function(self._selected_connector,self._param_names,var_name)
 
         self.close()
     

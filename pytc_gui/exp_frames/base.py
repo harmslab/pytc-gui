@@ -45,7 +45,10 @@ class Experiments(QWidget):
         self._show_options_button.clicked.connect(self.slider_popup)
 
         # Button to remove experiment
-        self._remove_button = QPushButton("Remove", self)
+        self._remove_name = "Remove"
+        self.exp_widgets()
+        
+        self._remove_button = QPushButton(self._remove_name, self)
         self._remove_button.clicked.connect(self.remove)
 
         # add exp name, remove and show sliders buttons to layout
@@ -67,8 +70,6 @@ class Experiments(QWidget):
         self._divider = QFrame()
         self._divider.setFrameShape(QFrame.HLine)
         self._main_layout.addWidget(self._divider)
-
-        self.exp_widgets()
 
         self.setFixedHeight(110)
 

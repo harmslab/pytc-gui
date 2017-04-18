@@ -27,14 +27,14 @@ class ConnectorsBox(Experiments):
         """
         create slider
         """
+        self._remove_name = "Unlink From All"
+        
         # see if global variable is a connector or simple var
         param = self._connector.params
 
         for p, v in param.items():
             s = sliders.GlobalSliders(p, self)
             self._slider_list["Global"][self._name].append(s)
-
-        print(self._linked_list)
 
     def slider_popup(self):
         """
