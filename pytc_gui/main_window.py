@@ -1,5 +1,5 @@
 """
-pytc GUI using qtpy bindings
+pytc GUI using PyQt5
 """
 from pytc.global_fit import GlobalFit
 
@@ -102,6 +102,13 @@ class Main(QMainWindow):
         close_window.setShortcut("Ctrl+W")
         close_window.triggered.connect(self.close_program)
         file_menu.addAction(close_window)
+
+        # add shortcut actions to main window, for qt5 bug
+        self.addAction(add_exp)
+        self.addAction(fit_exp)
+        self.addAction(save_exp)
+        self.addAction(new_exp)
+        self.addAction(close_window)
 
         self._exp = Splitter(self)
         self.setCentralWidget(self._exp)
