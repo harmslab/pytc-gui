@@ -2,13 +2,13 @@
 pytc-gui documentation
 ======================
 
-`pytc-gui` is a graphical interface for `pytc<https://github.com/harmslab/pytc>`_,
+`pytc-gui` is a graphical interface for `pytc <https://github.com/harmslab/pytc>`_,
 a flexible package for fitting Isothermal Titration Calorimetry data.  
 
-+ `Installation<installation.html>`_
-+ `Basic fits<how_to_img.html>`_
-+ `Video examples<https://pytc-gui.readthedocs.io/en/latest/videos.html>`_
-+ `Full pytc docs<https://pytc.readthedocs.io/en/latest/>`
++ `Installation <installation.html>`_
++ `Basic fits <how_to_img.html>`_
++ `Video examples <videos.html>`_
++ `Full pytc docs <https://pytc.readthedocs.io/en/latest/>`_
 
 Start-up
 ========

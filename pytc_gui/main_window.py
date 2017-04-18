@@ -1,6 +1,9 @@
 """
 pytc GUI using PyQt5
 """
+#import matplotlib
+#matplotlib.use("Qt5Agg")
+
 from pytc.global_fit import GlobalFit
 
 from PyQt5.QtGui import *
