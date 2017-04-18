@@ -18,7 +18,7 @@ setup(name='pytc-gui',
       url='https://github.com/harmslab/pytc-gui',
       download_url='https://github.com/harmslab/pytc-gui/tarball/0.1.0',
       zip_safe=False,
-      install_requires=["pytc-fitter","seaborn"],
+      install_requires=["pytc-fitter","seaborn","pyqt5"],
       classifiers=['Programming Language :: Python'],
       scripts=['scripts/pytc-gui'])
 

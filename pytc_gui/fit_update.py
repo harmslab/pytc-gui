@@ -195,6 +195,8 @@ class AllExp(QWidget):
             # after doing fit, emit signal to sliders and update parameter table
             self._fitter.fit()
             self.fit_signal.emit()
+
+            # put fitting update here.
             self._param_box.update()
         except:
             fit_status = self._fitter.fit_status
