@@ -53,7 +53,7 @@ class Splitter(QWidget):
     def fit_shortcut(self):
         """
         """
-        self._exp_frame.add_exp()
+        self._exp_frame.perform_fit()
         self._plot_frame.update()
 
 class Main(QMainWindow):
@@ -81,24 +81,22 @@ class Main(QMainWindow):
         fit_exp.triggered.connect(self.fit_exp)
         fitting_commands.addAction(fit_exp)
 
-        new_exp = QAction("New Session", self)
-        new_exp.setShortcut("Ctrl+N")
-        new_exp.triggered.connect(self.new_exp)
-        file_menu.addAction(new_exp)
-
-        file_menu.addSeparator()
-
         add_exp = QAction("Add Experiment", self)
         add_exp.setShortcut("Ctrl+Shift+N")
         add_exp.triggered.connect(self.add_file)
         file_menu.addAction(add_exp)
 
-        save_exp = QAction("Save", self)
+        save_exp = QAction("Export Results", self)
         save_exp.setShortcut("Ctrl+S")
         save_exp.triggered.connect(self.save_file)
         file_menu.addAction(save_exp)
 
         file_menu.addSeparator()
+
+        new_exp = QAction("New Session", self)
+        new_exp.setShortcut("Ctrl+N")
+        new_exp.triggered.connect(self.new_exp)
+        file_menu.addAction(new_exp)
 
         close_window = QAction("Close Window", self)
         close_window.setShortcut("Ctrl+W")
@@ -129,7 +127,7 @@ class Main(QMainWindow):
         """
         add a new pytc experiment.
         """
-        self._new_exp = AddExperimentWindow(self._fitter, self._exp._plot_frame.update)
+        self._new_exp = AddExperimentWindow(self._fitter, self._exp)
         self._new_exp.show()
 
     def new_exp(self):

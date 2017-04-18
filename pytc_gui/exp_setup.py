@@ -11,7 +11,7 @@ class AddExperimentWindow(QDialog):
     add experiment pop-up box
     """
 
-    def __init__(self, fitter, on_close_function):
+    def __init__(self, fitter, on_close):
 
         super().__init__()
 
@@ -22,7 +22,7 @@ class AddExperimentWindow(QDialog):
         self._shot_start = 1
         self._fitter = fitter
 
-        self._on_close_function = on_close_function
+        self._on_close = on_close
 
         self.layout()
 
@@ -142,7 +142,8 @@ class AddExperimentWindow(QDialog):
             itc_exp = pytc.ITCExperiment(self._exp_file, self._exp_model, shot_start = self._shot_start, **model_param)
             self._fitter.add_experiment(itc_exp)
 
-            self._on_close_function()
+            self._on_close._plot_frame.update()
+            self._on_close._exp_frame.add_exp()
             self.close()
         else:
             error_message = QMessageBox.warning(self, "warning", "No .DH file provided", QMessageBox.Ok)

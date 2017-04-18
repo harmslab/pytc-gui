@@ -76,13 +76,17 @@ class LocalSliders(Sliders):
                 for e in self._slider_list["Local"].values():
                     for i in e:
                         i.update_global(text)
+
+                index = self._link.findText(text)
+                self._link.setCurrentIndex(index)
+                self.global_link(text)
             else:
                 i = self._link.findText("Unlink")
                 self._link.setCurrentIndex(i)
 
         elif status == "Add Connector":
     
-            def connector_handler(connector,var_names):
+            def connector_handler(connector,var_names,curr_var):
         
                 self._global_var.append(connector)
                 for v in var_names:
@@ -93,65 +97,81 @@ class LocalSliders(Sliders):
                     for e in self._slider_list["Local"].values():
                         for i in e:
                             i.update_global(p)
+
+                index = self._link.findText(curr_var)
+                self._link.setCurrentIndex(index)
+                self.connector_link(curr_var)
             
             self.diag = AddGlobalConnectorWindow(connector_handler)
             self.diag.show()
 
         elif status not in self._global_connectors:
             # connect to a simple global variable
-            self._fitter.link_to_global(self._exp, self._param_name, status)
-            self._slider.hide()
-            self._param_guess_label.hide()
-            self._fix.hide()
-            self._update_min_label.hide()
-            self._update_min.hide()
-            self._update_max_label.hide()
-            self._update_max.hide()
-
-            # set current connected name
-            self._if_connected = status
-
-            # add global exp to experiments widget
-            if status not in self._slider_list["Global"]:
-                # create global exp object and add to layout
-                param_obj = self._fitter.global_param[status]
-                global_e = exp_frames.GlobalBox(status, param_obj, self)
-                self._global_tracker[status] = global_e
-                self._exp_box.addWidget(global_e)
-
-            self._global_tracker[status].linked(self)
+            self.global_link(status)
         else:
             # connect to global connector
-            self._slider.hide()
-            self._param_guess_label.hide()
-            self._fix.hide()
-            self._update_min_label.hide()
-            self._update_min.hide()
-            self._update_max_label.hide()
-            self._update_max.hide()
+            self.connector_link(status)
 
-            curr_connector = self._global_connectors[status][1]
-            name = curr_connector.name
-            self._connectors_seen[self._exp].append(curr_connector)
-            self._fitter.link_to_global(self._exp, self._param_name, self._global_connectors[status][0])
+    def global_link(self,var):
+        """
+        """
+        # connect to a simple global variable
+        self._fitter.link_to_global(self._exp, self._param_name, var)
+        self._slider.hide()
+        self._param_guess_label.hide()
+        self._fix.hide()
+        self._update_min_label.hide()
+        self._update_min.hide()
+        self._update_max_label.hide()
+        self._update_max.hide()
 
-            # add connector to experiments widget
-            if name not in self._slider_list["Global"]:
-                self._slider_list["Global"][name] = []
+        # set current connected name
+        self._if_connected = var
 
-                # create a connector holder and add to layout
-                connector_e = exp_frames.ConnectorsBox(name, curr_connector, self)
-                self._exp_box.addWidget(connector_e)
-                self._global_tracker[name] = connector_e
+        # add global exp to experiments widget
+        if var not in self._slider_list["Global"]:
+            # create global exp object and add to layout
+            param_obj = self._fitter.global_param[var]
+            global_e = exp_frames.GlobalBox(var, param_obj, self)
+            self._global_tracker[var] = global_e
+            self._exp_box.addWidget(global_e)
 
-            self._global_tracker[name].linked(self)
+        self._global_tracker[var].linked(self)
 
-            # set current connected name
-            self._if_connected = name
+    def connector_link(self,var):
+        """
+        """
+        # connect to global connector
+        self._slider.hide()
+        self._param_guess_label.hide()
+        self._fix.hide()
+        self._update_min_label.hide()
+        self._update_min.hide()
+        self._update_max_label.hide()
+        self._update_max.hide()
 
-            # check for instances of LocalBox and update
-            for loc_obj in self._exp_box.parentWidget().findChildren(exp_frames.LocalBox):
-                loc_obj.update_req()
+        curr_connector = self._global_connectors[var][1]
+        name = curr_connector.name
+        self._connectors_seen[self._exp].append(curr_connector)
+        self._fitter.link_to_global(self._exp, self._param_name, self._global_connectors[var][0])
+
+        # add connector to experiments widget
+        if name not in self._slider_list["Global"]:
+            self._slider_list["Global"][name] = []
+
+            # create a connector holder and add to layout
+            connector_e = exp_frames.ConnectorsBox(name, curr_connector, self)
+            self._exp_box.addWidget(connector_e)
+            self._global_tracker[name] = connector_e
+
+        self._global_tracker[name].linked(self)
+
+        # set current connected name
+        self._if_connected = name
+
+        # check for instances of LocalBox and update
+        for loc_obj in self._exp_box.parentWidget().findChildren(exp_frames.LocalBox):
+            loc_obj.update_req()
 
     def update_global(self, value):
         """

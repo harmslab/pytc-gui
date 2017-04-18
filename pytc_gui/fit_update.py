@@ -177,22 +177,28 @@ class AllExp(QWidget):
 
                 exp = LocalBox(e, exp_name, self)
                 self._exp_box.addWidget(exp)
-
-            # check for instances of LocalBox and set any attributes
-            for loc_obj in self._exp_box.parentWidget().findChildren(LocalBox):
-                loc_obj.set_attr()
-
-            try:
-                # after doing fit, emit signal to sliders and update parameter table
-                self._fitter.fit()
-                self.fit_signal.emit()
-                self._param_box.update()
-            except:
-                fit_status = self._fitter.fit_status
-                error_message = QMessageBox.warning(self, "warning", "fit failed! " + str(fit_status), QMessageBox.Ok)
         else:
             print("no experiments loaded in fitter")
             self._param_box.clear()
+
+    def perform_fit(self):
+        """
+        perform complete fit, update all
+        """
+        self.add_exp()
+
+        # check for instances of LocalBox and set any attributes
+        for loc_obj in self._exp_box.parentWidget().findChildren(LocalBox):
+            loc_obj.set_attr()
+
+        try:
+            # after doing fit, emit signal to sliders and update parameter table
+            self._fitter.fit()
+            self.fit_signal.emit()
+            self._param_box.update()
+        except:
+            fit_status = self._fitter.fit_status
+            error_message = QMessageBox.warning(self, "warning! fit unsuccesful", "please enter experiment data", QMessageBox.Ok)
 
     def clear(self):
         """
@@ -209,7 +215,8 @@ class AllExp(QWidget):
 
             # finally, remove local objects
             for loc_obj in self._exp_box.parentWidget().findChildren(LocalBox):
-                loc_obj.remove()
+                self._fitter.remove_experiment(loc_obj._exp)
+                loc_obj.deleteLater()
         except:
             pass
 
