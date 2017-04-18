@@ -12,7 +12,7 @@ from .fit_update import AllExp, PlotBox
 
 from matplotlib.backends.backend_pdf import PdfPages
 
-import pickle
+import sys
 
 class Splitter(QWidget):
     """
@@ -30,6 +30,15 @@ class Splitter(QWidget):
         """
         """
         main_layout = QVBoxLayout(self)
+        button_layout = QHBoxLayout()
+
+        #self._fit_update = QLabel("Done.")
+        #button_layout.addWidget(self._fit_update)
+
+        gen_fit = QPushButton("Fit Experiments", self)
+        gen_fit.clicked.connect(self.fit_shortcut)
+        button_layout.addWidget(gen_fit)
+
         self._plot_frame = PlotBox(self)
         self._exp_frame = AllExp(self)
 
@@ -39,10 +48,7 @@ class Splitter(QWidget):
         splitter.setSizes([200, 200])
 
         main_layout.addWidget(splitter)
-
-        gen_fit = QPushButton("Fit Experiments", self)
-        gen_fit.clicked.connect(self.fit_shortcut)
-        main_layout.addWidget(gen_fit)
+        main_layout.addLayout(button_layout)
 
     def clear(self):
         """
@@ -173,3 +179,16 @@ class Main(QMainWindow):
         close window
         """
         self.close()
+
+def main():
+    """
+    """
+    try:
+        app = QApplication(sys.argv)
+        pytc_run = Main()
+        sys.exit(app.exec_())
+    except KeyboardInterrupt:
+        sys.exit()
+
+if __name__ == '__main__':
+    main()
