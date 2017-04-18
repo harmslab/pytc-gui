@@ -54,6 +54,8 @@ class LocalBox(Experiments):
                     label_name = str(i).replace("_", " ") + ": "
                     label = QLabel(label_name.title(), self)
                     field = QLineEdit(self)
+                    field.setMinimumWidth(150)
+                    field.setPlaceholderText("values in kcal/mol or C°")
                     self._required_fields[i] = field
 
                     stretch = QHBoxLayout()

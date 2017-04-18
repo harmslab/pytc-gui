@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
+
 import seaborn
 from io import StringIO
 
@@ -130,6 +131,7 @@ class AllExp(QWidget):
         self._global_connectors = {}
         self._connectors_seen = {}
         self._plot_frame = parent._plot_frame
+        #self._fit_update_label = parent._fit_update
 
         self.layout()
 
@@ -185,6 +187,7 @@ class AllExp(QWidget):
         """
         perform complete fit, update all
         """
+        #self._fit_update_label.setText("Fitting...")
         self.add_exp()
 
         # check for instances of LocalBox and set any attributes
@@ -195,8 +198,8 @@ class AllExp(QWidget):
             # after doing fit, emit signal to sliders and update parameter table
             self._fitter.fit()
             self.fit_signal.emit()
+            #self._fit_update_label.setText("Done.")
 
-            # put fitting update here.
             self._param_box.update()
         except:
             fit_status = self._fitter.fit_status
