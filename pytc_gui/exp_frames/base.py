@@ -71,8 +71,6 @@ class Experiments(QWidget):
         self._divider.setFrameShape(QFrame.HLine)
         self._main_layout.addWidget(self._divider)
 
-        self.setFixedHeight(110)
-
     def exp_widgets(self):
         """
         for changing local/global specific items

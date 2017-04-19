@@ -64,7 +64,6 @@ class LocalBox(Experiments):
                     stretch.addStretch(1)
 
                     self._req_layout.addLayout(stretch)
-                    self.setFixedHeight(self.height()+20)
                 else:
                     pass
                     
