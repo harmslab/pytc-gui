@@ -14,6 +14,7 @@ Start-up
 ========
 
 either:
+
 + double-click the icon for the installed program 
 + run :code:`pytc-gui` on command line
 
@@ -26,18 +27,3 @@ Workflow
 + fit the model to the data
 + export the results, which will save a csv file with the fit parameters and a
   pdf showing the fit
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
-   how_to_img.rst
-   videos.rst
-   gui_module.rst
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
