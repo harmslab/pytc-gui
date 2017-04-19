@@ -12,6 +12,8 @@ Dependencies
 
 This package uses Python 3, if you have familiarity with using the command line or would like to use the pytc API as well, you can download Python either through `Anaconda <https://www.continuum.io/downloads>`_ or directly from the `Python website <https://www.python.org/downloads/>`_. Anaconda is a package manager that will install all dependencies required as well. 
 
+A zip of the demo files can be downloaded `here <https://github.com/hrmyd/pytc-gui/blob/master/pytc_install/pytc_demos.zip?raw=true>`_ for use of testing the GUI.
+
 windows or mac installation
 ---------------------------
 **this method requires no familiarity with Python or the command line and will install either a mac .app or windows program**
