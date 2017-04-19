@@ -18,7 +18,7 @@ windows or mac installation
 
 If using a windows machine, you can download the `installation file <https://raw.githubusercontent.com/harmslab/pytc-gui/master/pytc_install/WINDOWS_INSTALLER>`_ and follow the prompts for the installer. 
 
-If using a mac, you can download the `dmg <https://raw.githubusercontent.com/harmslab/pytc-gui/master/pytc_install/pytc_osx.dmg>`_ and just drag and drop the pytc icon into the Applications folder after unpacking.
+If using a mac, you can download the `dmg <https://github.com/hrmyd/pytc-gui/blob/master/pytc_install/pytc_osx.dmg?raw=true>`_ and just drag and drop the pytc icon into the Applications folder after unpacking.
 
 pip installation
 ----------------
