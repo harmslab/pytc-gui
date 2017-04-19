@@ -61,6 +61,10 @@ class AddExperimentWindow(QDialog):
         self._form_layout.addRow(QLabel("Select Model:"), model_select)
         self._form_layout.addRow(QLabel("Shot Start:"), shot_start_text)
 
+        # keeps load_exp from being default button for return press
+        load_exp.setDefault(False)
+        load_exp.setAutoDefault(False)
+
         self.update_widgets()
 
         main_layout.addLayout(self._form_layout)

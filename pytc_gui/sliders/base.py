@@ -168,7 +168,6 @@ class Sliders(QWidget):
             # make sure K min bound isn't negative
             if "K" in self._param_name and self._min < 0:
                 self._min = 1
-                print("K cannot be negative", self._min)
 
             # set new range
             self._range_diff = self._max - self._min
@@ -180,10 +179,8 @@ class Sliders(QWidget):
             # set slider min
             self._slider.setMinimum(self._slider_min)
             self.update_bounds()
-
-            print("min bound updated: " + value)
         except:
-            print('invalid value')
+            pass
 
     def max_bounds(self):
         """
@@ -202,8 +199,6 @@ class Sliders(QWidget):
             # set slider max
             self._slider.setMaximum(self._slider_max)
             self.update_bounds()
-
-            print("max bound updated: " + value)
         except:
             pass
 
