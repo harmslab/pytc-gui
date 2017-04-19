@@ -131,7 +131,6 @@ class AllExp(QWidget):
         self._global_connectors = {}
         self._connectors_seen = {}
         self._plot_frame = parent._plot_frame
-        #self._fit_update_label = parent._fit_update
 
         self.layout()
 
@@ -180,14 +179,13 @@ class AllExp(QWidget):
                 exp = LocalBox(e, exp_name, self)
                 self._exp_box.addWidget(exp)
         else:
-            print("no experiments loaded in fitter")
+            # clear anything that might be in parameter box
             self._param_box.clear()
 
     def perform_fit(self):
         """
         perform complete fit, update all
         """
-        #self._fit_update_label.setText("Fitting...")
         self.add_exp()
 
         # check for instances of LocalBox and set any attributes
@@ -198,12 +196,9 @@ class AllExp(QWidget):
             # after doing fit, emit signal to sliders and update parameter table
             self._fitter.fit()
             self.fit_signal.emit()
-            #self._fit_update_label.setText("Done.")
-
             self._param_box.update()
         except:
-            fit_status = self._fitter.fit_status
-            error_message = QMessageBox.warning(self, "warning! fit unsuccesful", "please enter experiment data", QMessageBox.Ok)
+            pass
 
     def clear(self):
         """

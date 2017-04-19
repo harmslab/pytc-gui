@@ -1,9 +1,6 @@
 """
 pytc GUI using PyQt5
 """
-#import matplotlib
-#matplotlib.use("Qt5Agg")
-
 from pytc.global_fit import GlobalFit
 
 from PyQt5.QtGui import *
@@ -34,9 +31,6 @@ class Splitter(QWidget):
         """
         main_layout = QVBoxLayout(self)
         button_layout = QHBoxLayout()
-
-        #self._fit_update = QLabel("Done.")
-        #button_layout.addWidget(self._fit_update)
 
         gen_fit = QPushButton("Fit Experiments", self)
         gen_fit.clicked.connect(self.fit_shortcut)
@@ -127,12 +121,6 @@ class Main(QMainWindow):
         self.setWindowTitle('pytc')
         self.show()
 
-    def print_exp(self):
-        """
-        testing, check pytc experiments loading
-        """
-        print(self._fitter.experiments, self._fitter.global_param)
-
     def fit_exp(self):
         """
         fitting shortcut
@@ -155,7 +143,7 @@ class Main(QMainWindow):
         if warning_message == QMessageBox.Yes:
             self._exp.clear()
         else:
-            print("don't start over!")
+            pass
 
     def save_file(self):
         """
@@ -175,7 +163,7 @@ class Main(QMainWindow):
             plot_save.savefig(fig)
             plot_save.close()
         except:
-            print("save failed")
+            pass
 
     def close_program(self):
         """

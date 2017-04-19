@@ -66,19 +66,22 @@ class LocalBox(Experiments):
                     self._req_layout.addLayout(stretch)
                     self.setFixedHeight(self.height()+20)
                 else:
-                    print("already there")
+                    pass
                     
     def set_attr(self):
         """
         update data from global connector fields
         """
         for n, v in self._required_fields.items():
-            try:
-                val = float(v.text())
-            except:
-                val = v.text()
+            if v.text():
+                try:
+                    val = float(v.text())
+                except:
+                    val = v.text()
 
-            setattr(self._exp, n, val)
+                setattr(self._exp, n, val)
+            else:
+                error_message = QMessageBox.warning(self, "Fit Unsuccessful!", "Empty required data fields present", QMessageBox.Ok)
 
     def remove(self):
         """

@@ -42,7 +42,6 @@ class GlobalBox(Experiments):
         """
         """
         self._linked_list.append(loc_slider)
-        #print(self._linked_list)
 
     def unlinked(self, loc_slider):
         """
