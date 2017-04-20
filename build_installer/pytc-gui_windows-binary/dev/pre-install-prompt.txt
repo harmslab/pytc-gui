@@ -1,0 +1,1 @@
+This program will install the pytc-gui with the associated scientific python computing stack.  The included stack was built for windows by the kind folks at winpython (https://winpython.github.io/).  
