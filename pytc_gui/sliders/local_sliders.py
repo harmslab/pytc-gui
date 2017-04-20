@@ -15,7 +15,8 @@ class LocalSliders(Sliders):
     """
 
     def __init__(self, param_name, value, parent):
-
+        """
+        """
         self._value = value
         self._global_var = parent._global_var
         self._slider_list = parent._slider_list
