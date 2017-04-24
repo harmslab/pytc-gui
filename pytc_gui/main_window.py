@@ -39,7 +39,6 @@ class Splitter(QWidget):
 
         gen_fit = QPushButton("Fit Experiments", self)
         gen_fit.clicked.connect(self.fit_shortcut)
-        #gen_fit.setFixedWidth(button_tot_width*1.2)
 
         self._progress = QProgressBar(self)
         self._progress.setFixedWidth(button_tot_width*0.3)
@@ -65,17 +64,6 @@ class Splitter(QWidget):
         """
         self._plot_frame.clear()
         self._exp_frame.clear()
-
-    def timerEvent(self, e):
-        """
-        """
-        if self._step >= 100:
-            self._timer.stop()
-            return
-
-        self._step += 1
-        print(self._step)
-        self._progress.setValue(self._step)
 
     def count_progress(self):
         """
