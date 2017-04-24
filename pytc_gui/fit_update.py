@@ -61,6 +61,8 @@ class ParamTable(QTableWidget):
         self._col_name = []
         self._data = []
 
+        self.setAlternatingRowColors(True)
+
     def load_table(self):
         """
         load fit data into the table

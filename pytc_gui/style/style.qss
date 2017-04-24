@@ -1,3 +1,13 @@
-QWidget {
-	background-color: #FFFFFF
+QMenuBar {
+	background: transparent;
+	border-style: outset;
+}
+
+QMenuBar::item {
+	background: transparent;
+}
+
+QTableView {
+	alternate-background-color: darkgrey;
+	background: transparent;
 }

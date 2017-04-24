@@ -32,9 +32,19 @@ class Splitter(QWidget):
         main_layout = QVBoxLayout(self)
         button_layout = QHBoxLayout()
 
+        button_tot_width = self.width()
+
+        self._timer = QBasicTimer()
+        self._step = 0
+
         gen_fit = QPushButton("Fit Experiments", self)
         gen_fit.clicked.connect(self.fit_shortcut)
-        button_layout.addWidget(gen_fit)
+        #gen_fit.setFixedWidth(button_tot_width*1.2)
+
+        self._progress = QProgressBar(self)
+        self._progress.setFixedWidth(button_tot_width*0.3)
+        button_layout.addWidget(self._progress)
+        button_layout.addStretch(2)
 
         self._plot_frame = PlotBox(self)
         self._exp_frame = AllExp(self)
@@ -45,7 +55,10 @@ class Splitter(QWidget):
         splitter.setSizes([200, 200])
 
         main_layout.addWidget(splitter)
+        main_layout.addWidget(gen_fit)
         main_layout.addLayout(button_layout)
+
+        self._exp_frame.fit_signal.connect(self.count_progress)
 
     def clear(self):
         """
@@ -53,9 +66,36 @@ class Splitter(QWidget):
         self._plot_frame.clear()
         self._exp_frame.clear()
 
+    def timerEvent(self, e):
+        """
+        """
+        if self._step >= 100:
+            self._timer.stop()
+            return
+
+        self._step += 1
+        print(self._step)
+        self._progress.setValue(self._step)
+
+    def count_progress(self):
+        """
+        """
+        curr_length = len(self._exp_frame._slider_list["Local"])+len(self._exp_frame._slider_list["Global"])
+        self._progress.setMaximum(curr_length)
+
+    def testing(self):
+        """
+        """
+        print("Sliders: ", self._exp_frame._slider_list)
+        print("Global Tracker: ", self._exp_frame._global_tracker)
+
     def fit_shortcut(self):
         """
         """
+        curr_length = len(self._exp_frame._slider_list["Local"])+len(self._exp_frame._slider_list["Global"])
+        self._progress.setMaximum(curr_length)
+        self._progress.setValue(0)
+
         self._exp_frame.perform_fit()
         self._plot_frame.update()
 
@@ -83,6 +123,11 @@ class Main(QMainWindow):
         fit_exp.setShortcut("Ctrl+F")
         fit_exp.triggered.connect(self.fit_exp)
         fitting_commands.addAction(fit_exp)
+
+        test = QAction("Test Shit", self)
+        test.setShortcut("Ctrl+P")
+        test.triggered.connect(self.print_tests)
+        fitting_commands.addAction(test)
 
         add_exp = QAction("Add Experiment", self)
         add_exp.setShortcut("Ctrl+Shift+N")
@@ -112,6 +157,7 @@ class Main(QMainWindow):
         self.addAction(save_exp)
         self.addAction(new_exp)
         self.addAction(close_window)
+        self.addAction(test)
 
         self._exp = Splitter(self)
         self.setCentralWidget(self._exp)
@@ -120,6 +166,12 @@ class Main(QMainWindow):
         self.move(QApplication.desktop().screen().rect().center()-self.rect().center())
         self.setWindowTitle('pytc')
         self.show()
+
+    def print_tests(self):
+        """
+        fitting shortcut
+        """
+        self._exp.testing()
 
     def fit_exp(self):
         """
@@ -176,6 +228,9 @@ def main():
     """
     try:
         app = QApplication(sys.argv)
+        with open("pytc_gui/style/style.qss") as ss:
+            app.setStyleSheet(ss.read())
+
         pytc_run = Main()
         sys.exit(app.exec_())
     except KeyboardInterrupt:

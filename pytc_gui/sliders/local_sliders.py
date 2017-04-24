@@ -137,6 +137,8 @@ class LocalSliders(Sliders):
             self._global_tracker[var] = global_e
             self._exp_box.addWidget(global_e)
 
+            print("global added")
+
         self._global_tracker[var].linked(self)
 
     def connector_link(self,var):
