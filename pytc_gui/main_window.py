@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import *
 
 from .exp_setup import AddExperimentWindow
 from .fit_update import AllExp, PlotBox
+from .ftest import DoFTest
 
 from matplotlib.backends.backend_pdf import PdfPages
 
@@ -106,6 +107,7 @@ class Main(QMainWindow):
         super().__init__()
 
         self._fitter = GlobalFit()
+        self._fitter_list = {}
 
         self.layout()
 
@@ -123,6 +125,19 @@ class Main(QMainWindow):
         fit_exp.setShortcut("Ctrl+F")
         fit_exp.triggered.connect(self.fit_exp)
         fitting_commands.addAction(fit_exp)
+
+        fitting_commands.addSeparator()
+
+        add_fitter = QAction("Save Fitter", self)
+        add_fitter.setShortcut("Ctrl+Shift+S")
+        add_fitter.triggered.connect(self.add_fitter)
+        fitting_commands.addAction(add_fitter)
+
+        f_test = QAction("F-Test", self)
+        f_test.triggered.connect(self.perform_ftest)
+        fitting_commands.addAction(f_test)
+
+        fitting_commands.addSeparator()
 
         test = QAction("Test Shit", self)
         test.setShortcut("Ctrl+P")
@@ -157,6 +172,7 @@ class Main(QMainWindow):
         self.addAction(save_exp)
         self.addAction(new_exp)
         self.addAction(close_window)
+        self.addAction(add_fitter)
         self.addAction(test)
 
         self._exp = Splitter(self)
@@ -172,6 +188,7 @@ class Main(QMainWindow):
         fitting shortcut
         """
         self._exp.testing()
+        print(self._fitter_list)
 
     def fit_exp(self):
         """
@@ -186,6 +203,26 @@ class Main(QMainWindow):
         self._new_exp = AddExperimentWindow(self._fitter, self._exp)
         self._new_exp.show()
 
+    def perform_ftest(self):
+        """
+        do an f-test with saved fitters as options
+        """
+        self._do_ftest = DoFTest(self)
+        self._do_ftest.show()
+
+
+    def add_fitter(self):
+        """
+        save fitter to list for use in f-test
+        """
+        text, ok = QInputDialog.getText(self, 'Save Fitter', 'Enter Name (optional):')
+
+        if ok:
+            self._fitter_list[text] = self._fitter
+        else:
+            num = len(self._fitter_list)+1
+            self._fitter_list['g{}'.format(num)] = self._fitter
+
     def new_exp(self):
         """
         clear everything and start over
@@ -193,6 +230,8 @@ class Main(QMainWindow):
         warning_message = QMessageBox.warning(self, "warning!", "Are you sure you want to start a new session?", QMessageBox.Yes | QMessageBox.No)
 
         if warning_message == QMessageBox.Yes:
+            #num = len(self._fitter_list)+1
+            #self._fitter_list['g{}'.format(num)] = self._fitter
             self._exp.clear()
         else:
             pass
