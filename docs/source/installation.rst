@@ -7,7 +7,7 @@ windows or mac installation
 **this method requires no familiarity with Python or the command line and will install either a mac .app or windows program**
 
 + **Windows**: download the `installation file <https://github.com/hrmyd/pytc-gui/blob/master/pytc_install/pytc-gui_v1.0_setup.exe?raw=true>`_ and follow the prompts for the installer. 
-+ **Mac**: download the `dmg <https://github.com/hrmyd/pytc-gui/blob/master/pytc_install/pytc-gui_v1.0_osx.dmg?raw=true>`_, unpack it, and then drag the pytc icon into the Applications folder.  
++ **Mac**: download the `dmg <https://github.com/hrmyd/pytc-gui/blob/master/pytc_install/pytc-gui_v1.0.1_osx.dmg?raw=true>`_, unpack it, and then drag the pytc icon into the Applications folder.  
 
 pip installation (windows, mac, or linux)
 =========================================
