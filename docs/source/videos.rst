@@ -3,7 +3,7 @@ Video Examples of Fits
 ======================
 
 Single Site - Single w/ Blank
---------------------
+-----------------------------
 
 .. raw:: html
 
