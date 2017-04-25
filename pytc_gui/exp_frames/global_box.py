@@ -51,6 +51,8 @@ class GlobalBox(Experiments):
 
         # if nothing linked, delete the glob exp object
         if len(self._linked_list) == 0:
+            self._slider_list["Global"].pop(self._name, None)
+            self._global_tracker.pop(self._name, None)
             self.remove()
 
     def remove(self):

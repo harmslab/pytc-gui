@@ -6,7 +6,7 @@ PyQt5 GUI for pytc API
 
 ## Installation Files
 
- + [mac](https://github.com/hrmyd/pytc-gui/blob/master/pytc_install/pytc-gui_v1.0_osx.dmg?raw=true)
+ + [mac](https://github.com/hrmyd/pytc-gui/blob/master/pytc_install/pytc-gui_v1.0.1_osx.dmg?raw=true)
  + [windows](https://github.com/hrmyd/pytc-gui/blob/master/pytc_install/pytc-gui_v1.0_setup.exe?raw=true)
  + [demo files](https://github.com/hrmyd/pytc-gui/blob/master/pytc_install/pytc_demos.zip?raw=true)
 

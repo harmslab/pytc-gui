@@ -9,10 +9,11 @@ from PyQt5.QtWidgets import *
 
 from .exp_setup import AddExperimentWindow
 from .fit_update import AllExp, PlotBox
+from .help_dialogs import VersionInfo, DocumentationURL
 
 from matplotlib.backends.backend_pdf import PdfPages
 
-import sys
+import sys, pkg_resources
 
 class Splitter(QWidget):
     """
@@ -34,7 +35,6 @@ class Splitter(QWidget):
 
         gen_fit = QPushButton("Fit Experiments", self)
         gen_fit.clicked.connect(self.fit_shortcut)
-        button_layout.addWidget(gen_fit)
 
         self._plot_frame = PlotBox(self)
         self._exp_frame = AllExp(self)
@@ -45,7 +45,7 @@ class Splitter(QWidget):
         splitter.setSizes([200, 200])
 
         main_layout.addWidget(splitter)
-        main_layout.addLayout(button_layout)
+        main_layout.addWidget(gen_fit)
 
     def clear(self):
         """
@@ -78,6 +78,15 @@ class Main(QMainWindow):
 
         file_menu = menu.addMenu("File")
         fitting_commands = menu.addMenu("Fitting")
+        help_menu = menu.addMenu("Help")
+
+        prog_info = QAction("About", self)
+        prog_info.triggered.connect(self.version)
+        help_menu.addAction(prog_info)
+
+        doc_info = QAction("Documentation", self)
+        doc_info.triggered.connect(self.docs)
+        help_menu.addAction(doc_info)
 
         fit_exp = QAction("Fit Experiments", self)
         fit_exp.setShortcut("Ctrl+F")
@@ -112,6 +121,8 @@ class Main(QMainWindow):
         self.addAction(save_exp)
         self.addAction(new_exp)
         self.addAction(close_window)
+        self.addAction(doc_info)
+        self.addAction(prog_info)
 
         self._exp = Splitter(self)
         self.setCentralWidget(self._exp)
@@ -120,6 +131,20 @@ class Main(QMainWindow):
         self.move(QApplication.desktop().screen().rect().center()-self.rect().center())
         self.setWindowTitle('pytc')
         self.show()
+
+    def docs(self):
+        """
+        show pop-up with links to documentation for pytc and pytc-gui
+        """
+        self._doc_info = DocumentationURL()
+        self._doc_info.show()
+
+    def version(self):
+        """
+        show pop-up with version
+        """
+        self._version = VersionInfo()
+        self._version.show()
 
     def fit_exp(self):
         """
@@ -174,8 +199,12 @@ class Main(QMainWindow):
 def main():
     """
     """
+    version = pkg_resources.require("pytc-gui")[0].version
+
     try:
         app = QApplication(sys.argv)
+        app.setApplicationName("pytc")
+        app.setApplicationVersion(version)
         pytc_run = Main()
         sys.exit(app.exec_())
     except KeyboardInterrupt:
