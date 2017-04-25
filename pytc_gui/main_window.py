@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import *
 
 from .exp_setup import AddExperimentWindow
 from .fit_update import AllExp, PlotBox
-from .ftest import DoFTest
+from .aic_test import DoAICTest
 
 from matplotlib.backends.backend_pdf import PdfPages
 
@@ -133,9 +133,9 @@ class Main(QMainWindow):
         add_fitter.triggered.connect(self.add_fitter)
         fitting_commands.addAction(add_fitter)
 
-        f_test = QAction("F-Test", self)
-        f_test.triggered.connect(self.perform_ftest)
-        fitting_commands.addAction(f_test)
+        aic_test = QAction("AIC Test", self)
+        aic_test.triggered.connect(self.perform_aic)
+        fitting_commands.addAction(aic_test)
 
         fitting_commands.addSeparator()
 
@@ -203,12 +203,12 @@ class Main(QMainWindow):
         self._new_exp = AddExperimentWindow(self._fitter, self._exp)
         self._new_exp.show()
 
-    def perform_ftest(self):
+    def perform_aic(self):
         """
         do an f-test with saved fitters as options
         """
-        self._do_ftest = DoFTest(self)
-        self._do_ftest.show()
+        self._do_aic = DoAICTest(self)
+        self._do_aic.show()
 
 
     def add_fitter(self):

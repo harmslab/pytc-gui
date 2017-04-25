@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import *
 
 from pytc import util
 
-class DoFTest(QDialog):
+class DoAICTest(QDialog):
 
 	def __init__(self, parent):
 		"""
@@ -49,7 +49,7 @@ class DoFTest(QDialog):
 		print(selected)
 		if len(selected) == 2:	
 			output = util.choose_model(*selected)
-			self._process.start()
+			self._process.start(output)
 		else:
 			print("compares 2 models")
 
@@ -58,3 +58,11 @@ class DoFTest(QDialog):
 		"""
 		text = str(self._process.readAllStandardOutput())
 		self._data_out.insertText(text)
+
+class OutputStream(QObject):
+
+	def __init__(self):
+		"""
+		"""
+		super().__init__()
+
