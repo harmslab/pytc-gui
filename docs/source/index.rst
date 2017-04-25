@@ -31,6 +31,7 @@ Workflow
    :maxdepth: 2
    :caption: Contents:
 
+   installation.rst
    how_to_img.rst
    videos.rst
    gui_module.rst
