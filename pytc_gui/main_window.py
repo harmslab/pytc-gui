@@ -9,10 +9,11 @@ from PyQt5.QtWidgets import *
 
 from .exp_setup import AddExperimentWindow
 from .fit_update import AllExp, PlotBox
+from .help_dialogs import VersionInfo, DocumentationURL
 
 from matplotlib.backends.backend_pdf import PdfPages
 
-import sys
+import sys, pkg_resources
 
 class Splitter(QWidget):
     """
@@ -32,18 +33,8 @@ class Splitter(QWidget):
         main_layout = QVBoxLayout(self)
         button_layout = QHBoxLayout()
 
-        button_tot_width = self.width()
-
-        self._timer = QBasicTimer()
-        self._step = 0
-
         gen_fit = QPushButton("Fit Experiments", self)
         gen_fit.clicked.connect(self.fit_shortcut)
-
-        self._progress = QProgressBar(self)
-        self._progress.setFixedWidth(button_tot_width*0.3)
-        button_layout.addWidget(self._progress)
-        button_layout.addStretch(2)
 
         self._plot_frame = PlotBox(self)
         self._exp_frame = AllExp(self)
@@ -55,9 +46,6 @@ class Splitter(QWidget):
 
         main_layout.addWidget(splitter)
         main_layout.addWidget(gen_fit)
-        main_layout.addLayout(button_layout)
-
-        self._exp_frame.fit_signal.connect(self.count_progress)
 
     def clear(self):
         """
@@ -65,25 +53,9 @@ class Splitter(QWidget):
         self._plot_frame.clear()
         self._exp_frame.clear()
 
-    def count_progress(self):
-        """
-        """
-        curr_length = len(self._exp_frame._slider_list["Local"])+len(self._exp_frame._slider_list["Global"])
-        self._progress.setMaximum(curr_length)
-
-    def testing(self):
-        """
-        """
-        print("Sliders: ", self._exp_frame._slider_list)
-        print("Global Tracker: ", self._exp_frame._global_tracker)
-
     def fit_shortcut(self):
         """
         """
-        curr_length = len(self._exp_frame._slider_list["Local"])+len(self._exp_frame._slider_list["Global"])
-        self._progress.setMaximum(curr_length)
-        self._progress.setValue(0)
-
         self._exp_frame.perform_fit()
         self._plot_frame.update()
 
@@ -106,16 +78,20 @@ class Main(QMainWindow):
 
         file_menu = menu.addMenu("File")
         fitting_commands = menu.addMenu("Fitting")
+        help_menu = menu.addMenu("Help")
+
+        prog_info = QAction("About", self)
+        prog_info.triggered.connect(self.version)
+        help_menu.addAction(prog_info)
+
+        doc_info = QAction("Documentation", self)
+        doc_info.triggered.connect(self.docs)
+        help_menu.addAction(doc_info)
 
         fit_exp = QAction("Fit Experiments", self)
         fit_exp.setShortcut("Ctrl+F")
         fit_exp.triggered.connect(self.fit_exp)
         fitting_commands.addAction(fit_exp)
-
-        test = QAction("Test Shit", self)
-        test.setShortcut("Ctrl+P")
-        test.triggered.connect(self.print_tests)
-        fitting_commands.addAction(test)
 
         add_exp = QAction("Add Experiment", self)
         add_exp.setShortcut("Ctrl+Shift+N")
@@ -145,7 +121,8 @@ class Main(QMainWindow):
         self.addAction(save_exp)
         self.addAction(new_exp)
         self.addAction(close_window)
-        self.addAction(test)
+        self.addAction(doc_info)
+        self.addAction(prog_info)
 
         self._exp = Splitter(self)
         self.setCentralWidget(self._exp)
@@ -155,11 +132,19 @@ class Main(QMainWindow):
         self.setWindowTitle('pytc')
         self.show()
 
-    def print_tests(self):
+    def docs(self):
         """
-        fitting shortcut
+        show pop-up with links to documentation for pytc and pytc-gui
         """
-        self._exp.testing()
+        self._doc_info = DocumentationURL()
+        self._doc_info.show()
+
+    def version(self):
+        """
+        show pop-up with version
+        """
+        self._version = VersionInfo()
+        self._version.show()
 
     def fit_exp(self):
         """
@@ -214,11 +199,12 @@ class Main(QMainWindow):
 def main():
     """
     """
+    version = pkg_resources.require("pytc-gui")[0].version
+
     try:
         app = QApplication(sys.argv)
-        with open("pytc_gui/style/style.qss") as ss:
-            app.setStyleSheet(ss.read())
-
+        app.setApplicationName("pytc")
+        app.setApplicationVersion(version)
         pytc_run = Main()
         sys.exit(app.exec_())
     except KeyboardInterrupt:
