@@ -171,7 +171,7 @@ class Main(QMainWindow):
     def print_tests(self):
         """
         """
-        self._exp.testing()
+        #self._exp.testing()
         print(self._fitter_list)
 
     def fit_exp(self):

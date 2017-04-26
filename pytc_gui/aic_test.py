@@ -3,6 +3,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
 from pytc import util
+import sys
 
 class DoAICTest(QDialog):
 
@@ -12,6 +13,8 @@ class DoAICTest(QDialog):
 		super().__init__()
 
 		self._fitter_list = parent._fitter_list
+
+		sys.stdout = OutputStream()
 
 		self.layout()
 
@@ -29,12 +32,10 @@ class DoAICTest(QDialog):
 
 		self._fitter_select.setFixedSize(150, 100)
 
-		ftest_button = QPushButton("Perform F-Test", self)
+		ftest_button = QPushButton("Perform AIC Test", self)
 		ftest_button.clicked.connect(self.perform_test)
 
 		self._data_out = QTextEdit()
-		self._process = QProcess(self)
-		self._process.readyReadStandardOutput.connect(self.read_stdout)
 
 		test_layout.addWidget(self._fitter_select)
 		test_layout.addWidget(ftest_button)
@@ -66,3 +67,9 @@ class OutputStream(QObject):
 		"""
 		super().__init__()
 
+		text_printed = pyqtSignal(str)
+
+	def write(self, text):
+		"""
+		"""
+		self.text_printed.emit(str(text))
