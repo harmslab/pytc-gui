@@ -3,7 +3,7 @@
 
 #define DirectoryRoot "C:\Users\harmsm\Desktop"
 #define MyAppName "pytc-gui"
-#define MyAppVersion "1.0"
+#define MyAppVersion "1.0.1"
 #define MyAppPublisher "Harms Lab, University of Oregon"
 #define MyAppURL "https://github.com/harmslab/pytc-gui"
 #define MyAppExeName "python.exe"
