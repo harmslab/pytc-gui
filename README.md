@@ -1,5 +1,7 @@
 # pytc-gui
-PyQt5 GUI for pytc API
+PyQt5 GUI for pytc
+
+![screenshot](https://pytc.readthedocs.io/en/latest/_images/gui_02.png)
 
  + [Documentation](https://pytc-gui.readthedocs.io/en/latest/)
  + [pytc](https://github.com/harmslab/pytc)
