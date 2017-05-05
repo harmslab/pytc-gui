@@ -168,13 +168,10 @@ class Main(QMainWindow):
         self.addAction(save_exp)
         self.addAction(new_exp)
         self.addAction(close_window)
-        self.addAction(add_fitter)
-        self.addAction(test)
-        self.addAction(doc_info)
-        self.addAction(prog_info)
         self.addAction(save_fitter)
         self.addAction(open_fitter)
-        self.addAction(fitting_options)
+
+        self.addAction(test)
 
         # Set up central widget
         self._exp = Splitter(self)

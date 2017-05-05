@@ -32,6 +32,7 @@ class AddExperimentWindow(QDialog):
         # exp text, model dropdown, shots select
         main_layout = QVBoxLayout(self)
         self._form_layout = QFormLayout()
+        button_layout = QHBoxLayout()
 
         self._gen_widgets = {}
 
@@ -48,6 +49,16 @@ class AddExperimentWindow(QDialog):
         load_exp = QPushButton("Load File", self)
         load_exp.clicked.connect(self.add_file)
 
+        origin_choose = QRadioButton("Origin File")
+        origin_choose.toggled.connect(self.select_file_type)
+        origin_choose.setChecked(True)
+
+        nitpic_choose = QRadioButton("NITPIC File")
+        nitpic_choose.toggled.connect(self.select_file_type)
+
+        button_layout.addWidget(origin_choose)
+        button_layout.addWidget(nitpic_choose)
+
         self._exp_label = QLabel("...", self)
 
         shot_start_text = QLineEdit(self)
@@ -58,6 +69,7 @@ class AddExperimentWindow(QDialog):
         gen_exp.clicked.connect(self.generate)
 
         self._form_layout.addRow(load_exp, self._exp_label)
+        self._form_layout.addRow(button_layout)
         self._form_layout.addRow(QLabel("Select Model:"), model_select)
         self._form_layout.addRow(QLabel("Shot Start:"), shot_start_text)
 
@@ -119,11 +131,26 @@ class AddExperimentWindow(QDialog):
         except:
             pass
 
+    def select_file_type(self):
+        """
+        """
+        b = self.sender()
+
+        # change type of file dialog based on radio option
+        if isinstance(b,QRadioButton) and b.text() == "NITPIC File" and b.isChecked():
+            self._file_type = "nitpic"
+        elif isinstance(b,QRadioButton) and b.text() == "Origin File" and b.isChecked():
+            self._file_type = "origin"
+
     def add_file(self):
         """
         """
         # do folder or fild radio options
-        file_name, _ = QFileDialog.getOpenFileName(self, "Select a file...", "", filter="DH Files (*.DH)")
+        if self._file_type == "nitpic":
+            file_name = QFileDialog.getExistingDirectory(None, 'Select a folder:', 'C:\\', QFileDialog.ShowDirsOnly)
+        elif self._file_type == "origin":
+            file_name, _ = QFileDialog.getOpenFileName(self, "Select a file...", "", filter="DH Files (*.DH)")
+
         self._exp_file = str(file_name)
         self._exp_name = file_name.split("/")[-1]
         self._exp_label.setText(self._exp_name)
