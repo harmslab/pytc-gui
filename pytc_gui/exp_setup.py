@@ -122,6 +122,7 @@ class AddExperimentWindow(QDialog):
     def add_file(self):
         """
         """
+        # do folder or fild radio options
         file_name, _ = QFileDialog.getOpenFileName(self, "Select a file...", "", filter="DH Files (*.DH)")
         self._exp_file = str(file_name)
         self._exp_name = file_name.split("/")[-1]

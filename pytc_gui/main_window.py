@@ -11,10 +11,11 @@ from .exp_setup import AddExperimentWindow
 from .fit_update import AllExp, PlotBox
 from .aic_test import DoAICTest
 from .help_dialogs import VersionInfo, DocumentationURL
+from .options import FitOptions
 
 from matplotlib.backends.backend_pdf import PdfPages
 
-import sys, pkg_resources
+import sys, pkg_resources, pickle, inspect
 
 class Splitter(QWidget):
     """
@@ -25,6 +26,9 @@ class Splitter(QWidget):
         super().__init__()
 
         self._fitter = parent._fitter
+
+        fit_args = inspect.getargspec(GlobalFit().fit)
+        self._options_dict = {arg: param for arg, param in zip(fit_args.args[1:], fit_args.defaults)}
 
         self.layout()
 
@@ -54,10 +58,15 @@ class Splitter(QWidget):
         self._plot_frame.clear()
         self._exp_frame.clear()
 
+    def update_fit_options(self, options_dict):
+        """
+        """
+        self._options_dict = options_dict
+
     def fit_shortcut(self):
         """
         """
-        self._exp_frame.perform_fit()
+        self._exp_frame.perform_fit(self._options_dict)
         self._plot_frame.update()
 
 class Main(QMainWindow):
@@ -82,6 +91,7 @@ class Main(QMainWindow):
         fitting_commands = menu.addMenu("Fitting")
         help_menu = menu.addMenu("Help")
 
+        # Help Menu
         prog_info = QAction("About", self)
         prog_info.triggered.connect(self.version)
         help_menu.addAction(prog_info)
@@ -90,6 +100,7 @@ class Main(QMainWindow):
         doc_info.triggered.connect(self.docs)
         help_menu.addAction(doc_info)
 
+        # Fitting Menu
         fit_exp = QAction("Fit Experiments", self)
         fit_exp.setShortcut("Ctrl+F")
         fit_exp.triggered.connect(self.fit_exp)
@@ -97,8 +108,7 @@ class Main(QMainWindow):
 
         fitting_commands.addSeparator()
 
-        add_fitter = QAction("Save Fitter", self)
-        add_fitter.setShortcut("Ctrl+Shift+S")
+        add_fitter = QAction("Add Fitter to List", self)
         add_fitter.triggered.connect(self.add_fitter)
         fitting_commands.addAction(add_fitter)
 
@@ -108,11 +118,16 @@ class Main(QMainWindow):
 
         fitting_commands.addSeparator()
 
+        fitting_options = QAction("Fit Options", self)
+        fitting_options.triggered.connect(self.fit_options)
+        fitting_commands.addAction(fitting_options)
+
         test = QAction("Test Shit", self)
         test.setShortcut("Ctrl+P")
         test.triggered.connect(self.print_tests)
         fitting_commands.addAction(test)
 
+        # File Menu
         add_exp = QAction("Add Experiment", self)
         add_exp.setShortcut("Ctrl+Shift+N")
         add_exp.triggered.connect(self.add_file)
@@ -122,6 +137,18 @@ class Main(QMainWindow):
         save_exp.setShortcut("Ctrl+S")
         save_exp.triggered.connect(self.save_file)
         file_menu.addAction(save_exp)
+
+        file_menu.addSeparator()
+
+        save_fitter = QAction("Save Fitter", self)
+        save_fitter.setShortcut("Ctrl+Shift+S")
+        save_fitter.triggered.connect(self.save_fitter)
+        file_menu.addAction(save_fitter)
+
+        open_fitter = QAction("Open Fitter", self)
+        open_fitter.setShortcut("Ctrl+O")
+        open_fitter.triggered.connect(self.open_fitter)
+        file_menu.addAction(open_fitter)
 
         file_menu.addSeparator()
 
@@ -145,7 +172,11 @@ class Main(QMainWindow):
         self.addAction(test)
         self.addAction(doc_info)
         self.addAction(prog_info)
+        self.addAction(save_fitter)
+        self.addAction(open_fitter)
+        self.addAction(fitting_options)
 
+        # Set up central widget
         self._exp = Splitter(self)
         self.setCentralWidget(self._exp)
 
@@ -194,6 +225,12 @@ class Main(QMainWindow):
         self._do_aic = DoAICTest(self)
         self._do_aic.show()
 
+    def fit_options(self):
+        """
+        """
+        self._fit_options = FitOptions(self._fitter)
+        self._fit_options.options_signal.connect(self._exp.update_fit_options)
+        self._fit_options.show()
 
     def add_fitter(self):
         """
@@ -219,6 +256,29 @@ class Main(QMainWindow):
             self._exp.clear()
         else:
             pass
+
+    def save_fitter(self):
+       """
+       save a global_fit object
+       """
+       file_name, _ = QFileDialog.getSaveFileName(self, "Save Global Fit", "", "Pickle Files (*.pkl);;")
+       try:
+           pickle.dump(self._fitter.experiments, open(file_name, "wb"))
+       except:
+           print("fit not saved")
+ 
+    def open_fitter(self):
+       """
+       open a saved global_fit object
+       """
+       file_name, _ = QFileDialog.getOpenFileName(self, "Save Global Fit", "", "Pickle Files (*.pkl);;")
+       try:
+           experiments = pickle.load(open(file_name, "rb"))
+           for e in experiments:
+               self._fitter.add_experiment(e)
+           print(experiments)
+       except:
+           print("fit can't be opened")
 
     def save_file(self):
         """

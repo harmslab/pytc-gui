@@ -184,7 +184,7 @@ class AllExp(QWidget):
             # clear anything that might be in parameter box
             self._param_box.clear()
 
-    def perform_fit(self):
+    def perform_fit(self, options):
         """
         perform complete fit, update all
         """
@@ -196,7 +196,7 @@ class AllExp(QWidget):
 
         try:
             # after doing fit, emit signal to sliders and update parameter table
-            self._fitter.fit()
+            self._fitter.fit(**options)
             self.fit_signal.emit()
             self._param_box.update()
         except:
