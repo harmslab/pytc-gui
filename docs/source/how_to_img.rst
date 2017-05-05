@@ -30,6 +30,35 @@ For performing a single-site model fit to a single experiment.
 This can be repeated for more experiments.  Any new experiments you load will be
 added to the GUI. 
 
+Sliders
+=======
+Each loaded experiment has a model with associated fit parameters.  These 
+parameters can be maniuplated using a set of "sliders".  These have the
+same general layout. Each time a value is changed on a slider, the graph 
+is updated with the new guesses.   The graph will update to show the fit
+results once the fit is performed. 
+
+.. figure:: /screenshots/general/01.png
+    :width: 80%
+    :figclass: align-center
+
+    The general layout for each slider. Global parameters are similar except they exclude the dropdown menu.
+
+    +-----------------------+-------------------------------------------------------------+
+    |                       | Use                                                         |
+    +=======================+=============================================================+
+    | Fix                   | When checked, allows you to enter a fixed parameter value   |
+    +-----------------------+-------------------------------------------------------------+
+    | Slider                | Changes the parameter guess value.                          |
+    +-----------------------+-------------------------------------------------------------+
+    | Dropdown              | | Allows you to link and unlink parameters from global      |
+    |                       | | parameters as well as creation of new global parameters or|
+    |                       | | connectors.                                               |
+    +-----------------------+-------------------------------------------------------------+
+    | Min/Max               | | Allows you to change the bounds of allowed values for a   |
+    |                       | | parameter.                                                |
+    +-----------------------+-------------------------------------------------------------+
+
 Global Variables
 ================
 
@@ -100,35 +129,6 @@ relationship).
     :figclass: align-center
 
     Once everything is set, perform the new fit.
-
-Sliders
-=======
-Each loaded experiment has a model with associated fit parameters.  These 
-parameters can be maniuplated using a set of "sliders".  These have the
-same general layout. Each time a value is changed on a slider, the graph 
-is updated with the new guesses.   The graph will update to show the fit
-results once the fit is performed. 
-
-.. figure:: /screenshots/general/01.png
-    :width: 80%
-    :figclass: align-center
-
-    The general layout for each slider. Global parameters are similar except they exclude the dropdown menu.
-
-    +-----------------------+-------------------------------------------------------------+
-    |                       | Use                                                         |
-    +=======================+=============================================================+
-    | Fix                   | When checked, allows you to enter a fixed parameter value   |
-    +-----------------------+-------------------------------------------------------------+
-    | Slider                | Changes the parameter guess value.                          |
-    +-----------------------+-------------------------------------------------------------+
-    | Dropdown              | | Allows you to link and unlink parameters from global      |
-    |                       | | parameters as well as creation of new global parameters or|
-    |                       | | connectors.                                               |
-    +-----------------------+-------------------------------------------------------------+
-    | Min/Max               | | Allows you to change the bounds of allowed values for a   |
-    |                       | | parameter.                                                |
-    +-----------------------+-------------------------------------------------------------+
 
 Indices and tables
 ==================
