@@ -53,7 +53,7 @@ class AddExperimentWindow(QDialog):
         origin_choose.toggled.connect(self.select_file_type)
         origin_choose.setChecked(True)
 
-        nitpic_choose = QRadioButton("NITPIC File")
+        nitpic_choose = QRadioButton("NITPIC Folder")
         nitpic_choose.toggled.connect(self.select_file_type)
 
         button_layout.addWidget(origin_choose)

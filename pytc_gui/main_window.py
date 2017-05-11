@@ -12,6 +12,7 @@ from .fit_update import AllExp, PlotBox
 from .aic_test import DoAICTest
 from .help_dialogs import VersionInfo, DocumentationURL
 from .options import FitOptions
+from .qlogging_handler import OutputStream
 
 from matplotlib.backends.backend_pdf import PdfPages
 
@@ -44,8 +45,26 @@ class Splitter(QWidget):
         self._plot_frame = PlotBox(self)
         self._exp_frame = AllExp(self)
 
+        # set up message box 
+        scroll = QScrollArea(self)
+        self._message_box = QTextEdit()
+        self._message_box.setReadOnly(True)
+        scroll.setWidget(self._message_box)
+        scroll.setWidgetResizable(True)
+
+        # redirect stdout
+        self._temp = sys.stdout
+        sys.stdout = OutputStream()
+        sys.stdout.text_printed.connect(self.read_stdout)
+
+        # set up splitters
         splitter = QSplitter(Qt.Horizontal)
-        splitter.addWidget(self._plot_frame)
+        v_splitter = QSplitter(Qt.Vertical)
+        v_splitter.addWidget(self._plot_frame)
+        v_splitter.addWidget(scroll)
+        v_splitter.setSizes([300, 50])
+
+        splitter.addWidget(v_splitter)
         splitter.addWidget(self._exp_frame)
         splitter.setSizes([200, 200])
 
@@ -68,6 +87,12 @@ class Splitter(QWidget):
         """
         self._exp_frame.perform_fit(self._options_dict)
         self._plot_frame.update()
+
+    @pyqtSlot(str)
+    def read_stdout(self, text):
+        """
+        """
+        self._message_box.insertPlainText(text)
 
 class Main(QMainWindow):
     """
@@ -301,6 +326,7 @@ class Main(QMainWindow):
         """
         close window
         """
+        sys.stdout = self._exp._temp
         self.close()
 
 def main():

@@ -3,7 +3,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
 from pytc import util
-import sys
+from .qlogging_handler import OutputStream
+import sys, logging
 
 class DoAICTest(QDialog):
 
@@ -13,8 +14,6 @@ class DoAICTest(QDialog):
 		super().__init__()
 
 		self._fitter_list = parent._fitter_list
-
-		sys.stdout = OutputStream()
 
 		self.layout()
 
@@ -36,6 +35,13 @@ class DoAICTest(QDialog):
 		ftest_button.clicked.connect(self.perform_test)
 
 		self._data_out = QTextEdit()
+		self._data_out.setReadOnly(True)
+		self._data_out.setMinimumWidth(400)
+
+		# redirect stdout to textedit
+		self._temp = sys.stdout
+		sys.stdout = OutputStream()
+		sys.stdout.text_printed.connect(self.read_stdout)
 
 		test_layout.addWidget(self._fitter_select)
 		test_layout.addWidget(ftest_button)
@@ -47,29 +53,18 @@ class DoAICTest(QDialog):
 		take selected objects and use them in f-test
 		"""
 		selected = [self._fitter_list[i.text()] for i in self._fitter_select.selectedItems()]
-		print(selected)
 		if len(selected) == 2:	
-			output = util.choose_model(*selected)
-			self._process.start(output)
+			util.choose_model(*selected)
 		else:
 			print("compares 2 models")
 
-	def read_stdout(self):
+	@pyqtSlot(str)
+	def read_stdout(self, text):
 		"""
 		"""
-		text = str(self._process.readAllStandardOutput())
-		self._data_out.insertText(text)
+		self._data_out.insertPlainText(text)
 
-class OutputStream(QObject):
-
-	def __init__(self):
+	def closeEvent(self, evnt):
 		"""
 		"""
-		super().__init__()
-
-		text_printed = pyqtSignal(str)
-
-	def write(self, text):
-		"""
-		"""
-		self.text_printed.emit(str(text))
+		sys.stdout = self._temp
