@@ -10,6 +10,7 @@ class OutputStream(QObject):
 
 	def __init__(self):
 		"""
+		redirect print statements to text edit
 		"""
 		super().__init__()
 

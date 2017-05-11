@@ -16,7 +16,7 @@ from .qlogging_handler import OutputStream
 
 from matplotlib.backends.backend_pdf import PdfPages
 
-import sys, pkg_resources, pickle, inspect
+import sys, pkg_resources, pickle, inspect, copy
 
 class Splitter(QWidget):
     """
@@ -27,6 +27,7 @@ class Splitter(QWidget):
         super().__init__()
 
         self._fitter = parent._fitter
+        self._parent = parent
 
         fit_args = inspect.getargspec(GlobalFit().fit)
         self._options_dict = {arg: param for arg, param in zip(fit_args.args[1:], fit_args.defaults)}
@@ -71,6 +72,8 @@ class Splitter(QWidget):
         main_layout.addWidget(splitter)
         main_layout.addWidget(gen_fit)
 
+        self._parent.new_fitter.connect(self.fit_signal_update)
+
     def clear(self):
         """
         """
@@ -88,6 +91,13 @@ class Splitter(QWidget):
         self._exp_frame.perform_fit(self._options_dict)
         self._plot_frame.update()
 
+    @pyqtSlot(GlobalFit)
+    def fit_signal_update(self, obj):
+        """
+        """
+        self._plot_frame._fitter = obj
+        self._exp_frame._fitter = obj
+
     @pyqtSlot(str)
     def read_stdout(self, text):
         """
@@ -97,11 +107,14 @@ class Splitter(QWidget):
 class Main(QMainWindow):
     """
     """
+    new_fitter = pyqtSignal(GlobalFit)
+
     def __init__(self):
         super().__init__()
 
         self._fitter = GlobalFit()
         self._fitter_list = {}
+        self._version = pkg_resources.require("pytc-gui")[0].version
 
         self.layout()
 
@@ -224,7 +237,6 @@ class Main(QMainWindow):
     def print_tests(self):
         """
         """
-        #self._exp.testing()
         print(self._fitter_list)
 
     def fit_exp(self):
@@ -258,13 +270,11 @@ class Main(QMainWindow):
         """
         save fitter to list for use in f-test
         """
-        text, ok = QInputDialog.getText(self, 'Save Fitter', 'Enter Name (optional):')
+        text, ok = QInputDialog.getText(self, 'Save Fitter', 'Enter Name:')
 
+        # save deepcopy of fitter
         if ok:
-            self._fitter_list[text] = self._fitter
-        else:
-            num = len(self._fitter_list)+1
-            self._fitter_list['g{}'.format(num)] = self._fitter
+            self._fitter_list[text] = copy.deepcopy(self._fitter)
 
     def new_exp(self):
         """
@@ -273,8 +283,6 @@ class Main(QMainWindow):
         warning_message = QMessageBox.warning(self, "warning!", "Are you sure you want to start a new session?", QMessageBox.Yes | QMessageBox.No)
 
         if warning_message == QMessageBox.Yes:
-            #num = len(self._fitter_list)+1
-            #self._fitter_list['g{}'.format(num)] = self._fitter
             self._exp.clear()
         else:
             pass
@@ -285,7 +293,7 @@ class Main(QMainWindow):
        """
        file_name, _ = QFileDialog.getSaveFileName(self, "Save Global Fit", "", "Pickle Files (*.pkl);;")
        try:
-           pickle.dump(self._fitter.experiments, open(file_name, "wb"))
+           pickle.dump([self._fitter, self._version], open(file_name, "wb"))
        except:
            print("fit not saved")
  
@@ -295,12 +303,15 @@ class Main(QMainWindow):
        """
        file_name, _ = QFileDialog.getOpenFileName(self, "Save Global Fit", "", "Pickle Files (*.pkl);;")
        try:
-           experiments = pickle.load(open(file_name, "rb"))
-           for e in experiments:
-               self._fitter.add_experiment(e)
-           print(experiments)
+            opened_fitter, version = pickle.load(open(file_name, "rb"))
+            if self._version == version:
+                self._fitter = opened_fitter
+                self.new_fitter.emit(opened_fitter)
+            else:
+                print("current version is", self._version, " and file version is", version, 
+                        ". versions are incompatible.")
        except:
-           print("fit can't be opened")
+            print("fit can't be opened")
 
     def save_file(self):
         """
