@@ -261,10 +261,16 @@ class Main(QMainWindow):
 
     def fit_options(self):
         """
+        Window for fit options
         """
-        self._fit_options = FitOptions(self._fitter)
-        self._fit_options.options_signal.connect(self._exp.update_fit_options)
-        self._fit_options.show()
+
+        # Try to show the window -- if it's not created already, make it
+        try:
+            self._fit_options.show()
+        except AttributeError:
+            self._fit_options = FitOptions(self._fitter)
+            self._fit_options.options_signal.connect(self._exp.update_fit_options)
+            self._fit_options.show()
 
     def add_fitter(self):
         """
