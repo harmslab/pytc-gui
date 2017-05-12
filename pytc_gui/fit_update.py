@@ -38,8 +38,13 @@ class PlotBox(QWidget):
         self.clear()
         self._figure, self._ax = self._fitter.plot()
 
+        self._corner_fig = self._fitter.corner_plot()
+
         plot_figure = FigureCanvas(self._figure)
+        corner_plot = FigureCanvas(self._corner_fig)
+
         self._main_layout.addWidget(plot_figure)
+        self._main_layout.addWidget(corner_plot)
 
     def clear(self):
         """

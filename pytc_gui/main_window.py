@@ -274,7 +274,7 @@ class Main(QMainWindow):
 
     def add_fitter(self):
         """
-        save fitter to list for use in f-test
+        save fitter to list for use in aic-test
         """
         text, ok = QInputDialog.getText(self, 'Save Fitter', 'Enter Name:')
 
