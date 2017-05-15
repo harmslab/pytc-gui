@@ -36,15 +36,23 @@ class PlotBox(QWidget):
         clear main layout and add new graph to layout
         """
         self.clear()
+        tabs = QTabWidget()
+
         self._figure, self._ax = self._fitter.plot()
 
-        self._corner_fig = self._fitter.corner_plot()
-
         plot_figure = FigureCanvas(self._figure)
-        corner_plot = FigureCanvas(self._corner_fig)
+        tabs.addTab(plot_figure, "Main")
 
-        self._main_layout.addWidget(plot_figure)
-        self._main_layout.addWidget(corner_plot)
+        try: 
+            self._corner_fig = self._fitter.corner_plot()
+        except:
+            self._corner_fig = Figure()
+            corner_ax = self._corner_fig.add_subplot(111)
+
+        corner_plot = FigureCanvas(self._corner_fig)
+        tabs.addTab(corner_plot, "Corner Plots")
+
+        self._main_layout.addWidget(tabs)
 
     def clear(self):
         """
