@@ -12,13 +12,12 @@ import sys, logging
 
 class ModelPlots(QDialog):
 
-    def __init__(self, plot1, plot2):
+    def __init__(self, plots):
         """
         """
         super().__init__()
 
-        self._plot1 = plot1
-        self._plot2 = plot2
+        self._plots = plots
 
         self.layout()
 
@@ -26,15 +25,14 @@ class ModelPlots(QDialog):
         """
         """
         main_layout = QHBoxLayout(self)
+        tabs = QTabWidget()
+        
+        for p, i in self._plots:
+            fig, ax = p
+            plot_fig = FigureCanvas(fig)
+            tabs.addTab(plot_fig, "Model {}".format(i))
 
-        fig1, ax1 = self._plot1
-        fig2, ax2 = self._plot2
-
-        plot_fig1 = FigureCanvas(fig1)
-        plot_fig2 = FigureCanvas(fig2)
-
-        main_layout.addWidget(plot_fig1)
-        main_layout.addWidget(plot_fig2)
+        main_layout.addWidget(tabs)
 
 class DoAICTest(QDialog):
 
@@ -82,13 +80,14 @@ class DoAICTest(QDialog):
         """
         take selected objects and use them in f-test
         """
-        selected = [self._fitter_list[i.text()] for i in self._fitter_select.selectedItems()]
-        if len(selected) == 2:  
-            output, plot1, plot2 = util.choose_model(*selected)
-            self._plots = ModelPlots(plot1, plot2)
-            self._plots.show()
-        else:
-            print("compares 2 models")
+        selected = [self._fitter_list[i.text()] for i in self._fitter_select.selectedItems()] 
+        output, plots = util.compare_models(*selected)
+        self._plots = ModelPlots(plots)
+        self._plots.show()
+        for o, v in output.items():
+            print("Value: ", o)
+            print("Best Model: ", v[0])
+            print("Weights: ", v[1], "\n")
 
     @pyqtSlot(str)
     def read_stdout(self, text):

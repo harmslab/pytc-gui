@@ -11,7 +11,7 @@ from .exp_setup import AddExperimentWindow
 from .fit_update import AllExp, PlotBox
 from .aic_test import DoAICTest
 from .help_dialogs import VersionInfo, DocumentationURL
-from .options import FitOptions
+from .options import FitOptions, SelectActiveFitter
 from .qlogging_handler import OutputStream
 
 from matplotlib.backends.backend_pdf import PdfPages
@@ -27,6 +27,7 @@ class Splitter(QWidget):
         super().__init__()
 
         self._fitter = parent._fitter
+        self._fitter_list = parent._fitter_list
         self._parent = parent
 
         fit_args = inspect.getargspec(GlobalFit().fit)
@@ -263,7 +264,6 @@ class Main(QMainWindow):
         """
         Window for fit options
         """
-
         # Try to show the window -- if it's not created already, make it
         try:
             self._fit_options.show()
@@ -326,6 +326,7 @@ class Main(QMainWindow):
 
         file_name, _ = QFileDialog.getSaveFileName(self, "Save Experiment Output", "", "Text Files (*.txt);;CSV Files (*.csv)")
         plot_name = file_name.split(".")[0] + "_plot.pdf"
+        corner_plot_name = file_name.split(".")[0] + "_corner_plot.pdf"
 
         try:
             data_file = open(file_name, "w")
@@ -336,6 +337,12 @@ class Main(QMainWindow):
             fig, ax = self._fitter.plot()
             plot_save.savefig(fig)
             plot_save.close()
+
+            plot_save = PdfPages(corner_plot_name)
+            fig = self._fitter.corner_plot()
+            plot_save.savefig(fig)
+            plot_save.close()
+
         except:
             pass
 
