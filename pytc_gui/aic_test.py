@@ -102,17 +102,20 @@ class DoAICTest(QDialog):
         """
         take selected objects and use them in f-test
         """
-        selected = [self._fitter_list[i.text()] for i in self._fitter_select.selectedItems()] 
-        output, plots = util.compare_models(*selected)
-        self._plots = ModelPlots(plots)
-        self._plots.show()
+        try:
+            selected = [self._fitter_list[i.text()] for i in self._fitter_select.selectedItems()] 
+            output, plots = util.compare_models(*selected)
+            self._plots = ModelPlots(plots)
+            self._plots.show()
 
-        # translate output
-        print("\n")
-        for o, v in output.items():
-            print("Value: ", o)
-            print("Best Model: ", v[0])
-            print("Weights: ", v[1], "\n")
+            # translate output
+            print("\n")
+            for o, v in output.items():
+                print("Value: ", o)
+                print("Best Model: ", v[0])
+                print("Weights: ", v[1], "\n")
+        except:
+            print("Test Failed")
 
     @pyqtSlot(str)
     def read_stdout(self, text):

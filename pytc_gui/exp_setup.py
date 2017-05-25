@@ -3,8 +3,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
-import inspect
-import re
+import inspect, re, collections
 
 class AddExperimentWindow(QDialog):
     """
@@ -25,47 +24,6 @@ class AddExperimentWindow(QDialog):
         self._on_close = on_close
 
         self.layout()
-
-    def _load_exp_info(self):
-        """
-        """
-        self._gen_widgets = {}
-        self._exp_widgets = {}
-
-        self._radio_buttons = []
-
-        # get file types/choosers
-        file_types = []
-        for name, obj in inspect.getmembers(pytc.experiments):
-            if inspect.isclass(obj):
-                file_types.append((name,obj))
-        file_types.sort()
-
-        # make radio buttons + add to layout
-        for name, obj in file_types:
-            type_name = name.replace("Experiment", "")
-            radio_button = QRadioButton(type_name)
-            radio_button.toggled.connect(self.select_file_type)
-            self._button_layout.addWidget(radio_button)
-            self._radio_buttons.append(radio_button)
-            if "Origin" in type_name:
-                radio_button.setChecked(True)
-
-        exp_def = inspect.getargspec(pytc.experiments.base.BaseITCExperiment.__init__)
-
-        args = {arg: param for arg, param in zip(exp_def.args[3:], exp_def.defaults)}
-
-        # add exp args + defaults to widgets
-        for n, v in args.items():
-            self._exp_widgets[n] = QLineEdit(self)
-            self._exp_widgets[n].setText(str(v))
-
-        # add to layout
-        for name, entry in self._exp_widgets.items():
-            label_name = str(name).replace("_", " ") + ": "
-            label = QLabel(label_name.title(), self)
-
-            self._form_layout.addRow(label, entry)
 
     def layout(self):
         """
@@ -112,6 +70,57 @@ class AddExperimentWindow(QDialog):
         main_layout.addWidget(gen_exp)
 
         self.setWindowTitle('Add Experiment to Fitter')
+
+    def _load_exp_info(self):
+        """
+        """
+        self._gen_widgets = {}
+        self._exp_widgets = {}
+
+        self._radio_buttons = []
+
+        # get file types/choosers
+        file_types = []
+        for name, obj in inspect.getmembers(pytc.experiments):
+            if inspect.isclass(obj):
+                file_types.append((name,obj))
+        file_types.sort()
+
+        # make radio buttons + add to layout
+        for name, obj in file_types:
+            type_name = name.replace("Experiment", "")
+            radio_button = QRadioButton(type_name)
+            radio_button.toggled.connect(self.select_file_type)
+            self._button_layout.addWidget(radio_button)
+            self._radio_buttons.append(radio_button)
+            if "Origin" in type_name:
+                radio_button.setChecked(True)
+
+        exp_def = inspect.getargspec(pytc.experiments.base.BaseITCExperiment.__init__)
+
+        args = {arg: param for arg, param in zip(exp_def.args[3:], exp_def.defaults)}
+
+        # get units 
+        units = getattr(pytc.experiments.base.BaseITCExperiment, 'AVAIL_UNITS')
+
+        # add exp args + defaults to widgets
+        for n, v in args.items():
+            if n == "units":
+                self._exp_widgets[n] = QComboBox(self)
+                self._exp_widgets[n].addItems(sorted(units.keys()))
+            else:
+                self._exp_widgets[n] = QLineEdit(self)
+                self._exp_widgets[n].setText(str(v))
+
+        # sort dictionary
+        sorted_names = collections.OrderedDict(sorted(self._exp_widgets.items()))
+
+        # add to layout
+        for name, entry in sorted_names.items():
+            label_name = str(name).replace("_", " ") + ": "
+            label = QLabel(label_name.title(), self)
+
+            self._form_layout.addRow(label, entry)
 
     def _update_widgets(self):
         """
@@ -193,12 +202,15 @@ class AddExperimentWindow(QDialog):
             exp_param = {}
             for k, v in self._exp_widgets.items():
                 val = None
-                if "." in v.text():
-                    val = float(v.text())
-                elif v.text().isdigit():
-                    val = int(v.text())
+                if k != "units":
+                    if "." in v.text():
+                        val = float(v.text())
+                    elif v.text().isdigit():
+                        val = int(v.text())
+                    else:
+                        val = v.text()
                 else:
-                    val = v.text()
+                    val = v.currentText()
 
                 exp_param[k] = val
 

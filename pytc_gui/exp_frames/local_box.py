@@ -41,7 +41,7 @@ class LocalBox(Experiments):
         """
         # change shot start
         self._change_shots = QLineEdit(self)
-        self._change_shots.setFixedWidth(100)
+        self._change_shots.setFixedWidth(120)
         self._change_shots.setPlaceholderText("Change Shot Start")
         self._change_shots.returnPressed.connect(self.update_shots)
         self._main_layout.addWidget(self._change_shots)
