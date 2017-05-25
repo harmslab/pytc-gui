@@ -64,7 +64,7 @@ class LocalBox(Experiments):
                 new_start = int(text)
                 setattr(self._exp, 'shot_start', new_start)
                 self._update()
-                print("shot start updated to " + text)
+                print("shot start updated to " + text + "\n")
             except:
                 print("shots out of bounds")
         else:

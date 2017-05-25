@@ -107,6 +107,10 @@ class ParamTable(QTableWidget):
                 i = i.rstrip().split(',')
                 self._data.append(i)
 
+        for l in self._header:
+            print(l)
+        print("\n")
+
     def update(self):
         """
         update the table with updated fit parameters
