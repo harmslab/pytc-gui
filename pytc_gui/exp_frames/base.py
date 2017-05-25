@@ -60,6 +60,9 @@ class Experiments(QWidget):
 
         self._main_layout.addLayout(self._header_layout)
 
+        # empty box for shot
+        self.shots()
+
         # Create empty box for any required parameters
         self._req_box = QFrame()
         self._req_layout = QVBoxLayout()
@@ -70,6 +73,12 @@ class Experiments(QWidget):
         self._divider = QFrame()
         self._divider.setFrameShape(QFrame.HLine)
         self._main_layout.addWidget(self._divider)
+
+    def shots(self):
+        """
+        change the shot start
+        """
+        pass
 
     def exp_widgets(self):
         """

@@ -6,45 +6,16 @@ import pytc
 
 import inspect, ast
 
-class SelectActiveFitter(QWidget):
-	"""
-	"""
-	def __init__(self, parent):
-		""
-		""
-		super().__init__()
-
-		self._fitter_list = parent._fitter_list
-
-	def layout(self):
-		"""
-		"""
-		main_layout = QHBoxLayout(self)
-
-		fitter_select = QComboBox(self)
-
-		for k, v in self._fitter_list:
-			fitter_select.addItem(k)
-
-		fitter_select.activated[str].connect(self.change_fitter)
-
-		main_layout.addWidget(fitter_select)
-
-	def change_fitter(self, fit_obj):
-		"""
-		"""
-		return fit_obj		
-
 class FitOptions(QDialog):
 
     options_signal = pyqtSignal(dict)
 
-    def __init__(self, fitter,default_fitter="ML"):
+    def __init__(self, fitter,fitter_list,default_fitter="ML"):
         """
         """
         super().__init__()
         self._fitter = fitter
-        self._fitter_list = parent._fitter_list
+        self._fitter_list = fitter_list
         self._default_fitter = default_fitter
 
         self.layout()

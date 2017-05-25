@@ -26,15 +26,54 @@ class AddExperimentWindow(QDialog):
 
         self.layout()
 
+    def _load_exp_info(self):
+        """
+        """
+        self._gen_widgets = {}
+        self._exp_widgets = {}
+
+        self._radio_buttons = []
+
+        # get file types/choosers
+        file_types = []
+        for name, obj in inspect.getmembers(pytc.experiments):
+            if inspect.isclass(obj):
+                file_types.append((name,obj))
+        file_types.sort()
+
+        # make radio buttons + add to layout
+        for name, obj in file_types:
+            type_name = name.replace("Experiment", "")
+            radio_button = QRadioButton(type_name)
+            radio_button.toggled.connect(self.select_file_type)
+            self._button_layout.addWidget(radio_button)
+            self._radio_buttons.append(radio_button)
+            if "Origin" in type_name:
+                radio_button.setChecked(True)
+
+        exp_def = inspect.getargspec(pytc.experiments.base.BaseITCExperiment.__init__)
+
+        args = {arg: param for arg, param in zip(exp_def.args[3:], exp_def.defaults)}
+
+        # add exp args + defaults to widgets
+        for n, v in args.items():
+            self._exp_widgets[n] = QLineEdit(self)
+            self._exp_widgets[n].setText(str(v))
+
+        # add to layout
+        for name, entry in self._exp_widgets.items():
+            label_name = str(name).replace("_", " ") + ": "
+            label = QLabel(label_name.title(), self)
+
+            self._form_layout.addRow(label, entry)
+
     def layout(self):
         """
         """
         # exp text, model dropdown, shots select
         main_layout = QVBoxLayout(self)
         self._form_layout = QFormLayout()
-        button_layout = QHBoxLayout()
-
-        self._gen_widgets = {}
+        self._button_layout = QHBoxLayout()
 
         model_select = QComboBox(self)
         model_names = list(self._models.keys())
@@ -43,48 +82,38 @@ class AddExperimentWindow(QDialog):
         for k in model_names:
             model_select.addItem(k)
 
+        # set up model select
         self._exp_model = self._models[str(model_select.currentText())]
         model_select.activated[str].connect(self.model_select)
 
+        # set up load file
         load_exp = QPushButton("Load File", self)
         load_exp.clicked.connect(self.add_file)
 
-        origin_choose = QRadioButton("Origin File")
-        origin_choose.toggled.connect(self.select_file_type)
-        origin_choose.setChecked(True)
-
-        nitpic_choose = QRadioButton("NITPIC Folder")
-        nitpic_choose.toggled.connect(self.select_file_type)
-
-        button_layout.addWidget(origin_choose)
-        button_layout.addWidget(nitpic_choose)
-
         self._exp_label = QLabel("...", self)
-
-        shot_start_text = QLineEdit(self)
-        shot_start_text.setText("0")
-        shot_start_text.textChanged[str].connect(self.shot_select)
 
         gen_exp = QPushButton("OK", self)
         gen_exp.clicked.connect(self.generate)
 
+        # add to layout
         self._form_layout.addRow(load_exp, self._exp_label)
-        self._form_layout.addRow(button_layout)
+        self._form_layout.addRow(self._button_layout)
         self._form_layout.addRow(QLabel("Select Model:"), model_select)
-        self._form_layout.addRow(QLabel("Shot Start:"), shot_start_text)
+
+        self._load_exp_info()
 
         # keeps load_exp from being default button for return press
         load_exp.setDefault(False)
         load_exp.setAutoDefault(False)
 
-        self.update_widgets()
+        self._update_widgets()
 
         main_layout.addLayout(self._form_layout)
         main_layout.addWidget(gen_exp)
 
         self.setWindowTitle('Add Experiment to Fitter')
 
-    def update_widgets(self):
+    def _update_widgets(self):
         """
         """
         # check for any model specific parameters and update text fields with those values
@@ -121,15 +150,7 @@ class AddExperimentWindow(QDialog):
         """
         """
         self._exp_model = self._models[model]
-        self.update_widgets()
-
-    def shot_select(self, shot):
-        """
-        """
-        try:
-            self._shot_start = int(shot)
-        except:
-            pass
+        self._update_widgets()
 
     def select_file_type(self):
         """
@@ -137,18 +158,16 @@ class AddExperimentWindow(QDialog):
         b = self.sender()
 
         # change type of file dialog based on radio option
-        if isinstance(b,QRadioButton) and b.text() == "NITPIC File" and b.isChecked():
-            self._file_type = "nitpic"
-        elif isinstance(b,QRadioButton) and b.text() == "Origin File" and b.isChecked():
-            self._file_type = "origin"
+        if b.isChecked():
+            self._file_type = b.text()
 
     def add_file(self):
         """
         """
-        # do folder or fild radio options
-        if self._file_type == "nitpic":
+        # do folder or file radio options
+        if self._file_type == "Nitpic":
             file_name = QFileDialog.getExistingDirectory(None, 'Select a folder:', 'C:\\', QFileDialog.ShowDirsOnly)
-        elif self._file_type == "origin":
+        else:
             file_name, _ = QFileDialog.getOpenFileName(self, "Select a file...", "", filter="DH Files (*.DH)")
 
         self._exp_file = str(file_name)
@@ -171,7 +190,19 @@ class AddExperimentWindow(QDialog):
 
                 model_param[k] = val
 
-            itc_exp = pytc.ITCExperiment(self._exp_file, self._exp_model, shot_start = self._shot_start, **model_param)
+            exp_param = {}
+            for k, v in self._exp_widgets.items():
+                val = None
+                if "." in v.text():
+                    val = float(v.text())
+                elif v.text().isdigit():
+                    val = int(v.text())
+                else:
+                    val = v.text()
+
+                exp_param[k] = val
+
+            itc_exp = pytc.ITCExperiment(self._exp_file, self._exp_model, **exp_param, **model_param)
             self._fitter.add_experiment(itc_exp)
 
             self._on_close._plot_frame.update()

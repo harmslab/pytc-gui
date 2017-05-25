@@ -11,7 +11,7 @@ from .exp_setup import AddExperimentWindow
 from .fit_update import AllExp, PlotBox
 from .aic_test import DoAICTest
 from .help_dialogs import VersionInfo, DocumentationURL
-from .options import FitOptions, SelectActiveFitter
+from .options import FitOptions
 from .qlogging_handler import OutputStream
 
 from matplotlib.backends.backend_pdf import PdfPages
@@ -147,9 +147,9 @@ class Main(QMainWindow):
 
         fitting_commands.addSeparator()
 
-        add_fitter = QAction("Add Fitter to List", self)
-        add_fitter.triggered.connect(self.add_fitter)
-        fitting_commands.addAction(add_fitter)
+        #add_fitter = QAction("Add Fitter to List", self)
+        #add_fitter.triggered.connect(self.add_fitter)
+        #fitting_commands.addAction(add_fitter)
 
         aic_test = QAction("AIC Test", self)
         aic_test.triggered.connect(self.perform_aic)
@@ -160,11 +160,6 @@ class Main(QMainWindow):
         fitting_options = QAction("Fit Options", self)
         fitting_options.triggered.connect(self.fit_options)
         fitting_commands.addAction(fitting_options)
-
-        test = QAction("Test Shit", self)
-        test.setShortcut("Ctrl+P")
-        test.triggered.connect(self.print_tests)
-        fitting_commands.addAction(test)
 
         # File Menu
         add_exp = QAction("Add Experiment", self)
@@ -210,8 +205,6 @@ class Main(QMainWindow):
         self.addAction(save_fitter)
         self.addAction(open_fitter)
 
-        self.addAction(test)
-
         # Set up central widget
         self._exp = Splitter(self)
         self.setCentralWidget(self._exp)
@@ -234,11 +227,6 @@ class Main(QMainWindow):
         """
         self._version = VersionInfo()
         self._version.show()
-
-    def print_tests(self):
-        """
-        """
-        print(self._fitter_list)
 
     def fit_exp(self):
         """
@@ -268,7 +256,7 @@ class Main(QMainWindow):
         try:
             self._fit_options.show()
         except AttributeError:
-            self._fit_options = FitOptions(self._fitter)
+            self._fit_options = FitOptions(self._fitter, self._fitter_list)
             self._fit_options.options_signal.connect(self._exp.update_fit_options)
             self._fit_options.show()
 
@@ -281,6 +269,8 @@ class Main(QMainWindow):
         # save deepcopy of fitter
         if ok:
             self._fitter_list[text] = copy.deepcopy(self._fitter)
+            print("Fitter " + text + " saved to list. Current List: ")
+            print(self._fitter_list)
 
     def new_exp(self):
         """
