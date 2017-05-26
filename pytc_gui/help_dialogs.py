@@ -82,4 +82,3 @@ class DocumentationURL(QDialog):
 		main_layout.addWidget(OK_button)
 
 		self.setWindowTitle("Documentation")
-

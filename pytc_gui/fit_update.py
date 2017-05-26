@@ -36,10 +36,23 @@ class PlotBox(QWidget):
         clear main layout and add new graph to layout
         """
         self.clear()
+        tabs = QTabWidget()
+
         self._figure, self._ax = self._fitter.plot()
 
         plot_figure = FigureCanvas(self._figure)
-        self._main_layout.addWidget(plot_figure)
+        tabs.addTab(plot_figure, "Main")
+
+        try: 
+            self._corner_fig = self._fitter.corner_plot()
+        except:
+            self._corner_fig = Figure()
+            corner_ax = self._corner_fig.add_subplot(111)
+
+        corner_plot = FigureCanvas(self._corner_fig)
+        tabs.addTab(corner_plot, "Corner Plots")
+
+        self._main_layout.addWidget(tabs)
 
     def clear(self):
         """
@@ -94,6 +107,10 @@ class ParamTable(QTableWidget):
                 i = i.rstrip().split(',')
                 self._data.append(i)
 
+        for l in self._header:
+            print(l)
+        print("\n")
+
     def update(self):
         """
         update the table with updated fit parameters
@@ -133,6 +150,7 @@ class AllExp(QWidget):
         self._global_connectors = {}
         self._connectors_seen = {}
         self._plot_frame = parent._plot_frame
+        self._update = parent.fit_shortcut
 
         self.layout()
 
@@ -184,7 +202,7 @@ class AllExp(QWidget):
             # clear anything that might be in parameter box
             self._param_box.clear()
 
-    def perform_fit(self):
+    def perform_fit(self, options):
         """
         perform complete fit, update all
         """
@@ -196,7 +214,7 @@ class AllExp(QWidget):
 
         try:
             # after doing fit, emit signal to sliders and update parameter table
-            self._fitter.fit()
+            self._fitter.fit(**options)
             self.fit_signal.emit()
             self._param_box.update()
         except:

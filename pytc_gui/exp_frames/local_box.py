@@ -20,6 +20,7 @@ class LocalBox(Experiments):
         self._required_fields = {}
         self._experiments = parent._experiments
         self._exp_box = parent._exp_box
+        self._update = parent._update
         self._main_box = parent
 
         super().__init__(name, parent)
@@ -34,12 +35,40 @@ class LocalBox(Experiments):
             s = sliders.LocalSliders(p, v, self)
             self._slider_list["Local"][self._exp].append(s)
 
+    def shots(self):
+        """
+        shots layout
+        """
+        # change shot start
+        self._change_shots = QLineEdit(self)
+        self._change_shots.setFixedWidth(120)
+        self._change_shots.setPlaceholderText("Change Shot Start")
+        self._change_shots.returnPressed.connect(self.update_shots)
+        self._main_layout.addWidget(self._change_shots)
+
     def slider_popup(self):
         """
         hide and show slider window
         """
         self._slider_window = slider_popup.LocalPopUp(self)
         self._slider_window.show()
+
+    def update_shots(self):
+        """
+        change the shot start
+        """
+        text = self._change_shots.text()
+
+        if text.isdigit():
+            try:
+                new_start = int(text)
+                setattr(self._exp, 'shot_start', new_start)
+                self._update()
+                print("shot start updated to " + text + "\n")
+            except:
+                print("shots out of bounds")
+        else:
+            error_message = QMessageBox.warning(self, "warning", "field only takes integers", QMessageBox.Ok)
                 
     def update_req(self):
         """
