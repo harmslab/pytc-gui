@@ -86,6 +86,8 @@ class DoAICTest(QDialog):
         main_layout.addLayout(test_layout)
         main_layout.addWidget(self._data_out)
 
+        self.setWindowTitle('AIC Test')
+
     def add_fitter(self):
         """
         add current fitter to list for testing
