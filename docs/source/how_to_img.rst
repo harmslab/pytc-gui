@@ -106,26 +106,32 @@ relationship).
     :width: 40%
     :figclass: align-center
 
+    Fit using a temperature dependant experiment.
+
+.. figure:: /screenshots/global_var/06.png
+    :width: 40%
+    :figclass: align-center
+
     Connectors are linked in a similar way to global variables, except select 
     **Add Connector** from the dropdown menu rather than **Add Global Var**. 
     A new pop-up will come up allowing you to select the type of connector you'd
     like to make, the name of the connector, and nay variables linked to that 
     connector. 
 
-.. figure:: /screenshots/global_var/06.png
+.. figure:: /screenshots/global_var/07.png
     :width: 60%
     :figclass: align-center
 
     As with global variables, link parameters to a connector parameter by
     selecting the connector from the dropdown menu.
 
-.. figure:: /screenshots/global_var/07.png
+.. figure:: /screenshots/global_var/08.png
     :figclass: align-center
 
     Some connectors might require experimental metadata (temperature, ionization
     enthalpy, etc.).  These need to be defined before performing the new fit.
 
-.. figure:: /screenshots/global_var/08.png
+.. figure:: /screenshots/global_var/09.png
     :figclass: align-center
 
     Once everything is set, perform the new fit.

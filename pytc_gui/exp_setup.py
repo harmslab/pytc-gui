@@ -96,7 +96,7 @@ class AddExperimentWindow(QDialog):
             if "Origin" in type_name:
                 radio_button.setChecked(True)
 
-        exp_def = inspect.getargspec(pytc.experiments.base.BaseITCExperiment.__init__)
+        exp_def = inspect.getargspec(pytc.experiments.base.BaseITCExperiment)
 
         args = {arg: param for arg, param in zip(exp_def.args[3:], exp_def.defaults)}
 

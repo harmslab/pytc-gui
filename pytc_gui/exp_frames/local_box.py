@@ -110,6 +110,7 @@ class LocalBox(Experiments):
                 setattr(self._exp, n, val)
             else:
                 error_message = QMessageBox.warning(self, "Fit Unsuccessful!", "Empty required data fields present", QMessageBox.Ok)
+                break
 
     def remove(self):
         """
