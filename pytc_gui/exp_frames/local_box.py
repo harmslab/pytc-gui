@@ -8,6 +8,7 @@ import inspect
 from .base import Experiments
 from .. import slider_popup
 from .. import sliders
+from .exp_options import ExpOptions
 
 class LocalBox(Experiments):
     """
@@ -35,16 +36,15 @@ class LocalBox(Experiments):
             s = sliders.LocalSliders(p, v, self)
             self._slider_list["Local"][self._exp].append(s)
 
-    def shots(self):
+    def options(self):
         """
         shots layout
         """
         # change shot start
-        self._change_shots = QLineEdit(self)
-        self._change_shots.setFixedWidth(120)
-        self._change_shots.setPlaceholderText("Change Shot Start")
-        self._change_shots.returnPressed.connect(self.update_shots)
-        self._main_layout.addWidget(self._change_shots)
+        self._exp_options = QPushButton("Exp Options", self)
+        self._exp_options.setFixedWidth(200)
+        self._exp_options.clicked.connect(self.update)
+        self._main_layout.addWidget(self._exp_options)
 
     def slider_popup(self):
         """
@@ -53,22 +53,12 @@ class LocalBox(Experiments):
         self._slider_window = slider_popup.LocalPopUp(self)
         self._slider_window.show()
 
-    def update_shots(self):
+    def update(self):
         """
         change the shot start
         """
-        text = self._change_shots.text()
-
-        if text.isdigit():
-            try:
-                new_start = int(text)
-                setattr(self._exp, 'shot_start', new_start)
-                self._update()
-                print("shot start updated to " + text + "\n")
-            except:
-                print("shots out of bounds")
-        else:
-            error_message = QMessageBox.warning(self, "warning", "field only takes integers", QMessageBox.Ok)
+        self._options = ExpOptions(self)
+        self._options.show()
                 
     def update_req(self):
         """

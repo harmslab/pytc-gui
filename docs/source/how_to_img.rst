@@ -103,7 +103,6 @@ For defining more complex linkages between experiments (such as a van't Hoff
 relationship).  
 
 .. figure:: /screenshots/global_var/05.png
-    :width: 40%
     :figclass: align-center
 
     Fit using a temperature dependant experiment.
