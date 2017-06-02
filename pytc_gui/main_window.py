@@ -12,7 +12,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
 from .exp_setup import AddExperimentWindow
-from .fit_update import ExperimentBox, PlotBox
+from .visual import ExperimentBox, PlotBox
 from .aic_test import DoAICTest
 from .help_dialogs import VersionInfo, DocumentationURL
 from .options import FitOptions
@@ -70,7 +70,7 @@ class GUIMaster(QWidget):
         # redirect stdout to the message box
         self._temp = sys.stdout
         sys.stdout = OutputStream()
-        sys.stdout.text_printed.connect(self.read_stdout)
+        sys.stdout.text_printed.connect(self.read_stdout_callback)
 
         # Split up the main window in a useful way
 
@@ -121,15 +121,39 @@ class GUIMaster(QWidget):
         self._exp_box._fitter = obj
 
     @pyqtSlot(str)
-    def read_stdout(self, text):
+    def read_stdout_callback(self, text):
         """
+        Wirte standard out to the main message box.
         """
         self._message_box.insertPlainText(text)
 
     @property
     def parent(self):
-
+        """
+        Parent window.
+        """
         return self._parent
+
+    @property
+    def plot_box(self):
+        """
+        Main plot box.
+        """ 
+        return self._plot_box
+
+    @property
+    def exp_box(self):
+        """
+        Main experiment box.
+        """
+        return self._exp_box
+
+    @property
+    def message_box(self):
+        """
+        Main message box.
+        """
+        return self._message_box
 
 class MainWindow(QMainWindow):
     """
@@ -139,7 +163,6 @@ class MainWindow(QMainWindow):
     fit_signal = pyqtSignal(GlobalFit)
 
     def __init__(self):
-
 
         super().__init__()
 
@@ -163,17 +186,17 @@ class MainWindow(QMainWindow):
 
         # ------------- Help Menu ----------------------
         prog_info = QAction("About", self)
-        prog_info.triggered.connect(self.version)
+        prog_info.triggered.connect(self.version_callback)
         help_menu.addAction(prog_info)
 
         doc_info = QAction("Documentation", self)
-        doc_info.triggered.connect(self.docs)
+        doc_info.triggered.connect(self.docs_callback)
         help_menu.addAction(doc_info)
 
         # ------------- Fitting Menu -------------------
         fit_exp = QAction("Do fit", self)
         fit_exp.setShortcut("Ctrl+F")
-        fit_exp.triggered.connect(self.fit_exp)
+        fit_exp.triggered.connect(self.fit_exp_callback)
         fitting_commands.addAction(fit_exp)
 
         fitting_commands.addSeparator()
@@ -241,21 +264,21 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('pytc')
         self.show()
 
-    def docs(self):
+    def docs_callback(self):
         """
         show pop-up with links to documentation for pytc and pytc-gui
         """
         self._doc_info = DocumentationURL()
         self._doc_info.show()
 
-    def version(self):
+    def version_callback(self):
         """
         show pop-up with version
         """
         self._version = VersionInfo()
         self._version.show()
 
-    def fit_exp(self):
+    def fit_exp_callback(self):
         """
         fitting shortcut
         """

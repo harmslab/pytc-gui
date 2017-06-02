@@ -8,7 +8,7 @@ from . import slider_popup
 
 from .exp_setup import AddExperimentWindow
 from .main_window import *
-from .fit_update import *
+from .visual import *
 from .sliders import *
 from .exp_frames import *
 from .slider_popup import *
