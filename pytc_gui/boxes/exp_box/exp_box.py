@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import *
 import seaborn
 from io import StringIO
 
-from ..exp_frames import LocalBox, GlobalBox, ConnectorsBox
+from .exp_frames import LocalBox, GlobalBox, ConnectorsBox
 import pytc
 
 

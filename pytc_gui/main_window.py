@@ -11,9 +11,9 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
-from .visual import ExperimentBox, PlotBox
-
 from . import dialog
+from .boxes import PlotBox, ExperimentBox
+
 from .qlogging_handler import OutputStream
 
 from matplotlib.backends.backend_pdf import PdfPages
@@ -262,8 +262,8 @@ class MainWindow(QMainWindow):
         self.addAction(open_fitter)
 
         # Set up central widget
-        self._exp = GUIMaster(self)
-        self.setCentralWidget(self._exp)
+        self._gui_master = GUIMaster(self)
+        self.setCentralWidget(self._gui_master)
 
         self.resize(1000, 600)
         self.move(QApplication.desktop().screen().rect().center()-self.rect().center())
@@ -288,14 +288,14 @@ class MainWindow(QMainWindow):
         """
         fitting shortcut
         """
-        self._exp.do_fit_callback()
+        self._gui_master.do_fit_callback()
 
     def open_add_file_dialog(self):
         """
         Open a transient window for adding a new experiment.
         """
 
-        self._add_exp_dialog = dialog.AddExperiment(self._fitter, self._exp)
+        self._add_exp_dialog = dialog.AddExperiment(self._fitter, self._gui_master)
         self._add_exp_dialog.show()
 
     def open_aic_dialog(self):
@@ -319,7 +319,7 @@ class MainWindow(QMainWindow):
             self._fit_options_dialog.show()
         except AttributeError:
             self._fit_options_dialog = dialog.FitOptions(self._fitter, self._fitter_list)
-            self._fit_options_dialog.options_signal.connect(self._exp.update_fit_options)
+            self._fit_options_dialog.options_signal.connect(self._gui_master.update_fit_options)
             self._fit_options_dialog.show()
 
     def add_fitter(self):
@@ -341,7 +341,7 @@ class MainWindow(QMainWindow):
         warning_message = QMessageBox.warning(self, "warning!", "Are you sure you want to start a new session?", QMessageBox.Yes | QMessageBox.No)
 
         if warning_message == QMessageBox.Yes:
-            self._exp.clear()
+            self._gui_master.clear()
         else:
             pass
 
@@ -402,7 +402,7 @@ class MainWindow(QMainWindow):
         """
         close window
         """
-        sys.stdout = self._exp._temp
+        sys.stdout = self._gui_master._temp
         self.close()
 
 def main():
