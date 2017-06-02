@@ -1,6 +1,10 @@
+__description__ = \
 """
-pytc GUI using PyQt5
+pytc GUI using PyQt5.
 """
+__author__ = "Hiranmyai Duvvuri"
+__date__ = "2017-01-06"
+
 from pytc.global_fit import GlobalFit
 
 from PyQt5.QtGui import *
@@ -18,43 +22,52 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 import sys, pkg_resources, pickle, inspect, copy
 
-class Splitter(QWidget):
+class GUIMaster(QWidget):
     """
-    hold main experiment based widgets
+    Main class that holds all of the fitter sub-widgets.
     """
 
     def __init__(self, parent):
+
         super().__init__()
+
+        self._parent = parent
 
         self._fitter = parent._fitter
         self._fitter_list = parent._fitter_list
-        self._parent = parent
 
+        # Create a dictionary of GlobalFitOptions
         fit_args = inspect.getargspec(GlobalFit().fit)
-        self._options_dict = {arg: param for arg, param in zip(fit_args.args[1:], fit_args.defaults)}
+        self._global_fit_options = {arg: param for arg, param
+                                    in zip(fit_args.args[1:],fit_args.defaults)}
 
+        # Lay out the widget.
         self.layout()
 
     def layout(self):
         """
+        Create the widget layout.
         """
+
         main_layout = QVBoxLayout(self)
-        button_layout = QHBoxLayout()
-
-        gen_fit = QPushButton("Fit Experiments", self)
-        gen_fit.clicked.connect(self.fit_shortcut)
-
+        #button_layout = QHBoxLayout()
+        
         self._plot_frame = PlotBox(self)
         self._exp_frame = AllExp(self)
+    
+        # ------------ "Do fit" button -------------------
+        do_fit_button = QPushButton("Do fit", self)
+        do_fit_button.clicked.connect(self.do_fit_callback)
 
-        # set up message box 
-        scroll = QScrollArea(self)
+        # -------------- message box ---------------------
         self._message_box = QTextEdit()
         self._message_box.setReadOnly(True)
+
+        scroll = QScrollArea(self)
         scroll.setWidget(self._message_box)
         scroll.setWidgetResizable(True)
 
-        # redirect stdout
+        # redirect stdout to the message box
         self._temp = sys.stdout
         sys.stdout = OutputStream()
         sys.stdout.text_printed.connect(self.read_stdout)
@@ -71,9 +84,10 @@ class Splitter(QWidget):
         splitter.setSizes([200, 200])
 
         main_layout.addWidget(splitter)
-        main_layout.addWidget(gen_fit)
+        main_layout.addWidget(do_fit_button)
 
         self._parent.new_fitter.connect(self.fit_signal_update)
+
 
     def clear(self):
         """
@@ -84,12 +98,12 @@ class Splitter(QWidget):
     def update_fit_options(self, options_dict):
         """
         """
-        self._options_dict = options_dict
+        self._global_fit_options = options_dict
 
-    def fit_shortcut(self):
+    def do_fit_callback(self):
         """
         """
-        self._exp_frame.perform_fit(self._options_dict)
+        self._exp_frame.perform_fit(self._global_fit_options)
         self._plot_frame.update()
 
     @pyqtSlot(GlobalFit)
@@ -105,12 +119,20 @@ class Splitter(QWidget):
         """
         self._message_box.insertPlainText(text)
 
-class Main(QMainWindow):
+    @property
+    def parent(self):
+
+        return self._parent
+
+class MainWindow(QMainWindow):
     """
+    Main fitting window. 
     """
+
     new_fitter = pyqtSignal(GlobalFit)
 
     def __init__(self):
+
         super().__init__()
 
         self._fitter = GlobalFit()
@@ -121,8 +143,9 @@ class Main(QMainWindow):
 
     def layout(self):
         """
-        make the menu bar
+        Create the menu bar.
         """
+
         menu = self.menuBar()
         menu.setNativeMenuBar(False)
 
@@ -130,7 +153,7 @@ class Main(QMainWindow):
         fitting_commands = menu.addMenu("Fitting")
         help_menu = menu.addMenu("Help")
 
-        # Help Menu
+        # ------------- Help Menu ----------------------
         prog_info = QAction("About", self)
         prog_info.triggered.connect(self.version)
         help_menu.addAction(prog_info)
@@ -139,17 +162,13 @@ class Main(QMainWindow):
         doc_info.triggered.connect(self.docs)
         help_menu.addAction(doc_info)
 
-        # Fitting Menu
-        fit_exp = QAction("Fit Experiments", self)
+        # ------------- Fitting Menu -------------------
+        fit_exp = QAction("Do fit", self)
         fit_exp.setShortcut("Ctrl+F")
         fit_exp.triggered.connect(self.fit_exp)
         fitting_commands.addAction(fit_exp)
 
         fitting_commands.addSeparator()
-
-        #add_fitter = QAction("Add Fitter to List", self)
-        #add_fitter.triggered.connect(self.add_fitter)
-        #fitting_commands.addAction(add_fitter)
 
         aic_test = QAction("AIC Test", self)
         aic_test.triggered.connect(self.perform_aic)
@@ -161,7 +180,7 @@ class Main(QMainWindow):
         fitting_options.triggered.connect(self.fit_options)
         fitting_commands.addAction(fitting_options)
 
-        # File Menu
+        # ------------------ File Menu ---------------------------
         add_exp = QAction("Add Experiment", self)
         add_exp.setShortcut("Ctrl+Shift+N")
         add_exp.triggered.connect(self.add_file)
@@ -206,7 +225,7 @@ class Main(QMainWindow):
         self.addAction(open_fitter)
 
         # Set up central widget
-        self._exp = Splitter(self)
+        self._exp = GUIMaster(self)
         self.setCentralWidget(self._exp)
 
         self.resize(1000, 600)
@@ -232,7 +251,7 @@ class Main(QMainWindow):
         """
         fitting shortcut
         """
-        self._exp.fit_shortcut()
+        self._exp.do_fit_callback()
 
     def add_file(self):
         """
@@ -345,6 +364,7 @@ class Main(QMainWindow):
 
 def main():
     """
+    Main function, staring GUI.
     """
     version = pkg_resources.require("pytc-gui")[0].version
 
@@ -352,7 +372,7 @@ def main():
         app = QApplication(sys.argv)
         app.setApplicationName("pytc")
         app.setApplicationVersion(version)
-        pytc_run = Main()
+        pytc_run = MainWindow()
         sys.exit(app.exec_())
     except KeyboardInterrupt:
         sys.exit()

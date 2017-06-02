@@ -151,7 +151,7 @@ class AllExp(QWidget):
         self._global_connectors = {}
         self._connectors_seen = {}
         self._plot_frame = parent._plot_frame
-        self._update = parent.fit_shortcut
+        self._update = parent.do_fit_callback
 
         self.layout()
 
