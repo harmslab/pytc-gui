@@ -5,13 +5,11 @@ Documentation dialog for pytc-gui.
 __author__ = "Hiranmayi Duvvuri"
 __date__ = "2017-06-01"
 
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
+from PyQt5 import QtWidgets as QW
 
 import pkg_resources
 
-class Documentation(QDialog):
+class Documentation(QW.QDialog):
     """
     Documentation dialog for pytc-gui.
     """
@@ -25,22 +23,22 @@ class Documentation(QDialog):
     def layout(self):
         """
         """
-        main_layout = QVBoxLayout(self)
-        form_layout = QFormLayout()
+        main_layout = QW.QVBoxLayout(self)
+        form_layout = QW.QFormLayout()
 
         pytc_docs = "<a href=\"https://pytc.readthedocs.io/en/latest/\">documentation</a>"
         gui_docs = "<a href=\"https://pytc-gui.readthedocs.io/en/latest/\">documentation</a>"
 
-        pytc_label = QLabel(pytc_docs)
+        pytc_label = QW.QLabel(pytc_docs)
         pytc_label.setOpenExternalLinks(True)
 
-        gui_label = QLabel(gui_docs)
+        gui_label = QW.QLabel(gui_docs)
         gui_label.setOpenExternalLinks(True)
 
-        form_layout.addRow(QLabel("pytc:"), pytc_label)
-        form_layout.addRow(QLabel("pytc-gui:"), gui_label)
+        form_layout.addRow(QW.QLabel("pytc:"), pytc_label)
+        form_layout.addRow(QW.QLabel("pytc-gui:"), gui_label)
 
-        OK_button = QPushButton("OK", self)
+        OK_button = QW.QPushButton("OK", self)
         OK_button.clicked.connect(self.close)
 
         main_layout.addLayout(form_layout)

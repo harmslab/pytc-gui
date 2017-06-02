@@ -7,15 +7,12 @@ __date__ = "2017-06-01"
 
 from pytc import util
 
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-
-from ..qlogging_handler import OutputStream
+from PyQt5.QtCore import pyqtSlot
+from PyQt5 import QtWidgets as QW
 
 import sys, logging, copy
 
-class AICTest(QDialog):
+class AICTest(QW.QDialog):
     """
     AIC test dialog for pytc-gui.
     """
@@ -35,32 +32,32 @@ class AICTest(QDialog):
         """
         Lay out the dialog.
         """
-        main_layout = QVBoxLayout(self)
-        test_layout = QHBoxLayout()
-        button_layout = QVBoxLayout()
+        main_layout = QW.QVBoxLayout(self)
+        test_layout = QW.QHBoxLayout()
+        button_layout = QW.QVBoxLayout()
 
-        self._fitter_select = QListWidget()
-        self._fitter_select.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self._fitter_select = QW.QListWidget()
+        self._fitter_select.setSelectionMode(QW.QAbstractItemView.ExtendedSelection)
 
         for k,v in self._fitter_list.items():
             self._fitter_select.addItem(k)
 
         self._fitter_select.setFixedSize(150, 100)
 
-        ftest_button = QPushButton("Perform AIC Test", self)
+        ftest_button = QW.QPushButton("Perform AIC Test", self)
         ftest_button.clicked.connect(self.perform_test)
 
-        add_fit_button = QPushButton("Append New Fit", self)
+        add_fit_button = QW.QPushButton("Append New Fit", self)
         add_fit_button.clicked.connect(self.add_fitter)
 
-        self._data_out = QTextEdit()
+        self._data_out = QW.QTextEdit()
         self._data_out.setReadOnly(True)
         self._data_out.setMinimumWidth(400)
 
         # redirect stdout to textedit
-        self._temp = sys.stdout
-        sys.stdout = OutputStream()
-        sys.stdout.text_printed.connect(self.read_stdout)
+        #self._temp = sys.stdout
+        #sys.stdout = OutputStream()
+        #sys.stdout.text_printed.connect(self.read_stdout)
 
         # add buttons to layout
         button_layout.addWidget(ftest_button)
@@ -78,7 +75,7 @@ class AICTest(QDialog):
         """
         Add current fitter to list for testing
         """
-        text, ok = QInputDialog.getText(self, 'Save Fitter', 'Enter Name:')
+        text, ok = QW.QInputDialog.getText(self, 'Save Fitter', 'Enter Name:')
 
         # save deepcopy of fitter
         if ok:
@@ -94,7 +91,7 @@ class AICTest(QDialog):
 
         if len(selected) < 2:
             err = "You must select at least two fits to compare.\n"
-            QMessageBox.warning(self, "warning", err, QMessageBox.Ok)
+            QW.QMessageBox.warning(self, "warning", err, QW.QMessageBox.Ok)
             return 
 
         output, plots = util.compare_models(*selected)

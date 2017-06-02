@@ -7,13 +7,11 @@ __date__ = "2017-06-01"
 
 import pytc
 
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
+from PyQt5 import QtWidgets as QW
 
 import inspect, re, collections
 
-class AddExperiment(QDialog):
+class AddExperiment(QW.QDialog):
     """
     Dialog for adding an experiment to a pytc fitting session.
     """
@@ -40,11 +38,11 @@ class AddExperiment(QDialog):
         """
         """
         # exp text, model dropdown, shots select
-        main_layout = QVBoxLayout(self)
-        self._form_layout = QFormLayout()
-        self._button_layout = QHBoxLayout()
+        main_layout = QW.QVBoxLayout(self)
+        self._form_layout = QW.QFormLayout()
+        self._button_layout = QW.QHBoxLayout()
 
-        model_select = QComboBox(self)
+        model_select = QW.QComboBox(self)
         model_names = list(self._models.keys())
         model_names.sort()
         try:
@@ -61,18 +59,18 @@ class AddExperiment(QDialog):
         model_select.activated[str].connect(self.model_select)
 
         # set up load file
-        load_exp = QPushButton("Load File", self)
+        load_exp = QW.QPushButton("Load File", self)
         load_exp.clicked.connect(self.add_file)
 
-        self._exp_label = QLabel("...", self)
+        self._exp_label = QW.QLabel("...", self)
 
-        gen_exp = QPushButton("OK", self)
+        gen_exp = QW.QPushButton("OK", self)
         gen_exp.clicked.connect(self.generate)
 
         # add to layout
         self._form_layout.addRow(load_exp, self._exp_label)
         self._form_layout.addRow(self._button_layout)
-        self._form_layout.addRow(QLabel("Select Model:"), model_select)
+        self._form_layout.addRow(QW.QLabel("Select Model:"), model_select)
 
         self._load_exp_info()
 
@@ -105,7 +103,7 @@ class AddExperiment(QDialog):
         # make radio buttons + add to layout
         for name, obj in file_types:
             type_name = name.replace("Experiment", "")
-            radio_button = QRadioButton(type_name)
+            radio_button = QW.QRadioButton(type_name)
             radio_button.toggled.connect(self.select_file_type)
             self._button_layout.addWidget(radio_button)
             self._radio_buttons.append(radio_button)
@@ -129,12 +127,12 @@ class AddExperiment(QDialog):
         # add exp args + defaults to widgets
         for n, v in args.items():
             if n == "units":
-                self._exp_widgets[n] = QComboBox(self)
+                self._exp_widgets[n] = QW.QComboBox(self)
                 for u in units:
                     self._exp_widgets[n].addItem(u)
                 self._exp_widgets[n].setCurrentIndex(units_default_index)
             else:
-                self._exp_widgets[n] = QLineEdit(self)
+                self._exp_widgets[n] = QW.QLineEdit(self)
                 self._exp_widgets[n].setText(str(v))
 
         # sort dictionary
@@ -143,7 +141,7 @@ class AddExperiment(QDialog):
         # add to layout
         for name, entry in sorted_names.items():
             label_name = str(name).replace("_", " ") + ": "
-            label = QLabel(label_name.title(), self)
+            label = QW.QLabel(label_name.title(), self)
 
             self._form_layout.addRow(label, entry)
 
@@ -170,13 +168,13 @@ class AddExperiment(QDialog):
         unique = list(set(sig_child.args) - set(sig_parent.args))
 
         for i in unique:
-            self._gen_widgets[i] = QLineEdit(self)
+            self._gen_widgets[i] = QW.QLineEdit(self)
             self._gen_widgets[i].setText(str(args[i]))
 
         # add widgets to the pop-up box
         for name, entry in self._gen_widgets.items():
             label_name = str(name).replace("_", " ") + ": "
-            label = QLabel(label_name.title(), self)
+            label = QW.QLabel(label_name.title(), self)
 
             self._form_layout.addRow(label, entry)
 
@@ -200,9 +198,9 @@ class AddExperiment(QDialog):
         """
         # do folder or file radio options
         if self._file_type == "Nitpic":
-            file_name = QFileDialog.getExistingDirectory(None, 'Select a folder:', 'C:\\', QFileDialog.ShowDirsOnly)
+            file_name = QW.QFileDialog.getExistingDirectory(None, 'Select a folder:', 'C:\\', QW.QFileDialog.ShowDirsOnly)
         else:
-            file_name, _ = QFileDialog.getOpenFileName(self, "Select a file...", "", filter="DH Files (*.DH)")
+            file_name, _ = QW.QFileDialog.getOpenFileName(self, "Select a file...", "", filter="DH Files (*.DH)")
 
         self._exp_file = str(file_name)
         self._exp_name = file_name.split("/")[-1]
@@ -247,5 +245,5 @@ class AddExperiment(QDialog):
 
             self.close()
         else:
-            error_message = QMessageBox.warning(self, "warning", "No .DH file provided", QMessageBox.Ok)
+            error_message = QW.QMessageBox.warning(self, "warning", "No .DH file provided", QW.QMessageBox.Ok)
             

@@ -5,15 +5,14 @@ Fit options dialog for pytc-gui.
 __author__ = "Hiranmayi Duvvuri"
 __date__ = "2017-06-01"
 
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
+from PyQt5.QtCore import pyqtSignal 
+from PyQt5 import QtWidgets as QW
 
 import pytc
 
 import inspect, ast
 
-class FitOptions(QDialog):
+class FitOptions(QW.QDialog):
     """
     Fit options dialog for pytc-gui.
     """
@@ -53,12 +52,12 @@ class FitOptions(QDialog):
             self._fitter_classes.append(obj)
 
             # Make new widget
-            self._fitter_widgets.append(QFrame())
-            self._fitter_options.append(QFormLayout(self._fitter_widgets[-1]))
+            self._fitter_widgets.append(QW.QFrame())
+            self._fitter_options.append(QW.QFormLayout(self._fitter_widgets[-1]))
           
             # Add name and radio button to widget 
             self._fitter_names.append(name.replace("Fitter",""))
-            self._fitter_radio_buttons.append(QRadioButton(self._fitter_names[-1]))
+            self._fitter_radio_buttons.append(QW.QRadioButton(self._fitter_names[-1]))
             self._fitter_radio_buttons[-1].toggled.connect(self._select_fit)
    
             # Figure out arguments for this Fitter subclass 
@@ -74,8 +73,8 @@ class FitOptions(QDialog):
             for n, v in self._fitter_defaults[-1].items():
 
                 label_name = str(n).replace("_", " ") + ": "
-                label = QLabel(label_name.title(), self)
-                entry = QLineEdit(self)
+                label = QW.QLabel(label_name.title(), self)
+                entry = QW.QLineEdit(self)
                 entry.setText(str(v))
 
                 self._fitter_vars[-1][n] = entry
@@ -94,14 +93,14 @@ class FitOptions(QDialog):
        
         # Create the window 
         self.setWindowTitle("Fit Options")
-        main_layout = QVBoxLayout(self)
+        main_layout = QW.QVBoxLayout(self)
 
         # Header name
-        fit_header = QLabel("Choose fit type: ")
+        fit_header = QW.QLabel("Choose fit type: ")
         main_layout.addWidget(fit_header)
 
         # Create radio group for selecting fit types
-        radio_group = QHBoxLayout()
+        radio_group = QW.QHBoxLayout()
         for b in self._fitter_radio_buttons:
             radio_group.addWidget(b)
         main_layout.addLayout(radio_group)
@@ -119,7 +118,7 @@ class FitOptions(QDialog):
             main_layout.addWidget(w)
       
         # Add OK button 
-        OK_button = QPushButton("OK", self)
+        OK_button = QW.QPushButton("OK", self)
         OK_button.clicked.connect(self.initialize)
         main_layout.addWidget(OK_button)
 

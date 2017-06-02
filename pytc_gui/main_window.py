@@ -9,15 +9,14 @@ from . import dialogs, widgets
 
 from pytc.global_fit import GlobalFit
 
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
+from PyQt5.QtCore import pyqtSignal 
+from PyQt5 import QtWidgets as QW
 
 from matplotlib.backends.backend_pdf import PdfPages
 import sys, pkg_resources, pickle
 
 
-class MainWindow(QMainWindow):
+class MainWindow(QW.QMainWindow):
     """
     Main fitting window. 
     """
@@ -48,63 +47,63 @@ class MainWindow(QMainWindow):
         help_menu = menu.addMenu("Help")
 
         # ------------- Help Menu ----------------------
-        prog_info = QAction("About", self)
+        prog_info = QW.QAction("About", self)
         prog_info.triggered.connect(self.about_dialog)
         help_menu.addAction(prog_info)
 
-        doc_info = QAction("Documentation", self)
+        doc_info = QW.QAction("Documentation", self)
         doc_info.triggered.connect(self.docs_dialog)
         help_menu.addAction(doc_info)
 
         # ------------- Fitting Menu -------------------
-        do_fit = QAction("Do fit", self)
+        do_fit = QW.QAction("Do fit", self)
         do_fit.setShortcut("Ctrl+F")
         do_fit.triggered.connect(self.do_fit_callback)
         fitting_commands.addAction(do_fit)
 
         fitting_commands.addSeparator()
 
-        aic_test = QAction("AIC Test", self)
+        aic_test = QW.QAction("AIC Test", self)
         aic_test.triggered.connect(self.aic_dialog)
         fitting_commands.addAction(aic_test)
 
         fitting_commands.addSeparator()
 
-        fitting_options = QAction("Fit Options", self)
+        fitting_options = QW.QAction("Fit Options", self)
         fitting_options.triggered.connect(self.fit_options_dialog)
         fitting_commands.addAction(fitting_options)
 
         # ------------------ File Menu ---------------------------
-        add_exp = QAction("Add Experiment", self)
+        add_exp = QW.QAction("Add Experiment", self)
         add_exp.setShortcut("Ctrl+Shift+N")
         add_exp.triggered.connect(self.add_exp_dialog)
         file_menu.addAction(add_exp)
 
-        export_results = QAction("Export Results", self)
+        export_results = QW.QAction("Export Results", self)
         export_results.setShortcut("Ctrl+S")
         export_results.triggered.connect(self.export_results_dialog)
         file_menu.addAction(export_results)
 
         file_menu.addSeparator()
 
-        save_fitter = QAction("Save Fitter", self)
+        save_fitter = QW.QAction("Save Fitter", self)
         save_fitter.setShortcut("Ctrl+Shift+S")
         save_fitter.triggered.connect(self.save_fitter_dialog)
         file_menu.addAction(save_fitter)
 
-        open_fitter = QAction("Open Fitter", self)
+        open_fitter = QW.QAction("Open Fitter", self)
         open_fitter.setShortcut("Ctrl+O")
         open_fitter.triggered.connect(self.open_fitter_dialog)
         file_menu.addAction(open_fitter)
 
         file_menu.addSeparator()
 
-        new_session = QAction("New Session", self)
+        new_session = QW.QAction("New Session", self)
         new_session.setShortcut("Ctrl+N")
         new_session.triggered.connect(self.new_session_callback)
         file_menu.addAction(new_session)
 
-        close_window = QAction("Close Window", self)
+        close_window = QW.QAction("Close Window", self)
         close_window.setShortcut("Ctrl+W")
         close_window.triggered.connect(self.close_program_callback)
         file_menu.addAction(close_window)
@@ -123,7 +122,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self._main_widgets)
 
         self.resize(1000, 600)
-        self.move(QApplication.desktop().screen().rect().center()-self.rect().center())
+        self.move(QW.QApplication.desktop().screen().rect().center()-self.rect().center())
         self.setWindowTitle('pytc')
         self.show()
 
@@ -178,14 +177,14 @@ class MainWindow(QMainWindow):
         Open a transient dialog for saving a fit object.
         """
 
-        file_name, _ = QFileDialog.getSaveFileName(self, "Save Global Fit", "", "Pickle Files (*.pkl);;")
+        file_name, _ = QW.QFileDialog.getSaveFileName(self, "Save Global Fit", "", "Pickle Files (*.pkl);;")
         pickle.dump([self._fitter, self._version], open(file_name, "wb"))
  
     def open_fitter_dialog(self):
         """
         Open a transient dialog for opening a saved fit object.
         """
-        file_name, _ = QFileDialog.getOpenFileName(self, "Save Global Fit", "", "Pickle Files (*.pkl);;")
+        file_name, _ = QW.QFileDialog.getOpenFileName(self, "Save Global Fit", "", "Pickle Files (*.pkl);;")
 
         opened_fitter, version = pickle.load(open(file_name, "rb"))
         if self._version == version:
@@ -193,14 +192,14 @@ class MainWindow(QMainWindow):
             self.fit_signal.emit(opened_fitter)
         else:
             err = "Could not load fit. Current version is {}, but file version is {}.".format(self._version,version)
-            error_message = QMessageBox.warning(self,err, QMessageBox.Ok)
+            error_message = QW.QMessageBox.warning(self,err, QW.QMessageBox.Ok)
 
     def export_results_dialog(self):
         """
         Bring up transient dialog for exporting results.
         """
 
-        file_name, _ = QFileDialog.getSaveFileName(self, "Export Experiment Output", "", "Text Files (*.txt);;CSV Files (*.csv)")
+        file_name, _ = QW.QFileDialog.getSaveFileName(self, "Export Experiment Output", "", "Text Files (*.txt);;CSV Files (*.csv)")
         plot_name = file_name.split(".")[0] + "_plot.pdf"
         corner_plot_name = file_name.split(".")[0] + "_corner_plot.pdf"
 
@@ -223,7 +222,7 @@ class MainWindow(QMainWindow):
 
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
             err = template.format(type(ex).__name__,ex.args)
-            error_message = QMessageBox.warning(self,err, QMessageBox.Ok)
+            error_message = QW.QMessageBox.warning(self,err, QW.QMessageBox.Ok)
 
     def do_fit_callback(self):
         """
@@ -236,15 +235,15 @@ class MainWindow(QMainWindow):
         Start a competely new session.
         """
 
-        warning_message = QMessageBox.warning(self, "warning!", "Are you sure you want to start a new session?", QMessageBox.Yes | QMessageBox.No)
-        if warning_message == QMessageBox.Yes:
+        warning_message = QW.QMessageBox.warning(self, "warning!", "Are you sure you want to start a new session?", QW.QMessageBox.Yes | QW.QMessageBox.No)
+        if warning_message == QW.QMessageBox.Yes:
             self._reset()
 
     def close_program_callback(self):
         """
         Close the program out.
         """
-        sys.stdout = self._main_widgets._temp
+        self._main_widgets.clear()
         self._app.instance().closeAllWindows()
         self.close()
 
@@ -273,7 +272,7 @@ def main():
     version = pkg_resources.require("pytc-gui")[0].version
 
     try:
-        app = QApplication(sys.argv)
+        app = QW.QApplication(sys.argv)
         app.setApplicationName("pytc")
         app.setApplicationVersion(version)
         pytc_run = MainWindow(app)

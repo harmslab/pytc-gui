@@ -6,9 +6,10 @@ __date__ = "2017-01-06"
 
 from .plot_box import PlotBox
 from .experiment_box import ExperimentBox
+from .message_box import MessageBox
 #from .message_box import MessageBox
 
-from .qlogging_handler import OutputStream
+#from .qlogging_handler import OutputStream
 
 from pytc.global_fit import GlobalFit
 
@@ -16,7 +17,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
-import sys, inspect
+import inspect
 
 class MainWidgets(QWidget):
     """
@@ -56,24 +57,14 @@ class MainWidgets(QWidget):
         do_fit_button.clicked.connect(self.do_fit_callback)
 
         # -------------- message box ---------------------
-        self._message_box = QTextEdit()
-        self._message_box.setReadOnly(True)
-
-        scroll = QScrollArea(self)
-        scroll.setWidget(self._message_box)
-        scroll.setWidgetResizable(True)
-
-        # redirect stdout to the message box
-        self._temp = sys.stdout
-        sys.stdout = OutputStream()
-        sys.stdout.text_printed.connect(self.read_stdout_callback)
+        self._message_box = MessageBox(self)
 
         # Split up the main window in a useful way
 
         # Split window vertically
         v_splitter = QSplitter(Qt.Vertical)
         v_splitter.addWidget(self._plot_box)
-        v_splitter.addWidget(scroll)
+        v_splitter.addWidget(self._message_box)
         v_splitter.setSizes([300, 50])
 
         # now split horizontally
@@ -92,11 +83,12 @@ class MainWidgets(QWidget):
 
     def clear(self):
         """
-        Clear the plot and experiment frames.
+        Clear all widgets.
         """
 
         self._plot_box.clear()
         self._exp_box.clear()
+        self._message_box.clear()
 
     def update_fit_options(self, options_dict):
         """
@@ -115,16 +107,6 @@ class MainWidgets(QWidget):
         """
         self._plot_box._fitter = obj
         self._exp_box._fitter = obj
-
-    @pyqtSlot(str)
-    def read_stdout_callback(self, text):
-        """
-        Wirte standard out to the main message box.
-        """
-        self._message_box.insertPlainText(text)
-
-        m = self._message_box
-        m.verticalScrollBar().setValue(m.verticalScrollBar().maximum())
 
     @property
     def parent(self):
