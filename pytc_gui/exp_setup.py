@@ -5,6 +5,9 @@ from PyQt5.QtWidgets import *
 
 import inspect, re, collections
 
+DEFAULT_UNITS = "cal/mol"
+DEFAULT_MODEL = "Single Site"
+
 class AddExperimentWindow(QDialog):
     """
     add experiment pop-up box
@@ -36,9 +39,14 @@ class AddExperimentWindow(QDialog):
         model_select = QComboBox(self)
         model_names = list(self._models.keys())
         model_names.sort()
+        try:
+            model_names_index = model_names.index(DEFAULT_MODEL)
+        except ValueError:
+            model_names_index = 0
 
         for k in model_names:
             model_select.addItem(k)
+        model_select.setCurrentIndex(model_names_index)
 
         # set up model select
         self._exp_model = self._models[str(model_select.currentText())]
@@ -102,12 +110,21 @@ class AddExperimentWindow(QDialog):
 
         # get units 
         units = getattr(pytc.experiments.base.BaseITCExperiment, 'AVAIL_UNITS')
+        units = list(units.keys())
+        try:
+            units_default_index = units.index(DEFAULT_UNITS)
+        except ValueError:
+            units_default_index = 0
+
+        units.sort()               
 
         # add exp args + defaults to widgets
         for n, v in args.items():
             if n == "units":
                 self._exp_widgets[n] = QComboBox(self)
-                self._exp_widgets[n].addItems(sorted(units.keys()))
+                for u in units:
+                    self._exp_widgets[n].addItem(u)
+                self._exp_widgets[n].setCurrentIndex(units_default_index)
             else:
                 self._exp_widgets[n] = QLineEdit(self)
                 self._exp_widgets[n].setText(str(v))

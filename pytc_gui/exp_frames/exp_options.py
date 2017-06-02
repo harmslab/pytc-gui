@@ -3,7 +3,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
 import pytc
-import inspect
+
+import inspect, ast
 
 class ExpOptions(QDialog):
     
@@ -13,7 +14,7 @@ class ExpOptions(QDialog):
         super().__init__()
         
         self._exp = parent._exp
-        self._update = parent._update
+        self._update = parent._main_box
 
         self.layout()
 
@@ -43,23 +44,66 @@ class ExpOptions(QDialog):
 
         setters = [p[0] for p in properties if p[1].fset != None]
 
-        for s in setters:
-            if "heats" not in s:
+        for i, s in enumerate(setters):
+
+            # Skip heats (which has setter we need to ignore)
+            if s in ["heats","heats_stdev"]:
+                continue
+
+            if s == "units":
+                units_names = list(self._exp.AVAIL_UNITS)
+                units_names.sort()
+
+                starting_index = 0
+                self._option_widgets[s] = QComboBox(self)
+                for j, k in enumerate(units_names):
+                    self._option_widgets[s].addItem(k)
+                    if k == self._exp.units:
+                        starting_index = j
+                self._option_widgets[s].setCurrentIndex(starting_index)        
+
+                name = str(s).replace("_", " ") + ": "
+                self._exp.units = str(self._option_widgets[s].currentText())
+                self._option_widgets[s].activated[str].connect(self._units_select)
+                self._form_layout.addRow(QLabel(name), self._option_widgets[s])
+
+            else:
                 self._option_widgets[s] = QLineEdit(self)
+                self._option_widgets[s].setText(str(getattr(self._exp,s)))
+
                 name = str(s).replace("_", " ") + ": "
                 self._form_layout.addRow(QLabel(name.title()), self._option_widgets[s])
-        
+
     def _update_val(self):
         """
         """
 
         for k, v in self._option_widgets.items():
-            try:
-                val = int(v.text())
+   
+            try: 
+                if type(v) == QComboBox:
+                    val = str(v.currentText())
+                else:
+                    val = ast.literal_eval(str(v.text()))
+
                 setattr(self._exp, k, val)
-                self._update()
-                name = str(k).replace("_", " ") + ": "
-                print(name + " updated to " + v.text() + "\n")
-            except:
-                print("out of bounds")
+
+            except ValueError:
+
+                if type(v) == QComboBox:
+                    val = str(v.currentText())
+                else:
+                    val = str(v.text())
                 
+                error_message = QMessageBox.warning(self,
+                                                    "warning",
+                                                    "Value {} is invalid".format(val),
+                                                    QMessageBox.Ok) 
+                return
+
+        self._update.update()
+        self.hide()
+               
+    def _units_select(self,units):
+        self._exp.units = units
+ 
