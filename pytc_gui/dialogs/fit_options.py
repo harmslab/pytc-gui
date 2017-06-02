@@ -1,3 +1,10 @@
+__description__ = \
+"""
+Fit options dialog for pytc-gui.
+"""
+__author__ = "Hiranmayi Duvvuri"
+__date__ = "2017-06-01"
+
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -7,6 +14,9 @@ import pytc
 import inspect, ast
 
 class FitOptions(QDialog):
+    """
+    Fit options dialog for pytc-gui.
+    """
 
     options_signal = pyqtSignal(dict)
 

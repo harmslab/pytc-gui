@@ -4,7 +4,10 @@ __description__ = \
 __author__ = "Hiranmyai Duvvuri"
 __date__ = "2017-01-06"
 
-from . import boxes
+from .plot_box import PlotBox
+from .experiment_box import ExperimentBox
+#from .message_box import MessageBox
+
 from .qlogging_handler import OutputStream
 
 from pytc.global_fit import GlobalFit
@@ -15,7 +18,7 @@ from PyQt5.QtWidgets import *
 
 import sys, inspect
 
-class GUIMaster(QWidget):
+class MainWidgets(QWidget):
     """
     Main class that holds all of the fitter sub-widgets.
     """
@@ -43,10 +46,10 @@ class GUIMaster(QWidget):
         """
 
         # ------------ Plot widget ----------------------- 
-        self._plot_box = boxes.PlotBox(self)
+        self._plot_box = PlotBox(self)
 
         # ------------ Experiments widget ----------------
-        self._exp_box = boxes.ExperimentBox(self)
+        self._exp_box = ExperimentBox(self)
     
         # ------------ "Do fit" button -------------------
         do_fit_button = QPushButton("Do fit", self)
@@ -119,6 +122,9 @@ class GUIMaster(QWidget):
         Wirte standard out to the main message box.
         """
         self._message_box.insertPlainText(text)
+
+        m = self._message_box
+        m.verticalScrollBar().setValue(m.verticalScrollBar().maximum())
 
     @property
     def parent(self):

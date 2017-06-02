@@ -1,43 +1,28 @@
+__description__ = \
+"""
+AIC test dialog for pytc-gui.
+"""
+__author__ = "Hiranmayi Duvvuri"
+__date__ = "2017-06-01"
+
+from pytc import util
+
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-import matplotlib.pyplot as plt
-
-from pytc import util
 from ..qlogging_handler import OutputStream
+
 import sys, logging, copy
 
-class ModelPlots(QDialog):
-
-    def __init__(self, plots):
-        """
-        """
-        super().__init__()
-
-        self._plots = plots
-
-        self.layout()
-
-    def layout(self):
-        """
-        """
-        main_layout = QHBoxLayout(self)
-        tabs = QTabWidget()
-        
-        for p, i in self._plots:
-            fig, ax = p
-            plot_fig = FigureCanvas(fig)
-            tabs.addTab(plot_fig, "Model {}".format(i))
-
-        main_layout.addWidget(tabs)
-
 class AICTest(QDialog):
+    """
+    AIC test dialog for pytc-gui.
+    """
 
     def __init__(self, parent):
         """
+        Initialize class.
         """
         super().__init__()
 
@@ -48,6 +33,7 @@ class AICTest(QDialog):
 
     def layout(self):
         """
+        Lay out the dialog.
         """
         main_layout = QVBoxLayout(self)
         test_layout = QHBoxLayout()
@@ -90,7 +76,7 @@ class AICTest(QDialog):
 
     def add_fitter(self):
         """
-        add current fitter to list for testing
+        Add current fitter to list for testing
         """
         text, ok = QInputDialog.getText(self, 'Save Fitter', 'Enter Name:')
 
@@ -102,7 +88,7 @@ class AICTest(QDialog):
 
     def perform_test(self):
         """
-        take selected objects and use them in f-test
+        Take selected objects and use them in AIC test.
         """
         selected = [self._fitter_list[i.text()] for i in self._fitter_select.selectedItems()] 
 
@@ -112,8 +98,6 @@ class AICTest(QDialog):
             return 
 
         output, plots = util.compare_models(*selected)
-        #self._plots = ModelPlots(plots)
-        #self._plots.show()
 
         # translate output
         print("\n")

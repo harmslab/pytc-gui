@@ -1,19 +1,24 @@
+__description__ = \
+"""
+Dialog for adding an experiment to a pytc fitting session.
+"""
+__author__ = "Hiranmayi Duvvuri"
+__date__ = "2017-06-01"
+
 import pytc
+
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
 import inspect, re, collections
 
-DEFAULT_UNITS = "cal/mol"
-DEFAULT_MODEL = "Single Site"
-
 class AddExperiment(QDialog):
     """
-    add experiment pop-up box
+    Dialog for adding an experiment to a pytc fitting session.
     """
 
-    def __init__(self, fitter, on_close):
+    def __init__(self, fitter, on_close,default_units="cal/mol",default_model="Single Site"):
 
         super().__init__()
 
@@ -23,6 +28,9 @@ class AddExperiment(QDialog):
         self._exp_file = None
         self._shot_start = 1
         self._fitter = fitter
+
+        self._default_units = default_units
+        self._default_model = default_model
 
         self._on_close = on_close
 
@@ -40,7 +48,7 @@ class AddExperiment(QDialog):
         model_names = list(self._models.keys())
         model_names.sort()
         try:
-            model_names_index = model_names.index(DEFAULT_MODEL)
+            model_names_index = model_names.index(self._default_model)
         except ValueError:
             model_names_index = 0
 
@@ -112,7 +120,7 @@ class AddExperiment(QDialog):
         units = getattr(pytc.experiments.base.BaseITCExperiment, 'AVAIL_UNITS')
         units = list(units.keys())
         try:
-            units_default_index = units.index(DEFAULT_UNITS)
+            units_default_index = units.index(self._default_units)
         except ValueError:
             units_default_index = 0
 
