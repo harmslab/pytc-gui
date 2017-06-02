@@ -81,7 +81,8 @@ class ParamTable(QTableWidget):
 
 class ExperimentBox(QWidget):
     """
-    experiment box widget
+    Experiment box widget.  This will have all experiments and a parameter
+    table.
     """
 
     fit_signal = pyqtSignal()
@@ -91,7 +92,8 @@ class ExperimentBox(QWidget):
         """
         super().__init__()
 
-        self._fitter = parent._fitter
+        self._parent = parent
+
         self._slider_list = {"Global" : {}, "Local" : {}}
         self._global_var = []
         self._global_tracker = {}
@@ -104,6 +106,7 @@ class ExperimentBox(QWidget):
 
     def layout(self):
         """
+        Create layout.
         """
         self._main_layout = QVBoxLayout(self)
 
@@ -116,7 +119,7 @@ class ExperimentBox(QWidget):
         self._exp_box.setAlignment(Qt.AlignTop)
 
         # paramater table
-        self._param_box = ParamTable(self._fitter)
+        self._param_box = ParamTable(self._parent.fitter)
 
         # splitter for experiments and parameter widgets
         self._splitter = QSplitter(Qt.Vertical)
@@ -126,11 +129,11 @@ class ExperimentBox(QWidget):
 
         self._main_layout.addWidget(self._splitter)
 
-    def add_exp(self):
+    def update_exp(self):
         """
-        update fit and parameters, update experiments added to fitter
+        Update fit and parameters, update experiments added to fitter
         """
-        self._experiments = self._fitter.experiments
+        self._experiments = self._parent.fitter.experiments
 
         if len(self._experiments) != 0:
             # create local holder if doesn't exist
@@ -154,7 +157,7 @@ class ExperimentBox(QWidget):
         """
         perform complete fit, update all
         """
-        self.add_exp()
+        self.update_exp()
 
         # check for instances of LocalBox and set any attributes
         for loc_obj in self._exp_box.parentWidget().findChildren(LocalBox):
@@ -162,7 +165,7 @@ class ExperimentBox(QWidget):
 
         try:
             # after doing fit, emit signal to sliders and update parameter table
-            self._fitter.fit(**options)
+            self._parent.fitter.fit(**options)
             self.fit_signal.emit()
             self._param_box.update()
         except:
@@ -183,7 +186,7 @@ class ExperimentBox(QWidget):
 
             # finally, remove local objects
             for loc_obj in self._exp_box.parentWidget().findChildren(LocalBox):
-                self._fitter.remove_experiment(loc_obj._exp)
+                self._parent.fitter.remove_experiment(loc_obj._exp)
                 loc_obj.deleteLater()
         except:
             pass

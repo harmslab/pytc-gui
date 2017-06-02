@@ -10,7 +10,7 @@ import seaborn
 
 class PlotBox(QWidget):
     """
-    hold plot widget and update plot
+    Hold the plot widget.
     """
 
     def __init__(self, parent):
@@ -18,12 +18,12 @@ class PlotBox(QWidget):
         """
         super().__init__()
 
-        self._fitter = parent._fitter
-
+        self._parent = parent
         self.layout()
 
     def layout(self):
         """
+        Create layout for plot.
         """
         self._main_layout = QVBoxLayout(self)
 
@@ -35,13 +35,13 @@ class PlotBox(QWidget):
         self.clear()
         tabs = QTabWidget()
 
-        self._figure, self._ax = self._fitter.plot()
+        self._figure, self._ax = self._parent.fitter.plot()
 
         plot_figure = FigureCanvas(self._figure)
         tabs.addTab(plot_figure, "Main")
 
         try: 
-            self._corner_fig = self._fitter.corner_plot()
+            self._corner_fig = self._parent.fitter.corner_plot()
         except:
             self._corner_fig = Figure()
             corner_ax = self._corner_fig.add_subplot(111)

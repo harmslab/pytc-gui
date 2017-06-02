@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import *
 
 from .exp_setup import AddExperimentWindow
 from .visual import ExperimentBox, PlotBox
-from .aic_test import DoAICTest
+from .dialog import DoAICTest
 from .help_dialogs import VersionInfo, DocumentationURL
 from .options import FitOptions
 from .qlogging_handler import OutputStream
@@ -154,6 +154,14 @@ class GUIMaster(QWidget):
         Main message box.
         """
         return self._message_box
+
+    @property
+    def fitter(self):
+        """
+        Main fitter object.
+        """
+        return self._fitter
+
 
 class MainWindow(QMainWindow):
     """

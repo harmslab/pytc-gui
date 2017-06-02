@@ -7,7 +7,7 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
 from pytc import util
-from .qlogging_handler import OutputStream
+from ..qlogging_handler import OutputStream
 import sys, logging, copy
 
 class ModelPlots(QDialog):

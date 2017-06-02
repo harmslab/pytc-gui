@@ -235,7 +235,8 @@ class AddExperimentWindow(QDialog):
             self._fitter.add_experiment(itc_exp)
 
             self._on_close._plot_box.update()
-            self._on_close._exp_box.add_exp()
+            self._on_close._exp_box.update_exp()
+
             self.close()
         else:
             error_message = QMessageBox.warning(self, "warning", "No .DH file provided", QMessageBox.Ok)
