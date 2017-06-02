@@ -49,10 +49,11 @@ class GUIMaster(QWidget):
         Create the widget layout.
         """
 
-        main_layout = QVBoxLayout(self)
-        #button_layout = QHBoxLayout()
-        
+       
+        # ------------ Plot widget ----------------------- 
         self._plot_frame = PlotBox(self)
+
+        # ------------ Experiments widget ----------------
         self._exp_frame = AllExp(self)
     
         # ------------ "Do fit" button -------------------
@@ -72,18 +73,23 @@ class GUIMaster(QWidget):
         sys.stdout = OutputStream()
         sys.stdout.text_printed.connect(self.read_stdout)
 
-        # set up splitters
-        splitter = QSplitter(Qt.Horizontal)
+        # Split up the main window in a useful way
+
+        # Split window vertically
         v_splitter = QSplitter(Qt.Vertical)
         v_splitter.addWidget(self._plot_frame)
         v_splitter.addWidget(scroll)
         v_splitter.setSizes([300, 50])
 
-        splitter.addWidget(v_splitter)
-        splitter.addWidget(self._exp_frame)
-        splitter.setSizes([200, 200])
+        # now split horizontally
+        h_splitter = QSplitter(Qt.Horizontal)
+        h_splitter.addWidget(v_splitter)
+        h_splitter.addWidget(self._exp_frame)
+        h_splitter.setSizes([200, 200])
 
-        main_layout.addWidget(splitter)
+        # Now add the split up window.
+        main_layout = QVBoxLayout(self)
+        main_layout.addWidget(h_splitter)
         main_layout.addWidget(do_fit_button)
 
         self._parent.new_fitter.connect(self.fit_signal_update)
