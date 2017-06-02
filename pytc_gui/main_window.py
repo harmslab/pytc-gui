@@ -12,7 +12,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
 from .exp_setup import AddExperimentWindow
-from .fit_update import AllExp, PlotBox
+from .fit_update import ExperimentBox, PlotBox
 from .aic_test import DoAICTest
 from .help_dialogs import VersionInfo, DocumentationURL
 from .options import FitOptions
@@ -49,12 +49,11 @@ class GUIMaster(QWidget):
         Create the widget layout.
         """
 
-       
         # ------------ Plot widget ----------------------- 
         self._plot_frame = PlotBox(self)
 
         # ------------ Experiments widget ----------------
-        self._exp_frame = AllExp(self)
+        self._exp_frame = ExperimentBox(self)
     
         # ------------ "Do fit" button -------------------
         do_fit_button = QPushButton("Do fit", self)
@@ -92,12 +91,14 @@ class GUIMaster(QWidget):
         main_layout.addWidget(h_splitter)
         main_layout.addWidget(do_fit_button)
 
-        self._parent.new_fitter.connect(self.fit_signal_update)
-
+        # MJH ??? --> what is signaling architecture?
+        self._parent.fit_signal.connect(self.fit_signal_update)
 
     def clear(self):
         """
+        Clear the plot and experiment frames.
         """
+
         self._plot_frame.clear()
         self._exp_frame.clear()
 
@@ -135,9 +136,10 @@ class MainWindow(QMainWindow):
     Main fitting window. 
     """
 
-    new_fitter = pyqtSignal(GlobalFit)
+    fit_signal = pyqtSignal(GlobalFit)
 
     def __init__(self):
+
 
         super().__init__()
 
@@ -327,7 +329,7 @@ class MainWindow(QMainWindow):
             opened_fitter, version = pickle.load(open(file_name, "rb"))
             if self._version == version:
                 self._fitter = opened_fitter
-                self.new_fitter.emit(opened_fitter)
+                self.fit_signal.emit(opened_fitter)
             else:
                 print("current version is", self._version, " and file version is", version, 
                         ". versions are incompatible.")

@@ -132,7 +132,7 @@ class ParamTable(QTableWidget):
         self._col_name = []
         self._data = []
 
-class AllExp(QWidget):
+class ExperimentBox(QWidget):
     """
     experiment box widget
     """
