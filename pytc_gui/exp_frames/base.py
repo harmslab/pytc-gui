@@ -40,28 +40,29 @@ class Experiments(QWidget):
         # Construct the header for the experiment
         self._name_label = QLabel(self._name)
 
+        # Button to show experiment options
+        self._show_options_button = QPushButton("Options", self)
+        self._show_options_button.clicked.connect(self.options_popup)
+
         # Button to hide and show advanced options for the experiment
-        self._show_options_button = QPushButton("Show Sliders", self)
-        self._show_options_button.clicked.connect(self.slider_popup)
+        self._show_sliders_button = QPushButton("Sliders", self)
+        self._show_sliders_button.clicked.connect(self.slider_popup)
 
         # Button to remove experiment
-        self._remove_name = "Remove"
-        self.exp_widgets()
-        
-        self._remove_button = QPushButton(self._remove_name, self)
+        self._remove_button = QPushButton("Remove", self)
         self._remove_button.clicked.connect(self.remove)
+
+        self.exp_widgets()
 
         # add exp name, remove and show sliders buttons to layout
         self._header_layout.addWidget(self._name_label)
         self._header_layout.addStretch(1)
         self._header_layout.addWidget(self._show_options_button)
+        self._header_layout.addWidget(self._show_sliders_button)
         self._header_layout.addWidget(self._remove_button)
         self._header_layout.addStretch(2)
 
         self._main_layout.addLayout(self._header_layout)
-
-        # empty box for shot
-        self.options()
 
         # Create empty box for any required parameters
         self._req_box = QFrame()
@@ -74,20 +75,15 @@ class Experiments(QWidget):
         self._divider.setFrameShape(QFrame.HLine)
         self._main_layout.addWidget(self._divider)
 
-    def options(self):
-        """
-        change the shot start
-        """
-        pass
-
     def exp_widgets(self):
         """
         for changing local/global specific items
         """
         pass
 
-    def remove(self):
+    def options_popup(self):
         """
+        show window containing fit options.
         """
         pass
 
@@ -97,4 +93,8 @@ class Experiments(QWidget):
         """
         pass
 
-            
+    def remove(self):
+        """
+        remove experiment
+        """
+        pass

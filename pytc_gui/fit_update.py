@@ -35,6 +35,7 @@ class PlotBox(QWidget):
         """
         clear main layout and add new graph to layout
         """
+
         self.clear()
         tabs = QTabWidget()
 

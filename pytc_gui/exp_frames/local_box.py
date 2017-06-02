@@ -41,10 +41,11 @@ class LocalBox(Experiments):
         shots layout
         """
         # change shot start
-        self._exp_options = QPushButton("Exp Options", self)
-        self._exp_options.setFixedWidth(200)
-        self._exp_options.clicked.connect(self.update)
-        self._main_layout.addWidget(self._exp_options)
+        #self._exp_options = QPushButton("Options", self)
+        #self._exp_options.setFixedWidth(200)
+        #self._exp_options.clicked.connect(self.update)
+        #self._main_layout.addWidget(self._exp_options)
+        pass
 
     def slider_popup(self):
         """
@@ -53,7 +54,7 @@ class LocalBox(Experiments):
         self._slider_window = slider_popup.LocalPopUp(self)
         self._slider_window.show()
 
-    def update(self):
+    def options_popup(self):
         """
         change the shot start
         """
@@ -74,7 +75,7 @@ class LocalBox(Experiments):
                     label = QLabel(label_name.title(), self)
                     field = QLineEdit(self)
                     field.setMinimumWidth(150)
-                    field.setPlaceholderText("values in kcal/mol or C°")
+                    field.setPlaceholderText("")
                     self._required_fields[i] = field
 
                     stretch = QHBoxLayout()

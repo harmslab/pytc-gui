@@ -64,7 +64,7 @@ class DoAICTest(QDialog):
         ftest_button = QPushButton("Perform AIC Test", self)
         ftest_button.clicked.connect(self.perform_test)
 
-        add_fit_button = QPushButton("Add Global Fit Obj", self)
+        add_fit_button = QPushButton("Append New Fit", self)
         add_fit_button.clicked.connect(self.add_fitter)
 
         self._data_out = QTextEdit()
@@ -104,20 +104,23 @@ class DoAICTest(QDialog):
         """
         take selected objects and use them in f-test
         """
-        try:
-            selected = [self._fitter_list[i.text()] for i in self._fitter_select.selectedItems()] 
-            output, plots = util.compare_models(*selected)
-            self._plots = ModelPlots(plots)
-            self._plots.show()
+        selected = [self._fitter_list[i.text()] for i in self._fitter_select.selectedItems()] 
 
-            # translate output
-            print("\n")
-            for o, v in output.items():
-                print("Value: ", o)
-                print("Best Model: ", v[0])
-                print("Weights: ", v[1], "\n")
-        except:
-            print("Test Failed")
+        if len(selected) < 2:
+            err = "You must select at least two fits to compare.\n"
+            QMessageBox.warning(self, "warning", err, QMessageBox.Ok)
+            return 
+
+        output, plots = util.compare_models(*selected)
+        #self._plots = ModelPlots(plots)
+        #self._plots.show()
+
+        # translate output
+        print("\n")
+        for o, v in output.items():
+            print("Value: ", o)
+            print("Best Model: ", v[0])
+            print("Weights: ", v[1], "\n")
 
     @pyqtSlot(str)
     def read_stdout(self, text):
