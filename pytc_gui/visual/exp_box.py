@@ -93,6 +93,7 @@ class ExperimentBox(QWidget):
         super().__init__()
 
         self._parent = parent
+        self._fitter = self._parent._fitter
 
         self._slider_list = {"Global" : {}, "Local" : {}}
         self._global_var = []
@@ -199,3 +200,4 @@ class ExperimentBox(QWidget):
         self._global_tracker = {}
 
         self._param_box.clear()
+

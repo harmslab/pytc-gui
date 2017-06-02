@@ -8,7 +8,7 @@ import inspect, re, collections
 DEFAULT_UNITS = "cal/mol"
 DEFAULT_MODEL = "Single Site"
 
-class AddExperimentWindow(QDialog):
+class AddExperiment(QDialog):
     """
     add experiment pop-up box
     """

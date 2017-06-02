@@ -11,11 +11,9 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
-from .exp_setup import AddExperimentWindow
 from .visual import ExperimentBox, PlotBox
 
 from . import dialog
-from .options import FitOptions
 from .qlogging_handler import OutputStream
 
 from matplotlib.backends.backend_pdf import PdfPages
@@ -194,11 +192,11 @@ class MainWindow(QMainWindow):
 
         # ------------- Help Menu ----------------------
         prog_info = QAction("About", self)
-        prog_info.triggered.connect(self.about_callback)
+        prog_info.triggered.connect(self.open_about_dialog)
         help_menu.addAction(prog_info)
 
         doc_info = QAction("Documentation", self)
-        doc_info.triggered.connect(self.docs_callback)
+        doc_info.triggered.connect(self.open_docs_dialog)
         help_menu.addAction(doc_info)
 
         # ------------- Fitting Menu -------------------
@@ -210,19 +208,19 @@ class MainWindow(QMainWindow):
         fitting_commands.addSeparator()
 
         aic_test = QAction("AIC Test", self)
-        aic_test.triggered.connect(self.perform_aic)
+        aic_test.triggered.connect(self.open_aic_dialog)
         fitting_commands.addAction(aic_test)
 
         fitting_commands.addSeparator()
 
         fitting_options = QAction("Fit Options", self)
-        fitting_options.triggered.connect(self.fit_options)
+        fitting_options.triggered.connect(self.open_fit_options_dialog)
         fitting_commands.addAction(fitting_options)
 
         # ------------------ File Menu ---------------------------
         add_exp = QAction("Add Experiment", self)
         add_exp.setShortcut("Ctrl+Shift+N")
-        add_exp.triggered.connect(self.add_file)
+        add_exp.triggered.connect(self.open_add_file_dialog)
         file_menu.addAction(add_exp)
 
         save_exp = QAction("Export Results", self)
@@ -244,10 +242,10 @@ class MainWindow(QMainWindow):
 
         file_menu.addSeparator()
 
-        new_exp = QAction("New Session", self)
-        new_exp.setShortcut("Ctrl+N")
-        new_exp.triggered.connect(self.new_exp)
-        file_menu.addAction(new_exp)
+        new_session = QAction("New Session", self)
+        new_session.setShortcut("Ctrl+N")
+        new_session.triggered.connect(self.new_session_callback)
+        file_menu.addAction(new_session)
 
         close_window = QAction("Close Window", self)
         close_window.setShortcut("Ctrl+W")
@@ -258,7 +256,7 @@ class MainWindow(QMainWindow):
         self.addAction(add_exp)
         self.addAction(fit_exp)
         self.addAction(save_exp)
-        self.addAction(new_exp)
+        self.addAction(new_session)
         self.addAction(close_window)
         self.addAction(save_fitter)
         self.addAction(open_fitter)
@@ -272,16 +270,16 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('pytc')
         self.show()
 
-    def docs_callback(self):
+    def open_docs_dialog(self):
         """
-        show pop-up with links to documentation for pytc and pytc-gui
+        Open a transient documentation dialog.
         """
         self._doc_info = dialog.Documentation()
         self._doc_info.show()
 
-    def about_callback(self):
+    def open_about_dialog(self):
         """
-        show pop-up with about  
+        Open a transient about dialog.
         """
         self._about = dialog.About()
         self._about.show()
@@ -292,31 +290,37 @@ class MainWindow(QMainWindow):
         """
         self._exp.do_fit_callback()
 
-    def add_file(self):
+    def open_add_file_dialog(self):
         """
-        add a new pytc experiment.
+        Open a transient window for adding a new experiment.
         """
-        self._new_exp = AddExperimentWindow(self._fitter, self._exp)
-        self._new_exp.show()
 
-    def perform_aic(self):
-        """
-        do an f-test with saved fitters as options
-        """
-        self._do_aic = dialog.AICTest(self)
-        self._do_aic.show()
+        self._add_exp_dialog = dialog.AddExperiment(self._fitter, self._exp)
+        self._add_exp_dialog.show()
 
-    def fit_options(self):
+    def open_aic_dialog(self):
         """
-        Window for fit options
+        Load persistent dialog box for doing AIC calculation.
         """
+    
+        try:
+            self._do_aic_dialog.show()
+        except AttributeError:
+            self._do_aic_dialog = dialog.AICTest(self)
+            self._do_aic_dialog.show()
+
+    def open_fit_options_dialog(self):
+        """
+        Load persistent dialog for setting fit options.
+        """
+
         # Try to show the window -- if it's not created already, make it
         try:
-            self._fit_options.show()
+            self._fit_options_dialog.show()
         except AttributeError:
-            self._fit_options = FitOptions(self._fitter, self._fitter_list)
-            self._fit_options.options_signal.connect(self._exp.update_fit_options)
-            self._fit_options.show()
+            self._fit_options_dialog = dialog.FitOptions(self._fitter, self._fitter_list)
+            self._fit_options_dialog.options_signal.connect(self._exp.update_fit_options)
+            self._fit_options_dialog.show()
 
     def add_fitter(self):
         """
@@ -330,7 +334,7 @@ class MainWindow(QMainWindow):
             print("Fitter " + text + " saved to list. Current List: ")
             print(self._fitter_list)
 
-    def new_exp(self):
+    def new_session_callback(self):
         """
         clear everything and start over
         """

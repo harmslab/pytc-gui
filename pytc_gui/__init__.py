@@ -6,7 +6,6 @@ from . import sliders
 from . import exp_frames
 from . import slider_popup
 
-from .exp_setup import AddExperimentWindow
 from .main_window import *
 from .visual import *
 from .sliders import *
