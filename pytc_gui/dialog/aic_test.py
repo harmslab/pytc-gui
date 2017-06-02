@@ -34,7 +34,7 @@ class ModelPlots(QDialog):
 
         main_layout.addWidget(tabs)
 
-class DoAICTest(QDialog):
+class AICTest(QDialog):
 
     def __init__(self, parent):
         """

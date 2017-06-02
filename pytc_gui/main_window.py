@@ -13,8 +13,8 @@ from PyQt5.QtWidgets import *
 
 from .exp_setup import AddExperimentWindow
 from .visual import ExperimentBox, PlotBox
-from .dialog import DoAICTest
-from .help_dialogs import VersionInfo, DocumentationURL
+
+from . import dialog
 from .options import FitOptions
 from .qlogging_handler import OutputStream
 
@@ -194,7 +194,7 @@ class MainWindow(QMainWindow):
 
         # ------------- Help Menu ----------------------
         prog_info = QAction("About", self)
-        prog_info.triggered.connect(self.version_callback)
+        prog_info.triggered.connect(self.about_callback)
         help_menu.addAction(prog_info)
 
         doc_info = QAction("Documentation", self)
@@ -276,15 +276,15 @@ class MainWindow(QMainWindow):
         """
         show pop-up with links to documentation for pytc and pytc-gui
         """
-        self._doc_info = DocumentationURL()
+        self._doc_info = dialog.Documentation()
         self._doc_info.show()
 
-    def version_callback(self):
+    def about_callback(self):
         """
-        show pop-up with version
+        show pop-up with about  
         """
-        self._version = VersionInfo()
-        self._version.show()
+        self._about = dialog.About()
+        self._about.show()
 
     def fit_exp_callback(self):
         """
@@ -303,7 +303,7 @@ class MainWindow(QMainWindow):
         """
         do an f-test with saved fitters as options
         """
-        self._do_aic = DoAICTest(self)
+        self._do_aic = dialog.AICTest(self)
         self._do_aic.show()
 
     def fit_options(self):
