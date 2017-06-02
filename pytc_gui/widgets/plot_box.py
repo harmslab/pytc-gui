@@ -1,14 +1,11 @@
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
+from PyQt5 import QtWidgets as QW
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-import matplotlib.pyplot as plt
 
 import seaborn
 
-class PlotBox(QWidget):
+class PlotBox(QW.QWidget):
     """
     Hold the plot widget.
     """
@@ -25,7 +22,7 @@ class PlotBox(QWidget):
         """
         Create layout for plot.
         """
-        self._main_layout = QVBoxLayout(self)
+        self._main_layout = QW.QVBoxLayout(self)
 
     def update(self):
         """
@@ -33,7 +30,7 @@ class PlotBox(QWidget):
         """
 
         self.clear()
-        tabs = QTabWidget()
+        tabs = QW.QTabWidget()
 
         self._figure, self._ax = self._parent.fitter.plot()
 

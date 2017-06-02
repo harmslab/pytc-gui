@@ -7,19 +7,15 @@ __date__ = "2017-01-06"
 from .plot_box import PlotBox
 from .experiment_box import ExperimentBox
 from .message_box import MessageBox
-#from .message_box import MessageBox
-
-#from .qlogging_handler import OutputStream
 
 from pytc.global_fit import GlobalFit
 
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5 import QtWidgets as QW
 
 import inspect
 
-class MainWidgets(QWidget):
+class MainWidgets(QW.QWidget):
     """
     Main class that holds all of the fitter sub-widgets.
     """
@@ -53,7 +49,7 @@ class MainWidgets(QWidget):
         self._exp_box = ExperimentBox(self)
     
         # ------------ "Do fit" button -------------------
-        do_fit_button = QPushButton("Do fit", self)
+        do_fit_button = QW.QPushButton("Do fit", self)
         do_fit_button.clicked.connect(self.do_fit_callback)
 
         # -------------- message box ---------------------
@@ -62,19 +58,19 @@ class MainWidgets(QWidget):
         # Split up the main window in a useful way
 
         # Split window vertically
-        v_splitter = QSplitter(Qt.Vertical)
+        v_splitter = QW.QSplitter(Qt.Vertical)
         v_splitter.addWidget(self._plot_box)
         v_splitter.addWidget(self._message_box)
         v_splitter.setSizes([300, 50])
 
         # now split horizontally
-        h_splitter = QSplitter(Qt.Horizontal)
+        h_splitter = QW.QSplitter(Qt.Horizontal)
         h_splitter.addWidget(v_splitter)
         h_splitter.addWidget(self._exp_box)
         h_splitter.setSizes([200, 200])
 
         # Now add the split up window.
-        main_layout = QVBoxLayout(self)
+        main_layout = QW.QVBoxLayout(self)
         main_layout.addWidget(h_splitter)
         main_layout.addWidget(do_fit_button)
 

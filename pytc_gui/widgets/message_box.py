@@ -5,12 +5,12 @@ message box visual element for pytc gui.
 __author__ = "Hiranmayi Duvvuri, Michael J. Harms"
 __date__ = "2017-06-01"
 
-from PyQt5.QtCore import pyqtSlot, pyqtSignal, QObject
-from PyQt5.QtWidgets import QScrollArea, QTextEdit
+from PyQt5 import QtCore as QC
+from PyQt5 import QtWidgets as QW
 
 import sys
 
-class MessageBox(QScrollArea):
+class MessageBox(QW.QScrollArea):
     """
     Widget for holding the message box.
     """
@@ -24,7 +24,7 @@ class MessageBox(QScrollArea):
 
     def layout(self):
 
-        self._text = QTextEdit(self._parent)
+        self._text = QW.QTextEdit(self._parent)
         self._text.setReadOnly(True)
 
         self.setWidget(self._text)
@@ -42,7 +42,7 @@ class MessageBox(QScrollArea):
 
         self._text.clear()
     
-    @pyqtSlot(str)
+    @QC.pyqtSlot(str)
     def _read_stdout_callback(self, text):
         """
         Write standard out to the main message box, automatically scrolling to
@@ -56,9 +56,9 @@ class MessageBox(QScrollArea):
         return self._parent
 
 
-class OutputStream(QObject):
+class OutputStream(QC.QObject):
 
-	text_printed = pyqtSignal(str)
+	text_printed = QC.pyqtSignal(str)
 
 	def __init__(self):
 		"""
