@@ -234,8 +234,8 @@ class AddExperimentWindow(QDialog):
             itc_exp = pytc.ITCExperiment(self._exp_file, self._exp_model, **exp_param, **model_param)
             self._fitter.add_experiment(itc_exp)
 
-            self._on_close._plot_frame.update()
-            self._on_close._exp_frame.add_exp()
+            self._on_close._plot_box.update()
+            self._on_close._exp_box.add_exp()
             self.close()
         else:
             error_message = QMessageBox.warning(self, "warning", "No .DH file provided", QMessageBox.Ok)

@@ -150,7 +150,7 @@ class ExperimentBox(QWidget):
         self._global_tracker = {}
         self._global_connectors = {}
         self._connectors_seen = {}
-        self._plot_frame = parent._plot_frame
+        self._plot_box = parent._plot_box
         self._update = parent.do_fit_callback
 
         self.layout()

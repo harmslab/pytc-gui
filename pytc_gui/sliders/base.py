@@ -18,7 +18,7 @@ class Sliders(QWidget):
         self._fitter = parent._fitter
         self._fit_run = False
         self._main_box = parent._main_box
-        self._plot_frame = parent._plot_frame
+        self._plot_box = parent._plot_box
 
         self.layout()
 
@@ -89,7 +89,7 @@ class Sliders(QWidget):
             self._fitter.guess_to_value()
             self._fit_run = False
 
-        self._plot_frame.update()
+        self._plot_box.update()
 
     def fix_layout(self, state):
         """

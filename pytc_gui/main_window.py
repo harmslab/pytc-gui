@@ -50,10 +50,10 @@ class GUIMaster(QWidget):
         """
 
         # ------------ Plot widget ----------------------- 
-        self._plot_frame = PlotBox(self)
+        self._plot_box = PlotBox(self)
 
         # ------------ Experiments widget ----------------
-        self._exp_frame = ExperimentBox(self)
+        self._exp_box = ExperimentBox(self)
     
         # ------------ "Do fit" button -------------------
         do_fit_button = QPushButton("Do fit", self)
@@ -76,14 +76,14 @@ class GUIMaster(QWidget):
 
         # Split window vertically
         v_splitter = QSplitter(Qt.Vertical)
-        v_splitter.addWidget(self._plot_frame)
+        v_splitter.addWidget(self._plot_box)
         v_splitter.addWidget(scroll)
         v_splitter.setSizes([300, 50])
 
         # now split horizontally
         h_splitter = QSplitter(Qt.Horizontal)
         h_splitter.addWidget(v_splitter)
-        h_splitter.addWidget(self._exp_frame)
+        h_splitter.addWidget(self._exp_box)
         h_splitter.setSizes([200, 200])
 
         # Now add the split up window.
@@ -99,8 +99,8 @@ class GUIMaster(QWidget):
         Clear the plot and experiment frames.
         """
 
-        self._plot_frame.clear()
-        self._exp_frame.clear()
+        self._plot_box.clear()
+        self._exp_box.clear()
 
     def update_fit_options(self, options_dict):
         """
@@ -110,15 +110,15 @@ class GUIMaster(QWidget):
     def do_fit_callback(self):
         """
         """
-        self._exp_frame.perform_fit(self._global_fit_options)
-        self._plot_frame.update()
+        self._exp_box.perform_fit(self._global_fit_options)
+        self._plot_box.update()
 
     @pyqtSlot(GlobalFit)
     def fit_signal_update(self, obj):
         """
         """
-        self._plot_frame._fitter = obj
-        self._exp_frame._fitter = obj
+        self._plot_box._fitter = obj
+        self._exp_box._fitter = obj
 
     @pyqtSlot(str)
     def read_stdout(self, text):
