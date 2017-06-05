@@ -18,7 +18,8 @@ class LocalSliders(Sliders):
         """
         """
         self._value = value
-        self._global_var = parent._global_var
+        self._fit = parent._fit
+        #self._global_var = parent._global_var
         self._slider_list = parent._slider_list
         self._connectors_seen = parent._connectors_seen
         self._global_connectors = parent._global_connectors
@@ -46,7 +47,7 @@ class LocalSliders(Sliders):
         self._link.addItem("Add Connector")
 
         # update lists of variables for each new slider, check if var is a string or a connector object
-        for i in self._global_var:
+        for i in self._fit.global_param:
             if isinstance(i, str):
                 self._link.addItem(i)
             else: 
@@ -63,17 +64,14 @@ class LocalSliders(Sliders):
         add global variable, update if parameter is linked or not to a global paremeter
         """
         if status == "Unlink":
-            try:
-                self._fitter.unlink_from_global(self._exp, self._param_name)
-                self.reset()
-                self._global_tracker[self._if_connected].unlinked(self)
-            except:
-                pass
+             self._fit.fitter.unlink_from_global(self._exp, self._param_name)
+             self.reset()
+             self._global_tracker[self._if_connected].unlinked(self)
 
         elif status == "Add Global Var":
             text, ok = QInputDialog.getText(self, "Add Global Variable", "Var Name: ")
-            if ok: 
-                self._global_var.append(text)
+            if ok:
+                 
                 for e in self._slider_list["Local"].values():
                     for i in e:
                         i.update_global(text)
@@ -89,7 +87,7 @@ class LocalSliders(Sliders):
     
             def connector_handler(connector,var_names,curr_var):
         
-                self._global_var.append(connector)
+                #self._global_var.append(connector)
                 for v in var_names:
                     self._global_connectors[v] = [connector.local_methods[v], connector]
 
@@ -117,7 +115,7 @@ class LocalSliders(Sliders):
         """
         """
         # connect to a simple global variable
-        self._fitter.link_to_global(self._exp, self._param_name, var)
+        self._fit.fitter.link_to_global(self._exp, self._param_name, var)
         self._slider.hide()
         self._param_guess_label.hide()
         self._fix.hide()

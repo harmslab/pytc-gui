@@ -17,7 +17,7 @@ class Experiments(QWidget):
         self._name = name
         self._fitter = parent._fit.fitter
         self._slider_list = parent._slider_list
-        self._global_var = parent._global_var
+        #self._global_var = parent._global_var
         self._global_tracker = parent._global_tracker
         self._connectors_seen = parent._connectors_seen
         self._global_connectors = parent._global_connectors

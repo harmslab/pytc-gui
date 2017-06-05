@@ -22,7 +22,7 @@ class ExperimentBox(QWidget):
         self._fit = fit
 
         self._slider_list = {"Global" : {}, "Local" : {}}
-        self._global_var = []
+        #self._global_var = []
         self._global_tracker = {}
         self._global_connectors = {}
         self._connectors_seen = {}
@@ -51,16 +51,15 @@ class ExperimentBox(QWidget):
         """
         Update fit and parameters, update experiments added to fitter
         """
-        self._experiments = self._fit.fitter.experiments
 
         # check for instances of LocalBox and set any attributes
         for loc_obj in self._exp_box.findChildren(LocalBox):
             loc_obj.set_attr()
 
-        if len(self._experiments) != 0:
+        if len(self._fit.experiments) != 0:
 
             # create local holder if doesn't exist
-            for e in self._experiments:
+            for e in self._fit.experiments:
                 if e in self._slider_list["Local"]:
                     continue
 
@@ -95,7 +94,7 @@ class ExperimentBox(QWidget):
 
         # reset all lists/dictionaries
         self._slider_list = {"Global" : {}, "Local" : {}}
-        self._global_var = []
+        #self._global_var = []
         self._connectors_seen = {}
         self._global_connectors = {}
         self._global_tracker = {}

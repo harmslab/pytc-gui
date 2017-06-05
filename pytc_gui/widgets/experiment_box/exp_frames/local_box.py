@@ -19,7 +19,8 @@ class LocalBox(Experiments):
 
         self._exp = exp
         self._required_fields = {}
-        self._experiments = parent._experiments
+        self._experiments = parent._fit.experiments
+        self._fit = parent._fit
         self._exp_box = parent._exp_box
         self._update = parent._update
         self._main_box = parent

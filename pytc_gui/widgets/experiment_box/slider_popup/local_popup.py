@@ -16,7 +16,7 @@ class LocalPopUp(SliderPopUp):
     def __init__(self, parent):
         """
         """
-        self._global_var = parent._global_var
+        #self._global_var = parent._global_var
         self._connectors_seen = parent._connectors_seen
 
         super().__init__(parent)
