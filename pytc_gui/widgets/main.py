@@ -21,13 +21,13 @@ class MainWidgets(QW.QWidget):
     Main class that holds all of the fitter sub-widgets.
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent, fit):
 
         super().__init__()
 
         self._parent = parent
+        self._fit = fit
 
-        self._fitter = parent._fitter
         self._fitter_list = parent._fitter_list
 
         # Create a dictionary of GlobalFitOptions
@@ -44,16 +44,16 @@ class MainWidgets(QW.QWidget):
         """
 
         # ------------ Plot widget ----------------------- 
-        self._plot_box = PlotBox(self)
+        self._plot_box = PlotBox(self,self._fit)
 
         # ------------ Message box -----------------------
-        self._message_box = MessageBox(self)
+        self._message_box = MessageBox(self,self._fit)
 
         # ------------ Experiments widget ----------------
-        self._exp_box = ExperimentBox(self)
+        self._exp_box = ExperimentBox(self,self._fit)
    
         # ------------ Parameters widget -----------------
-        self._param_box = ParameterBox(self)
+        self._param_box = ParameterBox(self,self._fit)
 
         # ------------ "Do fit" button -------------------
         do_fit_button = QW.QPushButton("Do fit", self)
@@ -102,10 +102,21 @@ class MainWidgets(QW.QWidget):
         """
         self._global_fit_options = options_dict
 
+    def _perform_fit(self):
+        """
+        XXX MJH TEMPORARY BRIDGE DURING REFACTOR XXX
+        """
+
+        self._exp_box.update_exp()
+
+        # after doing fit, emit signal to sliders and update parameter table
+        self._fit.fitter.fit(**self._global_fit_options)
+        self._parent.fit_signal.emit(self._fit.fitter)
+
     def do_fit_callback(self):
         """
         """
-        self._exp_box.perform_fit(self._global_fit_options)
+        self._perform_fit()
         self._plot_box.update()
         self._param_box.update()
 
@@ -156,6 +167,6 @@ class MainWidgets(QW.QWidget):
         """
         Main fitter object.
         """
-        return self._fitter
+        return self._fit.fitter
 
 

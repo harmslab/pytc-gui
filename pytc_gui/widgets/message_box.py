@@ -15,11 +15,12 @@ class MessageBox(QW.QScrollArea):
     Widget for holding the message box.
     """
 
-    def __init__(self,parent):
+    def __init__(self,parent,fit):
     
         super().__init__()
 
         self._parent = parent
+        self._fit = fit
         self.layout()
 
     def layout(self):

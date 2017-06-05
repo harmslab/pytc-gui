@@ -6,6 +6,7 @@ __author__ = "Hiranmyai Duvvuri"
 __date__ = "2017-01-06"
 
 from . import dialogs, widgets
+from .fit_container import FitContainer
 
 from pytc.global_fit import GlobalFit
 
@@ -28,7 +29,8 @@ class MainWindow(QW.QMainWindow):
         super().__init__()
 
         self._app = app
-        self._fitter = GlobalFit()
+        self._fit = FitContainer()
+
         self._fitter_list = {}
         self._version = pkg_resources.require("pytc-gui")[0].version
 
@@ -118,7 +120,7 @@ class MainWindow(QW.QMainWindow):
         self.addAction(open_fitter)
 
         # Set up central widget
-        self._main_widgets = widgets.MainWidgets(self)
+        self._main_widgets = widgets.MainWidgets(self,self._fit)
         self.setCentralWidget(self._main_widgets)
 
         self.resize(1000, 600)
@@ -145,7 +147,7 @@ class MainWindow(QW.QMainWindow):
         Open a transient dialog for adding a new experiment.
         """
 
-        self._tmp = dialogs.AddExperiment(self._fitter, self._main_widgets)
+        self._tmp = dialogs.AddExperiment(self._fit.fitter, self._main_widgets)
         self._tmp.show()
 
     def aic_dialog(self):
@@ -168,7 +170,7 @@ class MainWindow(QW.QMainWindow):
         try:
             self._fit_options_dialog.show()
         except AttributeError:
-            self._fit_options_dialog = dialogs.FitOptions(self._fitter, self._fitter_list)
+            self._fit_options_dialog = dialogs.FitOptions(self._fit.fitter, self._fitter_list)
             self._fit_options_dialog.options_signal.connect(self._main_widgets.update_fit_options)
             self._fit_options_dialog.show()
 
@@ -178,7 +180,7 @@ class MainWindow(QW.QMainWindow):
         """
 
         file_name, _ = QW.QFileDialog.getSaveFileName(self, "Save Global Fit", "", "Pickle Files (*.pkl);;")
-        pickle.dump([self._fitter, self._version], open(file_name, "wb"))
+        pickle.dump([self._fit.fitter, self._version], open(file_name, "wb"))
  
     def open_fitter_dialog(self):
         """
@@ -188,7 +190,7 @@ class MainWindow(QW.QMainWindow):
 
         opened_fitter, version = pickle.load(open(file_name, "rb"))
         if self._version == version:
-            self._fitter = opened_fitter
+            self._fit.fitter = opened_fitter
             self.fit_signal.emit(opened_fitter)
         else:
             err = "Could not load fit. Current version is {}, but file version is {}.".format(self._version,version)
@@ -205,16 +207,16 @@ class MainWindow(QW.QMainWindow):
 
         try:
             data_file = open(file_name, "w")
-            data_file.write(self._fitter.fit_as_csv)
+            data_file.write(self._fit.fitter.fit_as_csv)
             data_file.close()
 
             plot_save = PdfPages(plot_name)
-            fig, ax = self._fitter.plot()
+            fig, ax = self._fit.fitter.plot()
             plot_save.savefig(fig)
             plot_save.close()
 
             plot_save = PdfPages(corner_plot_name)
-            fig = self._fitter.corner_plot()
+            fig = self._fit.fitter.corner_plot()
             plot_save.savefig(fig)
             plot_save.close()
 
@@ -252,8 +254,8 @@ class MainWindow(QW.QMainWindow):
         Reset the session.
         """
 
-        self._fitter = GlobalFit()
-        self._fitter_list = {}
+        self._fit.fitter = GlobalFit()
+        self._fit.fitter_list = {}
         self._main_widgets.clear()
     
     def closeEvent(self,event):

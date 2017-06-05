@@ -13,13 +13,13 @@ class ExperimentBox(QWidget):
 
     fit_signal = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent, fit):
         """
         """
         super().__init__()
 
         self._parent = parent
-        self._fitter = self._parent._fitter
+        self._fit = fit
 
         self._slider_list = {"Global" : {}, "Local" : {}}
         self._global_var = []
@@ -51,7 +51,11 @@ class ExperimentBox(QWidget):
         """
         Update fit and parameters, update experiments added to fitter
         """
-        self._experiments = self._parent.fitter.experiments
+        self._experiments = self._fit.fitter.experiments
+
+        # check for instances of LocalBox and set any attributes
+        for loc_obj in self._exp_box.findChildren(LocalBox):
+            loc_obj.set_attr()
 
         if len(self._experiments) != 0:
 
@@ -69,24 +73,6 @@ class ExperimentBox(QWidget):
                 exp = LocalBox(e, exp_name, self)
                 self._exp_box.addWidget(exp)
 
-    def perform_fit(self, options):
-        """
-        perform complete fit, update all
-        """
-        self.update_exp()
-
-        # check for instances of LocalBox and set any attributes
-        for loc_obj in self._exp_box.parentWidget().findChildren(LocalBox):
-            loc_obj.set_attr()
-
-        try:
-            # after doing fit, emit signal to sliders and update parameter table
-            self._parent.fitter.fit(**options)
-            self.fit_signal.emit()
-            #self._param_box.update()
-        except:
-            pass
-
     def clear(self):
         """
         for clearing the application
@@ -102,7 +88,7 @@ class ExperimentBox(QWidget):
 
             # finally, remove local objects
             for loc_obj in self._exp_box.parentWidget().findChildren(LocalBox):
-                self._parent.fitter.remove_experiment(loc_obj._exp)
+                self._fit.fitter.remove_experiment(loc_obj._exp)
                 loc_obj.deleteLater()
         except:
             pass
