@@ -23,7 +23,7 @@ class ExperimentBox(QWidget):
 
         self._slider_list = {"Global" : {}, "Local" : {}}
         #self._global_connectors = {}
-        self._connectors_seen = {}
+        #self._connectors_seen = {}
         self._plot_box = parent._plot_box
         self._update = parent.do_fit_callback
 
@@ -62,7 +62,7 @@ class ExperimentBox(QWidget):
                     continue
 
                 self._slider_list["Local"][e] = []
-                self._connectors_seen[e] = []
+                self._fit.connectors_seen[e] = []
 
                 file_name = e.dh_file
                 exp_name = file_name.split("/")[-1]
@@ -92,6 +92,6 @@ class ExperimentBox(QWidget):
 
         # reset all lists/dictionaries
         self._slider_list = {"Global" : {}, "Local" : {}}
-        self._connectors_seen = {}
+        self._fit.connectors_seen = {}
         #self._global_connectors = {}
 

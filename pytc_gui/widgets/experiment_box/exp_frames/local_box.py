@@ -66,7 +66,7 @@ class LocalBox(Experiments):
         """
         checks if any global connectors are connected and updates to add fields for any required data
         """
-        exp_connectors = self._connectors_seen[self._exp]
+        exp_connectors = self._fit.connectors_seen[self._exp]
 
         for c in exp_connectors:
             required = c.required_data

@@ -21,7 +21,7 @@ class LocalSliders(Sliders):
         self._fit = parent._fit
         #self._global_var = parent._global_var
         self._slider_list = parent._slider_list
-        self._connectors_seen = parent._connectors_seen
+        #self._connectors_seen = parent._connectors_seen
         #self._global_connectors = parent._global_connectors
         #self._global_tracker = parent._global_tracker
         self._exp_box = parent._exp_box
@@ -153,7 +153,7 @@ class LocalSliders(Sliders):
 
         curr_connector = self._fit.global_connectors[var][1]
         name = curr_connector.name
-        self._connectors_seen[self._exp].append(curr_connector)
+        self._fit.connectors_seen[self._exp].append(curr_connector)
         self._fit.fitter.link_to_global(self._exp, self._param_name, self._fit.global_connectors[var][0])
 
         # add connector to experiments widget
