@@ -23,6 +23,8 @@ class PlotBox(QW.QWidget):
         Create layout for plot.
         """
         self._main_layout = QW.QVBoxLayout(self)
+        #self._main_layout.setContentsMargin(0)
+        self._main_layout.setSpacing(0)
 
     def update(self):
         """
@@ -45,7 +47,7 @@ class PlotBox(QW.QWidget):
 
         corner_plot = FigureCanvas(self._corner_fig)
         tabs.addTab(corner_plot, "Corner Plots")
-
+    
         self._main_layout.addWidget(tabs)
 
     def clear(self):

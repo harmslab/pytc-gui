@@ -1,19 +1,14 @@
-import pytc
-
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
 import seaborn
-from io import StringIO
 
-from . import param_table
 from .exp_frames import LocalBox, GlobalBox, ConnectorsBox
 
 class ExperimentBox(QWidget):
     """
-    Experiment box widget.  This will have all experiments and a parameter
-    table.
+    Experiment box widget.  
     """
 
     fit_signal = pyqtSignal()
@@ -40,7 +35,6 @@ class ExperimentBox(QWidget):
         """
         Create layout.
         """
-        self._main_layout = QVBoxLayout(self)
 
         # scroll box for experiments
         self._scroll = QScrollArea(self)
@@ -50,16 +44,8 @@ class ExperimentBox(QWidget):
         self._scroll.setWidgetResizable(True)
         self._exp_box.setAlignment(Qt.AlignTop)
 
-        # paramater table
-        self._param_box = param_table.ParamTable(self._parent.fitter)
-
-        # splitter for experiments and parameter widgets
-        self._splitter = QSplitter(Qt.Vertical)
-        self._splitter.addWidget(self._scroll)
-        self._splitter.addWidget(self._param_box)
-        self._splitter.setSizes([200, 200])
-
-        self._main_layout.addWidget(self._splitter)
+        self._main_layout = QVBoxLayout(self)
+        self._main_layout.addWidget(self._scroll)
 
     def update_exp(self):
         """
@@ -68,6 +54,7 @@ class ExperimentBox(QWidget):
         self._experiments = self._parent.fitter.experiments
 
         if len(self._experiments) != 0:
+
             # create local holder if doesn't exist
             for e in self._experiments:
                 if e in self._slider_list["Local"]:
@@ -81,9 +68,6 @@ class ExperimentBox(QWidget):
 
                 exp = LocalBox(e, exp_name, self)
                 self._exp_box.addWidget(exp)
-        else:
-            # clear anything that might be in parameter box
-            self._param_box.clear()
 
     def perform_fit(self, options):
         """
@@ -99,7 +83,7 @@ class ExperimentBox(QWidget):
             # after doing fit, emit signal to sliders and update parameter table
             self._parent.fitter.fit(**options)
             self.fit_signal.emit()
-            self._param_box.update()
+            #self._param_box.update()
         except:
             pass
 
@@ -129,6 +113,4 @@ class ExperimentBox(QWidget):
         self._connectors_seen = {}
         self._global_connectors = {}
         self._global_tracker = {}
-
-        self._param_box.clear()
 

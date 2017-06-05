@@ -8,7 +8,7 @@ __date__ = "2017-06-01"
 from PyQt5 import QtCore as QC
 from PyQt5 import QtWidgets as QW
 
-import sys
+import sys, os
 
 class MessageBox(QW.QScrollArea):
     """
@@ -24,16 +24,19 @@ class MessageBox(QW.QScrollArea):
 
     def layout(self):
 
-        self._text = QW.QTextEdit(self._parent)
-        self._text.setReadOnly(True)
+        self._main_layout = QW.QVBoxLayout(self)
 
+        self._text = QW.QTextEdit(self)
         self.setWidget(self._text)
         self.setWidgetResizable(True)
+        self._text.setReadOnly(True)
 
         # redirect stdout to the message box
         self._temp = sys.stdout
         sys.stdout = OutputStream()
         sys.stdout.text_printed.connect(self._read_stdout_callback)
+        
+        self._main_layout.addWidget(self._text)
 
     def clear(self):
         """
@@ -58,20 +61,29 @@ class MessageBox(QW.QScrollArea):
 
 class OutputStream(QC.QObject):
 
-	text_printed = QC.pyqtSignal(str)
+    text_printed = QC.pyqtSignal(str)
 
-	def __init__(self):
-		"""
-		redirect print statements to text edit
-		"""
-		super().__init__()
+    def __init__(self):
+        """
+        redirect print statements to text edit
+        """
+        super().__init__()
 
-	def write(self, text):
-		"""
-		"""
-		self.text_printed.emit(str(text))
+    def write(self, text):
+        """
+        Write standard out to the text box
+        """
+   
+        # Print everything except blank lines
+        text = str(text)
+        if text.strip() == "":
+            return
 
-	def flush(self):
-		"""
-		"""
-		pass
+        self.text_printed.emit(text) 
+        self.text_printed.emit(os.linesep)
+       
+
+    def flush(self):
+        """
+        """
+        pass
