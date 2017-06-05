@@ -147,7 +147,7 @@ class MainWindow(QW.QMainWindow):
         Open a transient dialog for adding a new experiment.
         """
 
-        self._tmp = dialogs.AddExperiment(self._fit.fitter, self._main_widgets)
+        self._tmp = dialogs.AddExperiment(self._fit)
         self._tmp.show()
 
     def aic_dialog(self):

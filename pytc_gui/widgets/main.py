@@ -110,7 +110,7 @@ class MainWidgets(QW.QWidget):
         self._exp_box.update_exp()
 
         # after doing fit, emit signal to sliders and update parameter table
-        self._fit.fitter.fit(**self._global_fit_options)
+        self._parent._fit.fitter.fit(**self._global_fit_options)
         self._parent.fit_signal.emit(self._fit.fitter)
 
     def do_fit_callback(self):

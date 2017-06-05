@@ -9,14 +9,14 @@ import pytc
 
 from PyQt5 import QtWidgets as QW
 
-import inspect, re, collections
+import inspect, re, collections, os
 
 class AddExperiment(QW.QDialog):
     """
     Dialog for adding an experiment to a pytc fitting session.
     """
 
-    def __init__(self, fitter, on_close,default_units="cal/mol",default_model="Single Site"):
+    def __init__(self, fit):
 
         super().__init__()
 
@@ -24,13 +24,7 @@ class AddExperiment(QW.QDialog):
         self._models = {re.sub(r"(\w)([A-Z])", r"\1 \2", i.__name__): i for i in subclasses}
 
         self._exp_file = None
-        self._shot_start = 1
-        self._fitter = fitter
-
-        self._default_units = default_units
-        self._default_model = default_model
-
-        self._on_close = on_close
+        self._fit = fit
 
         self.layout()
 
@@ -46,7 +40,7 @@ class AddExperiment(QW.QDialog):
         model_names = list(self._models.keys())
         model_names.sort()
         try:
-            model_names_index = model_names.index(self._default_model)
+            model_names_index = model_names.index(self._fit.defaults["model"])
         except ValueError:
             model_names_index = 0
 
@@ -70,7 +64,13 @@ class AddExperiment(QW.QDialog):
         # add to layout
         self._form_layout.addRow(load_exp, self._exp_label)
         self._form_layout.addRow(self._button_layout)
+
+        # Experiment name
+        self._enter_exp_label = QW.QLineEdit(self)
+        self._form_layout.addRow(QW.QLabel("Label:", self),
+                                 self._enter_exp_label)
         self._form_layout.addRow(QW.QLabel("Select Model:"), model_select)
+
 
         self._load_exp_info()
 
@@ -100,6 +100,7 @@ class AddExperiment(QW.QDialog):
                 file_types.append((name,obj))
         file_types.sort()
 
+
         # make radio buttons + add to layout
         for name, obj in file_types:
             type_name = name.replace("Experiment", "")
@@ -118,9 +119,8 @@ class AddExperiment(QW.QDialog):
         units = getattr(pytc.experiments.base.BaseITCExperiment, 'AVAIL_UNITS')
         units = list(units.keys())
         try:
-            units_default_index = units.index(self._default_units)
+            units_default_index = units.index(self._fit.defaults["units"])
         except ValueError:
-            print("HERE")
             units_default_index = 0
 
         units.sort()               
@@ -204,8 +204,13 @@ class AddExperiment(QW.QDialog):
             file_name, _ = QW.QFileDialog.getOpenFileName(self, "Select a file...", "", filter="DH Files (*.DH)")
 
         self._exp_file = str(file_name)
-        self._exp_name = file_name.split("/")[-1]
-        self._exp_label.setText(self._exp_name)
+        self._exp_label.setText(os.path.relpath(self._exp_file))
+
+        if self._enter_exp_label.text().strip() == "":
+            exp_name = os.path.split(file_name)[-1]
+            exp_name = ".".join(exp_name.split(".")[:-1])
+            self._enter_exp_label.setText(exp_name)
+
 
     def generate(self):
         """
@@ -238,11 +243,12 @@ class AddExperiment(QW.QDialog):
 
                 exp_param[k] = val
 
-            itc_exp = pytc.ITCExperiment(self._exp_file, self._exp_model, **exp_param, **model_param)
-            self._fitter.add_experiment(itc_exp)
+            exp_label = self._enter_exp_label.text()
+            self._fit.add_experiment(exp_label,self._exp_file,self._exp_model,**exp_param,**model_param)
 
-            self._on_close._plot_box.update()
-            self._on_close._exp_box.update_exp()
+            # update method on fitter here
+            #self._on_close._plot_box.update()
+            #self._on_close._exp_box.update_exp()
 
             self.close()
         else:
