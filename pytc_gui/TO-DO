@@ -1,2 +1,3 @@
 truncate white space from end of ##csv spew
 relink AIC test to put spew in text box
+make message box same width as plot

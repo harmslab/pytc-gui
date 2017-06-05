@@ -120,6 +120,7 @@ class AddExperiment(QW.QDialog):
         try:
             units_default_index = units.index(self._default_units)
         except ValueError:
+            print("HERE")
             units_default_index = 0
 
         units.sort()               

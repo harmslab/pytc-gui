@@ -58,7 +58,7 @@ class LocalBox(Experiments):
         """
         change the shot start
         """
-        self._options = ExpOptions(self)
+        self._options = ExpOptions(self,self._exp)
         self._options.show()
                 
     def update_req(self):

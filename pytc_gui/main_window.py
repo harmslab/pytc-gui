@@ -154,10 +154,10 @@ class MainWindow(QW.QMainWindow):
         """
     
         try:
-            self._do_aic_dialog.show()
+            self._aic_dialog.show()
         except AttributeError:
-            self._do_aic_dialog = dialogs.AICTest(self)
-            self._do_aic_dialog.show()
+            self._aic_dialog = dialogs.AICTest(self)
+            self._aic_dialog.show()
 
     def fit_options_dialog(self):
         """

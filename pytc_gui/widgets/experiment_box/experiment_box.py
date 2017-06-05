@@ -1,3 +1,5 @@
+import pytc
+
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -5,79 +7,8 @@ from PyQt5.QtWidgets import *
 import seaborn
 from io import StringIO
 
+from . import param_table
 from .exp_frames import LocalBox, GlobalBox, ConnectorsBox
-import pytc
-
-
-class ParamTable(QTableWidget):
-    """
-    take csv style param string and put into table widget
-    """
-
-    def __init__(self, fitter):
-        super().__init__()
-
-        self._fitter = fitter
-        self._header = []
-        self._col_name = []
-        self._data = []
-
-        self.setAlternatingRowColors(True)
-
-    def load_table(self):
-        """
-        load fit data into the table
-        """
-        for i, row in enumerate(self._data):
-            for j, col in enumerate(row):
-                item = QTableWidgetItem(col)
-                self.setItem(i, j, item)
-
-    def csv_to_table(self):
-        """
-        convert csv data file to lists to be read by qtablewidget
-        """
-        self._header = []
-        self._col_name = []
-        self._data = []
-
-        file_data = self._fitter.fit_as_csv
-        string_file = StringIO(file_data)
-
-        # break up the file data
-        for i in string_file:
-            if i.startswith("#"):
-                self._header.append(i.rstrip())
-            elif i.startswith("type"):
-                i = i.rstrip().split(',')
-                self._col_name = i
-            else:
-                i = i.rstrip().split(',')
-                self._data.append(i)
-
-        for l in self._header:
-            print(l)
-        print("\n")
-
-    def update(self):
-        """
-        update the table with updated fit parameters
-        """
-        self.csv_to_table()
-
-        self.setRowCount(len(self._data))
-        self.setColumnCount(len(self._data[0]))
-        self.setHorizontalHeaderLabels(self._col_name)
-
-        self.load_table()
-
-    def clear(self):
-        """
-        """
-        super().clear()
-        self._header = []
-        self._col_name = []
-        self._data = []
 
 class ExperimentBox(QWidget):
     """
@@ -120,7 +51,7 @@ class ExperimentBox(QWidget):
         self._exp_box.setAlignment(Qt.AlignTop)
 
         # paramater table
-        self._param_box = ParamTable(self._parent.fitter)
+        self._param_box = param_table.ParamTable(self._parent.fitter)
 
         # splitter for experiments and parameter widgets
         self._splitter = QSplitter(Qt.Vertical)
