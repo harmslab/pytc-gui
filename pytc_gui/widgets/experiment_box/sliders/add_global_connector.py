@@ -24,7 +24,7 @@ class AddGlobalConnectorWindow(QDialog):
 
         # Figure out the global connectors loaded
         possible_subclasses = pytc.global_connectors.GlobalConnector.__subclasses__()
-        self._global_connectors = dict([(s.__name__,s) for s in possible_subclasses])
+        self._possible_connectors = dict([(s.__name__,s) for s in possible_subclasses])
 
         self.layout()
 
@@ -38,7 +38,7 @@ class AddGlobalConnectorWindow(QDialog):
 
         # Combobox widget holding possible connectors
         self._connector_select_widget = QComboBox(self)
-        connector_names = list(self._global_connectors.keys())
+        connector_names = list(self._possible_connectors.keys())
         connector_names.sort()
         for n in connector_names:
             self._connector_select_widget.addItem(n)
@@ -102,7 +102,7 @@ class AddGlobalConnectorWindow(QDialog):
         self._connector_name = self._connector_name_input.text()
 
         # Connector class   
-        connector = self._global_connectors[self._selected_connector_key]
+        connector = self._possible_connectors[self._selected_connector_key]
 
         # Create instance of connector class
         self._selected_connector = connector(name=self._connector_name)
@@ -174,7 +174,7 @@ class AddGlobalConnectorWindow(QDialog):
         self._connector_name = self._connector_name_input.text()
     
         # Connector class   
-        connector = self._global_connectors[self._selected_connector_key]
+        connector = self._possible_connectors[self._selected_connector_key]
 
         # Create kwargs to initialize the connector
         kwargs = {} 

@@ -22,8 +22,7 @@ class ExperimentBox(QWidget):
         self._fit = fit
 
         self._slider_list = {"Global" : {}, "Local" : {}}
-        #self._global_tracker = {}
-        self._global_connectors = {}
+        #self._global_connectors = {}
         self._connectors_seen = {}
         self._plot_box = parent._plot_box
         self._update = parent.do_fit_callback
@@ -93,8 +92,6 @@ class ExperimentBox(QWidget):
 
         # reset all lists/dictionaries
         self._slider_list = {"Global" : {}, "Local" : {}}
-        #self._global_var = []
         self._connectors_seen = {}
-        self._global_connectors = {}
-        #self._global_tracker = {}
+        #self._global_connectors = {}
 

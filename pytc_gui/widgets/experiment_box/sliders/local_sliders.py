@@ -22,7 +22,7 @@ class LocalSliders(Sliders):
         #self._global_var = parent._global_var
         self._slider_list = parent._slider_list
         self._connectors_seen = parent._connectors_seen
-        self._global_connectors = parent._global_connectors
+        #self._global_connectors = parent._global_connectors
         #self._global_tracker = parent._global_tracker
         self._exp_box = parent._exp_box
         self._main_box = parent._main_box
@@ -89,7 +89,7 @@ class LocalSliders(Sliders):
         
                 #self._global_var.append(connector)
                 for v in var_names:
-                    self._global_connectors[v] = [connector.local_methods[v], connector]
+                    self._fit.global_connectors[v] = [connector.local_methods[v], connector]
 
                 # Append connector methods to dropbdown lists
                 for p, v in connector.local_methods.items():
@@ -104,7 +104,7 @@ class LocalSliders(Sliders):
             self.diag = AddGlobalConnectorWindow(connector_handler)
             self.diag.show()
 
-        elif status not in self._global_connectors:
+        elif status not in self._fit.global_connectors:
             # connect to a simple global variable
             self.global_link(status)
         else:
@@ -130,7 +130,7 @@ class LocalSliders(Sliders):
         # add global exp to experiments widget
         if var not in self._slider_list["Global"]:
             # create global exp object and add to layout
-            param_obj = self._fitter.global_param[var]
+            param_obj = self._fit.fitter.global_param[var]
             global_e = exp_frames.GlobalBox(var, param_obj, self)
             self._fit.global_tracker[var] = global_e
             self._exp_box.addWidget(global_e)
@@ -151,10 +151,10 @@ class LocalSliders(Sliders):
         self._update_max_label.hide()
         self._update_max.hide()
 
-        curr_connector = self._global_connectors[var][1]
+        curr_connector = self._fit.global_connectors[var][1]
         name = curr_connector.name
         self._connectors_seen[self._exp].append(curr_connector)
-        self._fitter.link_to_global(self._exp, self._param_name, self._global_connectors[var][0])
+        self._fit.fitter.link_to_global(self._exp, self._param_name, self._fit.global_connectors[var][0])
 
         # add connector to experiments widget
         if name not in self._slider_list["Global"]:
@@ -200,12 +200,12 @@ class LocalSliders(Sliders):
         update min/max bounds and check if range needs to be updated as well
         """
         bounds = [self._min, self._max]
-        self._fitter.update_bounds(self._param_name, bounds, self._exp)
+        self._fit.fitter.update_bounds(self._param_name, bounds, self._exp)
 
         # check if bounds are smaller than range, then update.
         curr_range = self._exp.model.param_guess_ranges[self._param_name]
         curr_bounds = self._exp.model.bounds[self._param_name]
 
         if curr_range[0] < curr_bounds[0] or curr_range[1] > curr_bounds[1]:
-            self._fitter.update_range(self._param_name, bounds, self._exp)
+            self._fit.fitter.update_range(self._param_name, bounds, self._exp)
 

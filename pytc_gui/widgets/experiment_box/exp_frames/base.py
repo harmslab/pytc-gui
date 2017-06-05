@@ -20,7 +20,7 @@ class Experiments(QWidget):
         #self._global_var = parent._global_var
         #self._global_tracker = parent._global_tracker
         self._connectors_seen = parent._connectors_seen
-        self._global_connectors = parent._global_connectors
+        #self._global_connectors = parent._global_connectors
         self._plot_box = parent._plot_box
 
         self.layout()
