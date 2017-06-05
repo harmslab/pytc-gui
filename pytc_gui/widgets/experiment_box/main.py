@@ -22,8 +22,7 @@ class ExperimentBox(QWidget):
         self._fit = fit
 
         self._slider_list = {"Global" : {}, "Local" : {}}
-        #self._global_var = []
-        self._global_tracker = {}
+        #self._global_tracker = {}
         self._global_connectors = {}
         self._connectors_seen = {}
         self._plot_box = parent._plot_box
@@ -97,5 +96,5 @@ class ExperimentBox(QWidget):
         #self._global_var = []
         self._connectors_seen = {}
         self._global_connectors = {}
-        self._global_tracker = {}
+        #self._global_tracker = {}
 

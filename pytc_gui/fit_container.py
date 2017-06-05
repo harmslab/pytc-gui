@@ -50,6 +50,9 @@ class FitContainer:
         self._avail_units = list(self._avail_units.keys())
         self._avail_units.sort()
 
+        ## MJH XXX HACK
+        self.global_tracker = {}
+
     @property
     def experiments(self):
         """
@@ -191,3 +194,5 @@ class FitContainer:
                "shot_start":self._default_shot_start}
 
         return tmp
+
+    

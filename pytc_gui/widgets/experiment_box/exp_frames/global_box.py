@@ -18,6 +18,7 @@ class GlobalBox(Experiments):
         self._linked_list = []
         self._fit_object = fit_object
         self._main_box = parent._main_box
+        self._fit = parent._fit
         self._exp = None
 
         super().__init__(name, parent)
@@ -52,7 +53,7 @@ class GlobalBox(Experiments):
         # if nothing linked, delete the glob exp object
         if len(self._linked_list) == 0:
             self._slider_list["Global"].pop(self._name, None)
-            self._global_tracker.pop(self._name, None)
+            self._fit.global_tracker.pop(self._name, None)
             self.remove()
 
     def remove(self):
@@ -61,7 +62,7 @@ class GlobalBox(Experiments):
         try:
             self._fitter.remove_global(self._name)
             self._slider_list["Global"].pop(self._name, None)
-            self._global_tracker.pop(self._name, None)
+            self._fit.global_tracker.pop(self._name, None)
 
             for s in self._linked_list:
                 s.reset()

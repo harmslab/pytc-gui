@@ -23,7 +23,7 @@ class LocalSliders(Sliders):
         self._slider_list = parent._slider_list
         self._connectors_seen = parent._connectors_seen
         self._global_connectors = parent._global_connectors
-        self._global_tracker = parent._global_tracker
+        #self._global_tracker = parent._global_tracker
         self._exp_box = parent._exp_box
         self._main_box = parent._main_box
         self._if_connected = None
@@ -66,7 +66,7 @@ class LocalSliders(Sliders):
         if status == "Unlink":
              self._fit.fitter.unlink_from_global(self._exp, self._param_name)
              self.reset()
-             self._global_tracker[self._if_connected].unlinked(self)
+             self._fit.global_tracker[self._if_connected].unlinked(self)
 
         elif status == "Add Global Var":
             text, ok = QInputDialog.getText(self, "Add Global Variable", "Var Name: ")
@@ -132,12 +132,12 @@ class LocalSliders(Sliders):
             # create global exp object and add to layout
             param_obj = self._fitter.global_param[var]
             global_e = exp_frames.GlobalBox(var, param_obj, self)
-            self._global_tracker[var] = global_e
+            self._fit.global_tracker[var] = global_e
             self._exp_box.addWidget(global_e)
 
             print("global added")
 
-        self._global_tracker[var].linked(self)
+        self._fit.global_tracker[var].linked(self)
 
     def connector_link(self,var):
         """
@@ -163,9 +163,9 @@ class LocalSliders(Sliders):
             # create a connector holder and add to layout
             connector_e = exp_frames.ConnectorsBox(name, curr_connector, self)
             self._exp_box.addWidget(connector_e)
-            self._global_tracker[name] = connector_e
+            self._fit.global_tracker[name] = connector_e
 
-        self._global_tracker[name].linked(self)
+        self._fit.global_tracker[name].linked(self)
 
         # set current connected name
         self._if_connected = name
