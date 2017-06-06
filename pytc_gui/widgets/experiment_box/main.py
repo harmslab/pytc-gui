@@ -1,97 +1,72 @@
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
+__description__ = \
+"""
+message box visual element for pytc gui.
+"""
+__author__ = "Hiranmayi Duvvuri, Michael J. Harms"
+__date__ = "2017-06-01"
 
-import seaborn
+from PyQt5 import QtCore as QC
+from PyQt5 import QtWidgets as QW
 
-from .exp_frames import LocalBox, GlobalBox, ConnectorsBox
+from .experiment_row import ExperimentRow
 
-class ExperimentBox(QWidget):
+class ExperimentBox(QW.QWidget):
     """
-    Experiment box widget.  
+    Widget for holding experiments.
     """
 
-    fit_signal = pyqtSignal()
-
-    def __init__(self, parent, fit):
-        """
-        """
+    def __init__(self,parent,fit):
+    
         super().__init__()
 
         self._parent = parent
         self._fit = fit
 
-        self._slider_list = {"Global" : {}, "Local" : {}}
-        #self._global_connectors = {}
-        #self._connectors_seen = {}
-        self._plot_box = parent._plot_box
-        self._update = parent.do_fit_callback
+        self._experiments_shown = {}
 
         self.layout()
+        self.update()
 
     def layout(self):
-        """
-        Create layout.
-        """
+
+        self._exp_content = QW.QWidget()
 
         # scroll box for experiments
-        self._scroll = QScrollArea(self)
-        self._exp_content = QWidget()
-        self._exp_box = QVBoxLayout(self._exp_content)
+        self._scroll = QW.QScrollArea(self)
         self._scroll.setWidget(self._exp_content)
         self._scroll.setWidgetResizable(True)
-        self._exp_box.setAlignment(Qt.AlignTop)
 
-        self._main_layout = QVBoxLayout(self)
+        self._experiment_box = QW.QVBoxLayout(self._exp_content)
+        self._experiment_box.setAlignment(QC.Qt.AlignTop)
+
+        self._main_layout = QW.QVBoxLayout(self)
         self._main_layout.addWidget(self._scroll)
 
-    def update_exp(self):
+
+    def update(self):
         """
-        Update fit and parameters, update experiments added to fitter
         """
 
-        # check for instances of LocalBox and set any attributes
-        for loc_obj in self._exp_box.findChildren(LocalBox):
-            loc_obj.set_attr()
+        # Make sure that all experiments in the FitContainer are shown
+        for i, e in enumerate(self._fit.experiments):
+            try:
+                self._experiments_shown[e]
+            except KeyError:
+                self._experiments_shown[e] = ExperimentRow(self,self._fit,e)
+                self._experiment_box.addWidget(self._experiments_shown[e])
 
-        if len(self._fit.experiments) != 0:
-
-            # create local holder if doesn't exist
-            for e in self._fit.experiments:
-                if e in self._slider_list["Local"]:
-                    continue
-
-                self._slider_list["Local"][e] = []
-                self._fit.connectors_seen[e] = []
-
-                file_name = e.dh_file
-                exp_name = file_name.split("/")[-1]
-
-                exp = LocalBox(e, exp_name, self)
-                self._exp_box.addWidget(exp)
-
+        # Delete widgets for experiments in that aren't in the FitContainer
+        all_exp = list(self._experiments_shown.keys())
+        for e in all_exp:
+            if e not in self._fit.experiments:
+                self._experiments_shown[e].deleteLater()
+                self._experiments_shown.pop(e)
+             
     def clear(self):
         """
-        for clearing the application
+        Clear the widget.
         """
-        try:
-            # check for any global/connector vars, remove them first
-            for i in range(self._exp_box.count()): 
-                widget = self._exp_box.itemAt(i).widget()
-                if isinstance(widget, LocalBox):
-                    continue
 
-                widget.remove()
-
-            # finally, remove local objects
-            for loc_obj in self._exp_box.parentWidget().findChildren(LocalBox):
-                self._fit.fitter.remove_experiment(loc_obj._exp)
-                loc_obj.deleteLater()
-        except:
-            pass
-
-        # reset all lists/dictionaries
-        self._slider_list = {"Global" : {}, "Local" : {}}
-        self._fit.connectors_seen = {}
-        #self._global_connectors = {}
-
+        for i in reversed(range(self._experiment_box.count())): 
+            self._main_layout.itemAt(i).widget().setParent(None)
+    

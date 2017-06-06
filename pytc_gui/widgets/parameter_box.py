@@ -43,6 +43,7 @@ class ParameterBox(QW.QTableWidget):
         self._col_name = []
         self._data = []
 
+           
         file_data = self._fit.fitter.fit_as_csv
         string_file = StringIO(file_data)
 
@@ -66,6 +67,11 @@ class ParameterBox(QW.QTableWidget):
         update the table with updated fit parameters
         """
     
+        # If the fit is not done, clear the parameters
+        if not self._fit.fitter.fit_success or len(self._fit.experiments) == 0:
+            self.clear()
+            return
+
         # Grab fit results from csv
         self._csv_to_table()
 

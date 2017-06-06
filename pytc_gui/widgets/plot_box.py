@@ -31,6 +31,7 @@ class PlotBox(QW.QWidget):
         """
 
         self.clear()
+    
         tabs = QW.QTabWidget()
 
         self._figure, self._ax = self._fit.fitter.plot()

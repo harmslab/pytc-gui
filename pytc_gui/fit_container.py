@@ -8,18 +8,24 @@ __author__ = "Michael J. Harms"
 __date__ = "2017-06-03"
 
 import pytc
-
 import re, inspect
 
-class FitContainer:
+from PyQt5 import QtWidgets as QW
+from PyQt5 import QtCore as QC
+
+class FitContainer(QW.QWidget):
     """
     """
+
+    fit_changed_signal = QC.pyqtSignal(bool)
 
     def __init__(self,default_units="cal/mol",
                       default_model="Single Site",
                       default_shot_start=1):
         """
         """
+
+        super().__init__()
 
         self._default_units = default_units
         self._default_model = default_model
@@ -52,6 +58,8 @@ class FitContainer:
 
         ## MJH XXX HACK
         self.global_tracker = {}
+        self.global_connectors = {}
+        self.connectors_seen = {}
 
     @property
     def experiments(self):
@@ -59,6 +67,13 @@ class FitContainer:
         """
 
         return self._experiments
+
+    @property
+    def experiment_labels(self):
+        """
+        """
+
+        return self._experiment_labels
 
     @property
     def experiment_meta(self):
@@ -110,7 +125,9 @@ class FitContainer:
         self._experiment_labels.append(name) 
         self._experiments.append(pytc.ITCExperiment(*args,**kwargs))
         self._fitter.add_experiment(self._experiments[-1])
-   
+
+        self.emit_changed()
+
     def replace_experiment(self,index,*args,**kwargs):
         
         try:
@@ -121,19 +138,29 @@ class FitContainer:
         except IndexError:
             err = "No experiment with index {} found\n".format(index)
             raise IndexError(err) 
-
-    def remove_experiment(self,index):
+        
+        self.emit_changed()
+        
+    def remove_experiment(self,experiment):
         """
         """
 
         try:
+            index = self._experiments.index(experiment)
             self._experiment_labels.pop(index)
             to_remove = self._experiments.pop(index)
             self._fitter.remove_experiment(to_remove)
-        except IndexError:
-            err = "No experiment with index {} found\n".format(index)
-            raise IndexError(err) 
-           
+        except ValueError:
+            err = "experiment {} found\n".format(experiment)
+            raise ValueError(err) 
+    
+    def emit_changed(self):
+        """
+        Emit a signal saying that the fit changed.
+        """
+
+        self.fit_changed_signal.emit(True)
+
     @property
     def connectors(self):
         """
@@ -195,4 +222,3 @@ class FitContainer:
 
         return tmp
 
-    

@@ -22,8 +22,6 @@ class MainWindow(QW.QMainWindow):
     Main fitting window. 
     """
 
-    fit_signal = pyqtSignal(GlobalFit)
-
     def __init__(self,app):
 
         super().__init__()
@@ -237,7 +235,9 @@ class MainWindow(QW.QMainWindow):
         Start a competely new session.
         """
 
-        warning_message = QW.QMessageBox.warning(self, "warning!", "Are you sure you want to start a new session?", QW.QMessageBox.Yes | QW.QMessageBox.No)
+        warning = "Are you sure you want to start a new session?"
+        warning_message = QW.QMessageBox.warning(self, "warning!",warning, 
+                                                 QW.QMessageBox.Yes | QW.QMessageBox.No)
         if warning_message == QW.QMessageBox.Yes:
             self._reset()
 

@@ -246,10 +246,6 @@ class AddExperiment(QW.QDialog):
             exp_label = self._enter_exp_label.text()
             self._fit.add_experiment(exp_label,self._exp_file,self._exp_model,**exp_param,**model_param)
 
-            # update method on fitter here
-            #self._on_close._plot_box.update()
-            #self._on_close._exp_box.update_exp()
-
             self.close()
         else:
             error_message = QW.QMessageBox.warning(self, "warning", "No .DH file provided", QW.QMessageBox.Ok)

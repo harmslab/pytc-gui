@@ -28,6 +28,9 @@ class MainWidgets(QW.QWidget):
         self._parent = parent
         self._fit = fit
 
+        # Connect emission from FitContainer to the update function
+        self._fit.fit_changed_signal.connect(self.fit_has_changed_slot)
+
         self._fitter_list = parent._fitter_list
 
         # Create a dictionary of GlobalFitOptions
@@ -54,6 +57,11 @@ class MainWidgets(QW.QWidget):
    
         # ------------ Parameters widget -----------------
         self._param_box = ParameterBox(self,self._fit)
+
+        self._core_widgets = [self._plot_box,
+                              self._message_box,
+                              self._exp_box,
+                              self._param_box]
 
         # ------------ "Do fit" button -------------------
         do_fit_button = QW.QPushButton("Do fit", self)
@@ -84,18 +92,30 @@ class MainWidgets(QW.QWidget):
         main_layout.addWidget(h_splitter)
         main_layout.addWidget(do_fit_button)
 
-        # MJH ??? --> what is signaling architecture?
-        self._parent.fit_signal.connect(self.fit_signal_update)
+    @QC.pyqtSlot(bool)
+    def fit_has_changed_slot(self,val):
+        """
+        Slot that looks for emission from FitContainer saying that it changed
+        in some way.
+        """
+
+        # Update all of the widgets
+        self.update()
+
+    def update(self):
+        """
+        Update all widgets.
+        """
+        for w in self._core_widgets:
+            w.update()
+
 
     def clear(self):
         """
         Clear all widgets.
         """
-
-        self._plot_box.clear()
-        self._message_box.clear()
-        self._exp_box.clear()
-        self._param_box.clear()
+        for w in self._core_widgets:
+            w.clear()
 
     def update_fit_options(self, options_dict):
         """
@@ -107,11 +127,9 @@ class MainWidgets(QW.QWidget):
         XXX MJH TEMPORARY BRIDGE DURING REFACTOR XXX
         """
 
-        self._exp_box.update_exp()
-
-        # after doing fit, emit signal to sliders and update parameter table
-        self._parent._fit.fitter.fit(**self._global_fit_options)
-        self._parent.fit_signal.emit(self._fit.fitter)
+        #self._exp_box.update_exp()
+        self._fit.fitter.fit(**self._global_fit_options)
+        self._fit.emit_changed()
 
     def do_fit_callback(self):
         """
@@ -119,13 +137,6 @@ class MainWidgets(QW.QWidget):
         self._perform_fit()
         self._plot_box.update()
         self._param_box.update()
-
-    @QC.pyqtSlot(pytc.global_fit.GlobalFit)
-    def fit_signal_update(self, obj):
-        """
-        """
-        self._plot_box._fitter = obj
-        self._exp_box._fitter = obj
 
     @property
     def parent(self):
