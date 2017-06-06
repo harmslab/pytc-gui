@@ -3,6 +3,8 @@ from PyQt5 import QtWidgets as QW
 from PyQt5 import QtGui as QG
 from PyQt5 import QtCore as QC
 
+from .experiment_dialog import ExperimentOptionsDialog
+
 import os
 
 class ExperimentRow(QW.QWidget):
@@ -71,8 +73,10 @@ class ExperimentRow(QW.QWidget):
         """
         Construct dialog with fit options for this experiment.
         """    
-   
-        self._fit.experiment_meta[self._experiment]
+
+        self._tmp = ExperimentOptionsDialog(self,self._fit,self._experiment)
+        self._tmp.show()
+            
 
     def _remove_callback(self):
         """

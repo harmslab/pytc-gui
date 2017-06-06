@@ -15,6 +15,10 @@ from PyQt5 import QtCore as QC
 
 class FitContainer(QW.QWidget):
     """
+    Virtual widget holding onto the whole fit.  It is never displayed, but 
+    holds on to all of the information necessary for the GlobalFit.  Any 
+    time it is changed, it emits on self.fit_changed_signal.  This can be
+    forced by other objects via self.emit_changed().
     """
 
     fit_changed_signal = QC.pyqtSignal(bool)
@@ -56,10 +60,12 @@ class FitContainer(QW.QWidget):
         self._avail_units = list(self._avail_units.keys())
         self._avail_units.sort()
 
-        ## MJH XXX HACK
-        self.global_tracker = {}
-        self.global_connectors = {}
-        self.connectors_seen = {}
+    def emit_changed(self):
+        """
+        Emit a signal saying that the fit changed.
+        """
+
+        self.fit_changed_signal.emit(True)
 
     @property
     def experiments(self):
@@ -75,46 +81,49 @@ class FitContainer(QW.QWidget):
 
         return self._experiment_labels
 
-    @property
-    def experiment_meta(self):
+    def get_experiment_meta(self,e):
         """
+        Return information about an experiment.
         """
 
-        meta = []
+        if e not in self._experiments:
+            err = "experiment {} not loaded".format(e)
+            raise ValueError(err)
 
-        for e in self._experiments:
+        classes = inspect.getmembers(e, inspect.isclass)
+        properties = inspect.getmembers(classes[0][1], lambda o: isinstance(o, property))
 
-            classes = inspect.getmembers(e, inspect.isclass)
-            properties = inspect.getmembers(classes[0][1], lambda o: isinstance(o, property))
+        setters = [p[0] for p in properties if p[1].fset != None]
 
-            setters = [p[0] for p in properties if p[1].fset != None]
+        meta = [{},{}]
+        meta[0]["model_name"] = e.model
+        
+        for key in e.model.parameters.keys():
+            meta[0][key] = e.model.parameters[key]
 
-            meta.append([{},{}])
-            meta[-1][0]["model"] = e.model
+        for i, s in enumerate(setters):
 
-            for i, s in enumerate(setters):
+            # Skip heats (which has setter we need to ignore)
+            if s in ["heats","heats_stdev"]:
+                continue
 
-                # Skip heats (which has setter we need to ignore)
-                if s in ["heats","heats_stdev"]:
-                    continue
+            # Deal with units (special multi)
+            if s == "units":
+                current_value = getattr(e,s) 
+                value_type = "multi"
+                avail_values = self._avail_units
+            else:
+                # For most values, no specific value is required
+                current_value = getattr(e,s)
+                value_type = type(current_value)
+                avail_values = None
 
-                # Deal with units (special multi)
-                if s == "units":
-                    current_value = getattr(e,s) 
+                # boolean values are treated as multis
+                if value_type is bool:
                     value_type = "multi"
-                    avail_values = self._avail_units
-                else:
-                    # For most values, no specific value is required
-                    current_value = getattr(e,s)
-                    value_type = type(current_value)
-                    avail_values = None
+                    avail_values = [True,False]
 
-                    # boolean values are treated as multis
-                    if value_type is bool:
-                        value_type = "multi"
-                        avail_values = [True,False]
-
-                meta[-1][1][s] = (current_value,value_type,avail_values)
+            meta[1][s] = (current_value,value_type,avail_values)
 
         return meta
 
@@ -154,12 +163,6 @@ class FitContainer(QW.QWidget):
             err = "experiment {} found\n".format(experiment)
             raise ValueError(err) 
     
-    def emit_changed(self):
-        """
-        Emit a signal saying that the fit changed.
-        """
-
-        self.fit_changed_signal.emit(True)
 
     @property
     def connectors(self):
