@@ -130,11 +130,11 @@ class ExperimentOptionsDialog(QW.QDialog):
 
 
     def update(self):
+
         
         # Update parameter and experimental widgets
         for p in self._param_widgets:
             p.update()
-
         for e in self._expt_widgets:
             e.update()
 
@@ -145,7 +145,7 @@ class ExperimentOptionsDialog(QW.QDialog):
         # Grab connector fit parameters and required meta data associated with
         # this experiment 
         required_meta, connector_param = self._fit.get_experiment_connector(self._experiment)
-      
+     
         # ----------- connector parameters --------------
  
         # Build connector widgets for associated parameters  
@@ -166,7 +166,6 @@ class ExperimentOptionsDialog(QW.QDialog):
         # Delete any existing connector fit parameter widgets from layout
         widget_indexes = list(range(self._num_local_param_widgets,
                               self._fit_param_layout.count()))
-
         widget_indexes.reverse()
         for i in widget_indexes:
             self._fit_param_layout.itemAt(i).widget().setParent(None)
@@ -175,6 +174,9 @@ class ExperimentOptionsDialog(QW.QDialog):
         for i, w in enumerate(to_layout): 
  
             r = i + self._num_param_rows
+
+            # Lock down the ability to chose a new linkage for this parameter
+            w.set_as_connector_param(True)
 
             self._fit_param_layout.addWidget(QW.QLabel(w.name),r,0)
             self._fit_param_layout.addWidget(w.guess_widget,r,1)
@@ -203,10 +205,7 @@ class ExperimentOptionsDialog(QW.QDialog):
                                     self._experiment_settable_layout.count()))
         widget_indexes.reverse()
         for i in widget_indexes:
-            try:
-                self._experiment_settable_layout.itemAt(i).widget().setParent(None)
-            except AttributeError:
-                pass
+           self._experiment_settable_layout.itemAt(i).widget().setParent(None)
         
         # Add dummy widgets to fill out grid 
         while len(to_layout) % 3 != 0:
@@ -216,12 +215,13 @@ class ExperimentOptionsDialog(QW.QDialog):
         counter = 0
         num_rows = int(round((len(to_layout)+1)/3))
         for i in range(num_rows):
+            r = i + self._num_exp_rows
             for j in range(3):
-                self._experiment_settable_layout.addWidget(to_layout[counter],i,j)
+                self._experiment_settable_layout.addWidget(to_layout[counter],r,j)
                 counter += 1
 
         self._fit.pause_updates(False)
-  
+ 
         # Set size 
         self.adjustSize()
  

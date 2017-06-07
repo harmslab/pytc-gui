@@ -34,7 +34,12 @@ class PlotBox(QW.QWidget):
     
         tabs = QW.QTabWidget()
 
-        self._figure, self._ax = self._fit.fitter.plot()
+        try:
+            self._figure, self._ax = self._fit.fitter.plot()
+        except AttributeError:
+            err = "Warning: Could not update plot."
+            print(err)
+            return
 
         plot_figure = FigureCanvas(self._figure)
         tabs.addTab(plot_figure, "Main")

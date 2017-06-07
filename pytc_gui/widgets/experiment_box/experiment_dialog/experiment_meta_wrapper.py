@@ -56,7 +56,7 @@ class ExperimentMetaWrapper(QW.QWidget):
         self.update()
         
 
-    def _meta_check_handler(self):
+    def _meta_handler(self):
         """
         Handle meta entries.  Turn pink of the value is bad.  
         """
@@ -69,7 +69,7 @@ class ExperimentMetaWrapper(QW.QWidget):
         except ValueError:
             color = "#FFB6C1"
 
-        self._guess.setStyleSheet("QLineEdit {{ background-color: {} }}".format(color))
+        self._meta.setStyleSheet("QLineEdit {{ background-color: {} }}".format(color))
 
     @QC.pyqtSlot(bool)
     def fit_has_changed_slot(self):
@@ -83,10 +83,15 @@ class ExperimentMetaWrapper(QW.QWidget):
         # Pause updates while all of these widgets update
         self._fit.pause_updates(True)
 
-        value = getattr(self._experiment,self._meta_name)
-        if value < 1/self._float_view_cutoff or value > self._float_view_cutoff:
-            value_str = "{:.8e}".format(value)
-        else:
-            value_str = "{:.8f}".format(value)
-        self._guess.setText(value_str)
+        try:
+            value = getattr(self._experiment,self._meta_name)
+            if value < 1/self._float_view_cutoff or value > self._float_view_cutoff:
+                value_str = "{:.8e}".format(value)
+            else:
+                value_str = "{:.8f}".format(value)
+            self._meta.setText(value_str)
+        except TypeError:
+            self._meta.setText("")
+        
+        self._meta_handler()
 

@@ -195,12 +195,56 @@ class FitContainer(QW.QWidget):
 
         return meta
 
-    def add_connector(self,name,connector,*args,**kwargs):
+    def get_experiment_connector(self,e):
+        """
+        Figure out the connector fit parameters and required meta data
+        associated with this experiment given its associated connectors.
+        """
+
+        # Make sure the experiment is loaded
+        if e not in self._experiments:
+            err = "experiment {} not loaded".format(e)
+            raise ValueError(err)
+
+        # Look through parameter aliases, searching for connector classes
+        required_data = []
+        final_fit_param = {}
+        for a in e.model.param_aliases:
+
+            this_alias = e.model.param_aliases[a]
+            try: 
+                # This will throw an AttributeError unless this is a connector
+                # method
+                connector_class = this_alias.__self__ 
+
+                fit_parameters = connector_class.params
+                for p in fit_parameters:
+                    final_fit_param[p] = connector_class.params[p]
+
+                required_data.extend(connector_class.required_data)  
+ 
+            except AttributeError:
+                continue
+
+        # Make sure these are attributes of the experiment class
+        final_required = {}
+        for r in set(required_data):
+            try:
+                value = getattr(e,r)
+            except AttributeError:
+                setattr(e,r,None)
+                value = getattr(e,r) 
+     
+            final_required[r] = value 
+             
+        return final_required, final_fit_param
+
+    def add_connector(self,name,connector):
         """
         Add a connector.
         """
 
-        self._connectors.append(connector(*args,**kwargs))
+        self._connectors.append(connector)
         self._connector_labels[self._connectors[-1]] = name
 
     def remove_connector(self,c):
@@ -208,7 +252,6 @@ class FitContainer(QW.QWidget):
         Remove a connector.
         """
 
-        print(list(c.params.keys()))
         try:
             self._connector_labels.pop(c)
 
@@ -242,6 +285,17 @@ class FitContainer(QW.QWidget):
                 meta[k] = None
 
         return meta  
+
+    @property
+    def connector_methods(self):
+
+        out = {}        
+        for c in self._connectors:
+            for k in c.local_methods:
+                out[k] = c.local_methods[k]
+
+        return out
+
 
     def pause_updates(self,value):
         """
