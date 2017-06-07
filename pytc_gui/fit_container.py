@@ -25,7 +25,8 @@ class FitContainer(QW.QWidget):
 
     def __init__(self,default_units="cal/mol",
                       default_model="Single Site",
-                      default_shot_start=1):
+                      default_shot_start=1,
+                      continuous_update=True):
         """
         """
 
@@ -34,18 +35,19 @@ class FitContainer(QW.QWidget):
         self._default_units = default_units
         self._default_model = default_model
         self._default_shot_start = default_shot_start
+        self._continuous_update = continuous_update
 
         self._fitter = pytc.GlobalFit()
 
-        self._experiment_labels = []
         self._experiments = []
+        self._experiment_labels = {}
+
         self._connectors = []
+        self._connector_labels = {}
 
         # Available model types
         self._avail_models = {re.sub(r"(\w)([A-Z])", r"\1 \2", i.__name__):i
                               for i in pytc.indiv_models.ITCModel.__subclasses__()}
-        self._avail_model_keys = list(self._avail_models.keys())        
-        self._avail_model_keys.sort()
 
         # Available experiment file types
         self._avail_file_types = []
@@ -60,6 +62,10 @@ class FitContainer(QW.QWidget):
         self._avail_units = list(self._avail_units.keys())
         self._avail_units.sort()
 
+        # Available connectors
+        conn_subclasses = pytc.global_connectors.GlobalConnector.__subclasses__()
+        self._avail_connectors = dict([(s.__name__,s) for s in conn_subclasses])
+
     def emit_changed(self):
         """
         Emit a signal saying that the fit changed.
@@ -68,23 +74,69 @@ class FitContainer(QW.QWidget):
         self.fit_changed_signal.emit(True)
 
     @property
-    def experiments(self):
+    def global_param(self):
         """
         """
 
-        return self._experiments
+        return self._fitter.global_param
 
     @property
-    def experiment_labels(self):
+    def fitter(self):
         """
         """
 
-        return self._experiment_labels
+        return self._fitter
 
-    def get_experiment_meta(self,e):
+    def add_experiment(self,name,*args,**kwargs):
         """
-        Return information about an experiment.
+        Add an experiment to the FitContainer. 
         """
+  
+        self._experiments.append(pytc.ITCExperiment(*args,**kwargs))
+        self._fitter.add_experiment(self._experiments[-1])
+        self._experiment_labels[self._experiments[-1]] = name 
+
+        self.emit_changed()
+
+    def remove_experiment(self,experiment):
+        """
+        Remove an experiment from the FitContainer.
+        """
+
+        try:
+            self._experiment_labels.pop(experiment)
+
+            index = self._experiments.index(experiment)
+            to_remove = self._experiments.pop(index)
+
+            self._fitter.remove_experiment(to_remove)
+        except ValueError:
+            err = "experiment {} found\n".format(experiment)
+            raise ValueError(err) 
+   
+    def get_experiment_param(self,e):
+        """
+        Return the fittable parameters of an experiment.
+        """
+
+        if e not in self._experiments:
+            err = "experiment {} not loaded".format(e)
+            raise ValueError(err)
+
+        param = {}
+        param["model_name"] = e.model
+        
+        for key in e.model.parameters.keys():
+            param[key] = e.model.parameters[key]
+
+        return param
+
+    def get_experiment_settable(self,e):
+        """
+        Return meta data that can be set for a given experiment.
+        """
+
+        meta = {}
 
         if e not in self._experiments:
             err = "experiment {} not loaded".format(e)
@@ -92,14 +144,7 @@ class FitContainer(QW.QWidget):
 
         classes = inspect.getmembers(e, inspect.isclass)
         properties = inspect.getmembers(classes[0][1], lambda o: isinstance(o, property))
-
         setters = [p[0] for p in properties if p[1].fset != None]
-
-        meta = [{},{}]
-        meta[0]["model_name"] = e.model
-        
-        for key in e.model.parameters.keys():
-            meta[0][key] = e.model.parameters[key]
 
         for i, s in enumerate(setters):
 
@@ -123,98 +168,101 @@ class FitContainer(QW.QWidget):
                     value_type = "multi"
                     avail_values = [True,False]
 
-            meta[1][s] = (current_value,value_type,avail_values)
+            meta[s] = (current_value,value_type,avail_values)
 
         return meta
 
-    def add_experiment(self,name,*args,**kwargs):
+    @property
+    def experiments(self):
         """
         """
-  
-        self._experiment_labels.append(name) 
-        self._experiments.append(pytc.ITCExperiment(*args,**kwargs))
-        self._fitter.add_experiment(self._experiments[-1])
 
-        self.emit_changed()
+        return self._experiments
 
-    def replace_experiment(self,index,*args,**kwargs):
-        
+    @property
+    def experiment_labels(self):
+        """
+        """
+
+        return self._experiment_labels
+
+               
+    def add_connector(self,name,connector,*args,**kwargs):
+        """
+        Add a connector.
+        """
+
+        self._connectors.append(connector(*args,**kwargs))
+        self._connector_labels[self._connectors[-1]] = name
+
+    def remove_connector(self,c):
+        """
+        Remove a connector.
+        """
+
         try:
-            old_expt = self._experiments[index]
-            self._fitter.remove_experiment[old_expt]
-            self._experiments[index] = pytc.ITCExperiment(*args,**kwargs)
-            self._fitter.add_experiment(self._experiments[index])
+            self._connector_labels.pop(experiment)
+
+            index = self._connnectors.index(experiment)
+            to_remove = self._connectors.pop(index)
+
+            # Remove all links to experiments
+            for k in c.params.keys():
+                self._fitter.remove_global(k)
+
         except IndexError:
-            err = "No experiment with index {} found\n".format(index)
+            err = "No connector with index {} found\n".format(c)
             raise IndexError(err) 
-        
-        self.emit_changed()
-        
-    def remove_experiment(self,experiment):
+
+    def get_connector_param(self,avail_name):
         """
+        Look up parameters for a connector.
         """
 
         try:
-            index = self._experiments.index(experiment)
-            self._experiment_labels.pop(index)
-            to_remove = self._experiments.pop(index)
-            self._fitter.remove_experiment(to_remove)
-        except ValueError:
-            err = "experiment {} found\n".format(experiment)
-            raise ValueError(err) 
-    
+            c = self._avail_connectors[avail_name]
+        except KeyError:
+            err = "connector {} not found\n".format(avail_name)
+            raise ValueError(err)
+        
+        meta = {}
+        parameters = inspect.signature(c).parameters
+        for k in parameters:
+            meta[k] = parameters.default
+            if meta[k] == inspect._empty:
+                meta[k] = None
+
+        return meta  
+
+    def clear(self):
+        """
+        """
+
+        self.__init__(self._default_units,
+                      self._default_model,
+                      self._default_shot_start,
+                      self._continuous_update)
 
     @property
     def connectors(self):
         """
         """
-
         return self._connectors
+    
+    @property
+    def connector_labels(self):
+        """
+        """
+        return self._connector_labels
+    
 
     @property
-    def connector_meta(self):
-
-        meta = []
-        for c in self._connectors:
-            meta.append(c)
-        return meta
-
-    def add_connector(self,connector,*args,**kwargs):
-        """
-        """
-
-        self._connectors.append(connector(*args,**kwargs))
-
-    def replace_connector(self,index,connector,*args,**kwargs):
-        
-        try:
-            self._connectors[index] = connector(*args,**kwargs)
-        except IndexError:
-            err = "No connector with index {} found\n".format(index)
-            raise IndexError(err) 
-
-    def remove_connector(self,index):
-
-        try:
-            to_remove = self._connectors.pop(index)
-        except IndexError:
-            err = "No connector with index {} found\n".format(index)
-            raise IndexError(err) 
+    def avail_models(self):
+        return self._avail_models
 
     @property
-    def global_param(self):
-        """
-        """
-
-        return self._fitter.global_param
-        
-
-    @property
-    def fitter(self):
-        """
-        """
-
-        return self._fitter
+    def avail_connectors(self):
+        return self._avail_connectors
 
     @property
     def defaults(self):
@@ -225,3 +273,6 @@ class FitContainer(QW.QWidget):
 
         return tmp
 
+    @property
+    def continuous_update(self):
+        return self._continuous_update

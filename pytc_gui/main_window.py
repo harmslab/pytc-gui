@@ -239,7 +239,9 @@ class MainWindow(QW.QMainWindow):
         warning_message = QW.QMessageBox.warning(self, "warning!",warning, 
                                                  QW.QMessageBox.Yes | QW.QMessageBox.No)
         if warning_message == QW.QMessageBox.Yes:
-            self._reset()
+            self._fit.clear()
+            self._fit.fitter_list = {}
+            self._main_widgets.clear()
 
     def close_program_callback(self):
         """
@@ -249,14 +251,6 @@ class MainWindow(QW.QMainWindow):
         self._app.instance().closeAllWindows()
         self.close()
 
-    def _reset(self):
-        """
-        Reset the session.
-        """
-
-        self._fit.fitter = GlobalFit()
-        self._fit.fitter_list = {}
-        self._main_widgets.clear()
     
     def closeEvent(self,event):
         """

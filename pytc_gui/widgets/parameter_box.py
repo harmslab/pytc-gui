@@ -14,7 +14,7 @@ class ParameterBox(QW.QTableWidget):
     Take csv style param string and put into table widget
     """
 
-    def __init__(self, parent,fit):
+    def __init__(self,parent,fit):
 
         super().__init__()
 
@@ -93,4 +93,4 @@ class ParameterBox(QW.QTableWidget):
         self._header = []
         self._col_name = []
         self._data = []
-
+        self.layout()

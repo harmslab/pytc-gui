@@ -8,7 +8,7 @@ __date__ = "2017-06-01"
 from PyQt5 import QtCore as QC
 from PyQt5 import QtWidgets as QW
 
-from .experiment_row import ExperimentRow
+from .experiment_widget import ExperimentWidget
 
 class ExperimentBox(QW.QWidget):
     """
@@ -52,7 +52,7 @@ class ExperimentBox(QW.QWidget):
             try:
                 self._experiments_shown[e]
             except KeyError:
-                self._experiments_shown[e] = ExperimentRow(self,self._fit,e)
+                self._experiments_shown[e] = ExperimentWidget(self,self._fit,e)
                 self._experiment_box.addWidget(self._experiments_shown[e])
 
         # Delete widgets for experiments in that aren't in the FitContainer
@@ -68,5 +68,8 @@ class ExperimentBox(QW.QWidget):
         """
 
         for i in reversed(range(self._experiment_box.count())): 
-            self._main_layout.itemAt(i).widget().setParent(None)
+            try:
+                self._main_layout.itemAt(i).widget().setParent(None)
+            except AttributeError:
+                pass
     

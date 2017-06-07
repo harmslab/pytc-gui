@@ -56,4 +56,3 @@ class PlotBox(QW.QWidget):
         """
         for i in range(self._main_layout.count()): 
             self._main_layout.itemAt(i).widget().deleteLater()
-

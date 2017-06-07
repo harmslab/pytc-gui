@@ -7,7 +7,7 @@ from .experiment_dialog import ExperimentOptionsDialog
 
 import os
 
-class ExperimentRow(QW.QWidget):
+class ExperimentWidget(QW.QWidget):
 
     def __init__(self,parent,fit,experiment):
 
@@ -16,9 +16,7 @@ class ExperimentRow(QW.QWidget):
         self._parent = parent
         self._fit = fit
         self._experiment = experiment
-
-        self._need_meta_field = False
-        self._meta_field_name = "Meta data:"
+        self._expt_label = self._fit.experiment_labels[experiment]
 
         self._image_base = os.path.split(os.path.realpath(__file__))[0]
 
@@ -33,7 +31,7 @@ class ExperimentRow(QW.QWidget):
         self._main_layout = QW.QHBoxLayout(self)
 
         # Construct the header for the experiment
-        self._label = QW.QLabel("test") #self._label)
+        self._label = QW.QLabel(self._expt_label)
         self._main_layout.addWidget(self._label)
 
         # -------------- Buttons --------------------
@@ -54,30 +52,22 @@ class ExperimentRow(QW.QWidget):
         self._remove_button.setFixedWidth(30)
         self._main_layout.addWidget(self._remove_button)
 
-        # ------------- Meta data -------------------
-
-        # Field for adding meta data
-        self._meta_label = QW.QLabel(self._meta_field_name,self)
-        self._main_layout.addWidget(self._meta_label)
-
-        self._meta_entry = QW.QLineEdit(self)
-        self._main_layout.addWidget(self._meta_entry)
-
-        self._meta_label.hide()
-        self._meta_entry.hide()
-
         self._main_layout.setGeometry(QC.QRect(0,0,200,30))
         self._main_layout.setSpacing(0)
 
     def _options_callback(self): 
         """
-        Construct dialog with fit options for this experiment.
+        Construct persistent dialog with fit options for this experiment.
         """    
 
-        self._tmp = ExperimentOptionsDialog(self,self._fit,self._experiment)
-        self._tmp.show()
-            
-
+        try:
+            self._options_diag.show()
+        except AttributeError:
+            self._options_diag = ExperimentOptionsDialog(self,self._fit,self._experiment)
+            self._options_diag.show()
+        
+        self._options_diag.raise_()           
+ 
     def _remove_callback(self):
         """
         Remove an experiment from the fitter.
@@ -90,6 +80,11 @@ class ExperimentRow(QW.QWidget):
         if warning_message == QW.QMessageBox.Yes:
 
             try:
+                self._options_diag.hide()
+            except AttributeError:
+                pass
+            
+            try:
                 self._fit.remove_experiment(self._experiment)
             except ValueError:
                 err = "Experiment already deleted.\n"
@@ -97,31 +92,3 @@ class ExperimentRow(QW.QWidget):
 
         self._fit.emit_changed()
 
-    @property
-    def need_meta_field(self):
-        
-        return self._need_meta_field
-
-    @need_meta_field.setter
-    def need_meta_field(self,value):
-
-        if type(value) is not bool:
-            err = "need_meta_field must be boolean"
-            raise ValueError(err)
-
-        self._need_meta_field = value
-        if self._need_meta_field:
-            self._meta_label.show()
-            self._meta_entry.show()
-        else:
-            self._meta_label.hide()
-            self._meta_entry.hide()
-
-    @property
-    def meta_field_name(self):
-        return self._meta_field_name
-
-    @meta_field_name.setter
-    def meta_field_name(self,value):
-        self._meta_field_name = str(value)
-        self._meta_label.setText(self._meta_field_name)
