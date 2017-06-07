@@ -1,19 +1,26 @@
 __description__ = \
 """
-Dialog that pops up when user connects a global_connector
-variable to an existing experiment.
+Dialog that pops up when user connects a global_connector variable to an
+existing experiment.
 """ 
 __author__ = "Michael J. Harms"
 __date__ = "2017-06-06"
 
 from PyQt5 import QtWidgets as QW
 
-import random, string, inspect, ast
+import random, string, inspect
 
 class AddConnectorDialog(QW.QDialog):
+    """
+    Dialog box for adding a new global connector to the fit.
+    """
 
     def __init__(self,parent,fit,experiment,fit_param):
         """
+        parent: parent widget instance
+        fit: FitContainer instance
+        experiment: pytc.ITCExperiment instance holding fit parameter
+        fit_param: pytc.FitParam instance holding fittable parameter
         """
 
         super().__init__()
@@ -35,35 +42,32 @@ class AddConnectorDialog(QW.QDialog):
 
         # Combobox widget holding possible connectors
         self._connector_select_widget = QW.QComboBox(self)
+
         connector_names = list(self._fit.avail_connectors.keys())
         connector_names.sort()
         for n in connector_names:
             self._connector_select_widget.addItem(n)
-        self._connector_select_widget.setCurrentIndex(0)
 
-        # Connector selection call back
-        self._connector_select_widget.activated[str].connect(self._update_connector)
+        self._connector_select_widget.setCurrentIndex(0)
+        self._connector_select_widget.activated.connect(self._update_dialog)
 
         # Input box holding name
         self._connector_name_input = QW.QLineEdit(self)
-
         random_name = "".join([random.choice(string.ascii_letters) for i in range(3)])
         self._connector_name_input.setText(random_name)
-
-        # Connector name call back
-        self._connector_name_input.textChanged[str].connect(self._update_connector_name)
+        self._connector_name_input.textChanged.connect(self._update_connector_name)
 
         # Final OK button
         self._OK_button = QW.QPushButton("OK", self)
-        self._OK_button.clicked.connect(self._return_final_connector)
+        self._OK_button.clicked.connect(self._ok_button_handler)
 
-        # add to form
+        # Add to form
         self._form_layout.addRow(QW.QLabel("Select Model:"), self._connector_select_widget)
         self._form_layout.addRow(QW.QLabel("Name:"), self._connector_name_input)
 
         # Populate widgets
         self._arg_widgets = {}
-        self._update_connector()
+        self._update_dialog()
 
         # add to main layout
         self._main_layout.addLayout(self._form_layout)
@@ -71,9 +75,9 @@ class AddConnectorDialog(QW.QDialog):
 
         self.setWindowTitle('Add new global connector')
 
-    def _update_connector(self):
+    def _update_dialog(self):
         """
-        If the user selects a new connector, repopulate the window appropriately.
+        Resize and repopulate dialog according to the connector in question.
         """
 
         self.adjustSize()
@@ -117,14 +121,22 @@ class AddConnectorDialog(QW.QDialog):
             pass
 
         # Add the newly selected args back into the connector
+        self._arg_types = {}
         self._arg_widgets = {}
         for k, v in new_fields.items():
 
-            label = QW.QLabel(k,self)
-            box = QW.QLineEdit(self)
-            box.setText("{}".format(v))
+            self._arg_types[k] = type(v)
 
-            self._arg_widgets[k] = box
+            label = QW.QLabel(k,self)
+            if type(v) == bool:
+                chooser = QW.QCheckBox(self)
+                chooser.setChecked(v)
+                self._arg_widgets[k] = chooser
+            else:
+                box = QW.QLineEdit(self)
+                box.setText("{}".format(v))
+                box.textChanged.connect(self._widget_checker)
+                self._arg_widgets[k] = box
 
             self._form_layout.addRow(label, box)
 
@@ -156,13 +168,35 @@ class AddConnectorDialog(QW.QDialog):
         self._parameter_name_box.clear()
 
         # Update the names of the parameters
-        self._param_names = list(self._selected_connector.local_methods.keys())
+        self._param_names = list(self._selected_connector.params.keys())
         self._param_names.sort()
         for k in self._param_names:
             self._parameter_name_box.addItem(k)
-        
-    def _return_final_connector(self):
+    
+    def _widget_checker(self):
         """
+        Make sure widgets are good, turning bad widgets pink.
+        """
+   
+        for k in self._arg_widgets.keys():
+
+            caster = self._arg_types[k]
+            if caster == bool:
+                continue
+
+            try:
+                value = caster(self._arg_widgets[k].text())
+                if type(value) is str and value.strip() == "":
+                    raise ValueError 
+                color = "#FFFFFF"
+            except ValueError:
+                color = "#FFB6C1"
+
+            self._arg_widgets[k].setStyleSheet("QLineEdit {{ background-color: {} }}".format(color))
+ 
+    def _ok_button_handler(self):
+        """
+        Handle OK button.
         """
 
         # Grab connector and name
@@ -175,22 +209,24 @@ class AddConnectorDialog(QW.QDialog):
         # Create kwargs to initialize the connector
         kwargs = {} 
         for k, widget in self._arg_widgets.items():
-        
-            # Parse the value.  
-            value = widget.text()
 
-            try:
-                final_value = ast.literal_eval(value)
-            except ValueError:
-                if value.lower() in ["true","t"]:
-                    final_value = True
-                elif value.lower() in ["false","f"]:
-                    final_value = False
-                elif value.lower() == "none":
-                    final_value = None
-                else:
-                    final_value = str(value)
+            caster = self._arg_types[k]
 
+            # Grab boolean
+            if caster == bool:
+                final_value = widget.checkState()
+            else:
+ 
+                # Parse the non-boolean value.
+                value = widget.text()
+                try:
+                    final_value = caster(value)
+                    if type(final_value) is str and final_value.strip() == "":
+                        raise ValueError
+                except ValueError:
+                    self._widget_checker()
+                    return
+                          
             kwargs[k] = final_value
 
         # Create connector
@@ -214,4 +250,11 @@ class AddConnectorDialog(QW.QDialog):
         self._fit.emit_changed()
 
         self.close()
-    
+   
+    def reject(self):
+        """
+        Update widgets with the rejection. (e.g. user hit "X" in top corner)
+        """
+
+        self._fit.emit_changed()
+        super().reject() 

@@ -127,11 +127,25 @@ class AddExperiment(QW.QDialog):
 
         # add exp args + defaults to widgets
         for n, v in args.items():
+
             if n == "units":
                 self._exp_widgets[n] = QW.QComboBox(self)
                 for u in units:
                     self._exp_widgets[n].addItem(u)
-                self._exp_widgets[n].setCurrentIndex(units_default_index)
+                units_default = self._exp_widgets[n].findText(self._fit.defaults["units"])
+                self._exp_widgets[n].setCurrentIndex(units_default)
+           
+                # If a unit is already specified, disable the ability to set it
+                # when other experiments are loaded 
+                try:
+                    required_units = self._fit.fit_units
+                    req_index = self._exp_widgets[n].findText(required_units)
+                    self._exp_widgets[n].setCurrentIndex(req_index)
+                    self._exp_widgets[n].setDisabled(True)
+                except AttributeError:
+                    pass
+
+
             else:
                 self._exp_widgets[n] = QW.QLineEdit(self)
                 self._exp_widgets[n].setText(str(v))

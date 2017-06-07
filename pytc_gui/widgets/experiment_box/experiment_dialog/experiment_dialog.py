@@ -84,7 +84,6 @@ class ExperimentOptionsDialog(QW.QDialog):
         self._main_layout.addWidget(hline)
 
         # ---------- Experiment information ------------      
-
         expt_keys = list(self._experiment_settable.keys())
         expt_keys.sort()
  
@@ -106,7 +105,7 @@ class ExperimentOptionsDialog(QW.QDialog):
         self._experiment_settable_box = QW.QGroupBox("Experiment information") 
         self._experiment_settable_layout = QW.QGridLayout()
 
-        # Layout the experimental widgets in rows of 3.
+        # Lay out the experimental widgets in rows of 3.
         while len(self._expt_widgets) % 3 != 0:
             self._expt_widgets.append(QW.QLabel(" "))
 
@@ -119,5 +118,18 @@ class ExperimentOptionsDialog(QW.QDialog):
 
         self._experiment_settable_box.setLayout(self._experiment_settable_layout)
         self._main_layout.addWidget(self._experiment_settable_box)
+    
+    def show(self):
+        """
+        When the dialog box is shown, update all of the widgets with whatever
+        values are currently in the fitter.
+        """
 
+        for p in self._param_widgets:
+            p.update()
 
+        for e in self._expt_widgets:
+            e.update()
+
+        super().show() 
+        

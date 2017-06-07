@@ -2,7 +2,8 @@ __description__ = \
 """
 Class for holding on to the global fit object and associated experiments.  
 Instance of class is passed to all gui objects and used to manipulate fit in
-a coherent fashion.
+a coherent fashion.  This also stores session preferences and coordinates widget
+updates by emitting a signal when the fit changes.
 """
 __author__ = "Michael J. Harms"
 __date__ = "2017-06-03"
@@ -28,6 +29,11 @@ class FitContainer(QW.QWidget):
                       default_shot_start=1,
                       continuous_update=True):
         """
+        default_units: default units for heats
+        default_model: default model for fits
+        default_shot_start: default start for shots
+        continuous_update: whether or not to update graph and params as
+                           parameters are modified
         """
 
         super().__init__()
@@ -37,13 +43,20 @@ class FitContainer(QW.QWidget):
         self._default_shot_start = default_shot_start
         self._continuous_update = continuous_update
 
+        # This is the main fitting object used throughout the session
         self._fitter = pytc.GlobalFit()
 
+        # This holds all experiments
         self._experiments = []
         self._experiment_labels = {}
-
+    
+        # This holds all connectors
         self._connectors = []
         self._connector_labels = {}
+
+        # ---------------------------------------------------------------------
+        # now use some cleaver inspect calls to figure out what is available in
+        # the underlying pytc api.
 
         # Available model types
         self._avail_models = {re.sub(r"(\w)([A-Z])", r"\1 \2", i.__name__):i
@@ -66,36 +79,32 @@ class FitContainer(QW.QWidget):
         conn_subclasses = pytc.global_connectors.GlobalConnector.__subclasses__()
         self._avail_connectors = dict([(s.__name__,s) for s in conn_subclasses])
 
+        self._paused = False
+
     def emit_changed(self):
         """
         Emit a signal saying that the fit changed.
         """
 
-        self.fit_changed_signal.emit(True)
+        if not self._paused:
+            self.fit_changed_signal.emit(True)
 
-    @property
-    def global_param(self):
-        """
-        """
-
-        return self._fitter.global_param
-
-    @property
-    def fitter(self):
-        """
-        """
-
-        return self._fitter
 
     def add_experiment(self,name,*args,**kwargs):
         """
         Add an experiment to the FitContainer. 
         """
-  
+ 
+        # Add the experiment 
         self._experiments.append(pytc.ITCExperiment(*args,**kwargs))
         self._fitter.add_experiment(self._experiments[-1])
         self._experiment_labels[self._experiments[-1]] = name 
 
+        # Record the unit of this experiment if it is the only experiment
+        if len(self._experiments) == 1:
+            self._fit_units = self._experiments[0].units
+
+        # Indicate the fit changed
         self.emit_changed()
 
     def remove_experiment(self,experiment):
@@ -111,21 +120,27 @@ class FitContainer(QW.QWidget):
 
             self._fitter.remove_experiment(to_remove)
         except ValueError:
-            err = "experiment {} found\n".format(experiment)
+            err = "experiment {} not found\n".format(experiment)
             raise ValueError(err) 
-   
+ 
+        # We no longer have a fixed set of units if there is no experiment
+        # left.
+        if len(self._experiments) == 0:
+            del self._fit_units
+ 
     def get_experiment_param(self,e):
         """
         Return the fittable parameters of an experiment.
         """
 
+        # Make sure the experiment is loaded
         if e not in self._experiments:
             err = "experiment {} not loaded".format(e)
             raise ValueError(err)
 
+        # Grab model parameters
         param = {}
         param["model_name"] = e.model
-        
         for key in e.model.parameters.keys():
             param[key] = e.model.parameters[key]
 
@@ -133,19 +148,27 @@ class FitContainer(QW.QWidget):
 
     def get_experiment_settable(self,e):
         """
-        Return meta data that can be set for a given experiment.
+        Return meta data that can be set for a given experiment.  This is a list
+        of tuples of the form:
+
+        [(value,value_type,possible_values) ... ]
+
+        where value is the current value, value_type is the type ("multi" or a 
+        stanard python type), and possible values is list-like (for "multi") or
+        None for everything else.  
         """
 
-        meta = {}
-
+        # Make sure the experiment is loaded
         if e not in self._experiments:
             err = "experiment {} not loaded".format(e)
             raise ValueError(err)
 
+        # Get all setters for the fit pytc.ITCExperiment instance
         classes = inspect.getmembers(e, inspect.isclass)
         properties = inspect.getmembers(classes[0][1], lambda o: isinstance(o, property))
         setters = [p[0] for p in properties if p[1].fset != None]
 
+        meta = {}
         for i, s in enumerate(setters):
 
             # Skip heats (which has setter we need to ignore)
@@ -172,21 +195,6 @@ class FitContainer(QW.QWidget):
 
         return meta
 
-    @property
-    def experiments(self):
-        """
-        """
-
-        return self._experiments
-
-    @property
-    def experiment_labels(self):
-        """
-        """
-
-        return self._experiment_labels
-
-               
     def add_connector(self,name,connector,*args,**kwargs):
         """
         Add a connector.
@@ -200,10 +208,11 @@ class FitContainer(QW.QWidget):
         Remove a connector.
         """
 
+        print(list(c.params.keys()))
         try:
-            self._connector_labels.pop(experiment)
+            self._connector_labels.pop(c)
 
-            index = self._connnectors.index(experiment)
+            index = self._connnectors.index(c)
             to_remove = self._connectors.pop(index)
 
             # Remove all links to experiments
@@ -216,7 +225,7 @@ class FitContainer(QW.QWidget):
 
     def get_connector_param(self,avail_name):
         """
-        Look up parameters for a connector.
+        Look up parameters for a initializing a connector.
         """
 
         try:
@@ -234,8 +243,17 @@ class FitContainer(QW.QWidget):
 
         return meta  
 
+    def pause_updates(self,value):
+        """
+        Pause updates. value is True (pause) or False (unpause).  This disables
+        self.emit_changed() calls.  This is useful to allow for changes to a
+        bunch of widgets at once. 
+        """        
+        self._paused = value
+
     def clear(self):
         """
+        Clear the FitContainer object.
         """
 
         self.__init__(self._default_units,
@@ -244,28 +262,76 @@ class FitContainer(QW.QWidget):
                       self._continuous_update)
 
     @property
+    def global_param(self):
+        """
+        Dictionary of all global fit parameters (as pytc.FitParam instances)
+        """
+
+        return self._fitter.global_param
+
+    @property
+    def fit_units(self):
+        """
+        Units for the fit.  All experiments must have the same units.  This helps
+        enforce this.
+        """
+        return self._fit_units
+
+    @property
+    def fitter(self):
+        """
+        Main pytc GlobalFit instance.  
+        """
+        return self._fitter
+
+    @property
+    def experiments(self):
+        """
+        All loaded experiments (list).
+        """
+        return self._experiments
+
+    @property
+    def experiment_labels(self):
+        """
+        Dictionary keying experiments to their string labels
+        """
+        return self._experiment_labels
+
+    @property
     def connectors(self):
         """
+        All loaded connectors (list).
         """
         return self._connectors
     
     @property
     def connector_labels(self):
         """
+        Dictionary keying connectors to their string labels.
         """
         return self._connector_labels
     
 
     @property
     def avail_models(self):
+        """
+        Available models for fitting.
+        """
         return self._avail_models
 
     @property
     def avail_connectors(self):
+        """
+        Available connectors.
+        """
         return self._avail_connectors
 
     @property
     def defaults(self):
+        """
+        Sundry defaults (dictionary).
+        """
 
         tmp = {"model":self._default_model,
                "units":self._default_units,
@@ -275,4 +341,9 @@ class FitContainer(QW.QWidget):
 
     @property
     def continuous_update(self):
+        """
+        Whether or not to update widgets whenever a change is made.
+        """
+
         return self._continuous_update
+

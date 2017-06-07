@@ -41,7 +41,6 @@ class ExperimentSettableWrapper(QW.QWidget):
         self._allowable_values = allowable_values
         self._float_view_cutoff = float_view_cutoff
 
-
         self.layout()
 
     def layout(self):
@@ -110,6 +109,12 @@ class ExperimentSettableWrapper(QW.QWidget):
         new_value = self._select_widget.currentText()
 
         setattr(self._experiment, self._settable_name, new_value)
+
+        # hack that sets all units to be the same for all experiments
+        if self._settable_name == "units":
+            for e in self._fit.experiments:
+                setattr(e,self._settable_name,new_value)
+
         if self._fit.continuous_update:
             self._fit.emit_changed()
 
@@ -142,4 +147,40 @@ class ExperimentSettableWrapper(QW.QWidget):
             setattr(self._experiment,self._settable_name, new_value)
             if self._fit.continuous_update:
                 self._fit.emit_changed() 
- 
+
+    def update(self):
+        """
+        Update widget based on what's actually in the experiment.
+        """
+
+        value = getattr(self._experiment,self._settable_name)
+
+        # --------- multi value ----------
+        if self._value_type == "multi":
+
+            current_index = self._select_widget.findText(value)
+            if current_index == -1:
+                err = "current value is not in the allowable values\n"
+                raise ValueError(err)
+            self._select_widget.setCurrentIndex(current_index)
+
+        # --------- bool value --------------
+        elif self._value_type == bool:
+
+            self._select_widget = QW.QCheckBox()
+            self._select_widget.setChecked(value)
+
+        # -------- other values --------------
+        else:
+
+            if self._value_type == float:
+                if value < 1/self._float_view_cutoff or value > self._float_view_cutoff:
+                    val_str = "{:.8e}".format(value)
+                else:
+                    val_str = "{:.8f}".format(value)
+            else:
+                val_str = "{}".format(value)
+
+            self._select_widget.setText(val_str)
+
+        super().show() 
