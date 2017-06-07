@@ -164,11 +164,11 @@ class AddConnectorDialog(QW.QDialog):
         Update the parameter box.
         """
         
-        # Clear existing entries in the dropbox (it's the last widget)
+        # Clear existing entries in the dropbox
         self._parameter_name_box.clear()
 
         # Update the names of the parameters
-        self._param_names = list(self._selected_connector.params.keys())
+        self._param_names = list(self._selected_connector.local_methods.keys())
         self._param_names.sort()
         for k in self._param_names:
             self._parameter_name_box.addItem(k)
@@ -237,16 +237,18 @@ class AddConnectorDialog(QW.QDialog):
         var_name = self._parameter_name_box.currentText()
 
         # Create connector
-        self._fit.add_connector(var_name,connector,self._connector_name,**kwargs)
+        self._fit.add_connector(self._connector_name,self._selected_connector)
 
         # Remove link, if present
         try:
             self._fit.fitter.unlink_from_global(self._experiment,self._p.name)
-        except KeyError:
+        except (KeyError,ValueError):
             pass
 
         # Update fit
-        self._fit.fitter.link_to_global(self._experiment,self._p.name,var_name)
+        self._fit.fitter.link_to_global(self._experiment,
+                                        self._p.name,
+                                        self._selected_connector.local_methods[var_name])
         self._fit.emit_changed()
 
         self.close()

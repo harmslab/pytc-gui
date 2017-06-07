@@ -219,7 +219,7 @@ class FitParamWrapper(QW.QWidget):
             # Remove current global link, if present
             try:
                 self._fit.fitter.unlink_from_global(self._experiment,self._p.name)
-            except KeyError:
+            except (KeyError,ValueError):
                 pass
 
             self._fit.emit_changed()
@@ -236,7 +236,7 @@ class FitParamWrapper(QW.QWidget):
             # Remove current global link, if present
             try:
                 self._fit.fitter.unlink_from_global(self._experiment,self._p.name)
-            except KeyError:
+            except (KeyError,ValueError):
                 pass
             self._fit.fitter.link_to_global(self._experiment,self._p.name,value) 
             self._fit.emit_changed()
@@ -279,23 +279,22 @@ class FitParamWrapper(QW.QWidget):
 
         # ------------- alias -----------------
 
-        # Make sure all of the global parameters are in the dropdown
         global_param = list(self._fit.global_param.keys())
-        for k in global_param:
-            if self._alias.findText(k) == -1:
-                self._alias.addItem(k)
 
         # Go through all connectors
         params_to_keep = []  
         for c in self._fit.connectors:
-           
+          
+            dropdown_options = []
+            dropdown_options.extend(c.local_methods.keys())
+            dropdown_options.extend(c.params.keys())
+
             # If any of the connector_params are in global_param, keep all of
             # them.
             connector_found = False
-            connector_params = list(c.params.keys())
-            for p in connector_params:
+            for p in dropdown_options:
                 if p in global_param:
-                    params_to_keep.extend(connector_params)
+                    params_to_keep.extend(dropdown_options)
                     connector_found = True
                     break
 
@@ -304,15 +303,22 @@ class FitParamWrapper(QW.QWidget):
             #if not connector_found:
             #    self._fit.remove_connector(c)
         
-        # append unique params_to_keep to global_param
-        global_param.extend(set(params_to_keep)) 
+        global_param.extend(params_to_keep)
 
         # These guys should always be kept
         global_param.append("Unlink")
         global_param.append("Add global")
         global_param.append("Add connector")
+    
+        # Make sure global_param are unique after that
+        global_param = list(set(global_param))
 
-        # parameters 
+        # Make sure all of the global parameters are in the dropdown
+        for k in global_param:
+            if self._alias.findText(k) == -1:
+                self._alias.addItem(k)
+
+        # Remove anything *not* in global_param
         indexes = list(range(self._alias.count()))
         indexes.reverse() 
         for i in indexes:
@@ -324,6 +330,10 @@ class FitParamWrapper(QW.QWidget):
         param_aliases = self._fit.fitter.param_aliases[1][self._expt_index]   
         try:
             current_alias = param_aliases[self._p.name]
+            if type(current_alias) is not str:
+                current_alias = "{}.{}".format(current_alias.__self__.name,
+                                               current_alias.__name__)
+
         except KeyError:
             current_alias = "Unlink"
 
@@ -355,3 +365,6 @@ class FitParamWrapper(QW.QWidget):
     def alias_widget(self):
         return self._alias 
 
+    @property
+    def name(self):
+        return self._p.name

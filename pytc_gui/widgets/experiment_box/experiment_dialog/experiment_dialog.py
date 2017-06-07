@@ -6,6 +6,7 @@ in a simple GUI.
 __author__ = "Michael J. Harms"
 __date__ = "2017-06-01"
 
+from .experiment_meta_wrapper import ExperimentMetaWrapper
 from .fit_param_wrapper import FitParamWrapper
 from .experiment_settable import ExperimentSettableWrapper
 
@@ -14,7 +15,7 @@ from PyQt5 import QtWidgets as QW
 class ExperimentOptionsDialog(QW.QDialog):
     """
     Dialog used to create options for experiment.  This includes fit parameters
-    and some experiment metadata.
+    and some experiment connectordata.
     """
 
     def __init__(self,parent,fit,experiment):
@@ -30,9 +31,8 @@ class ExperimentOptionsDialog(QW.QDialog):
         self._fit = fit
         self._experiment = experiment
 
-        # Use the FitContainer instance to get the fittable parameteres and the
-        # expeirment properties that can be set.
-        self._fit_param_info = self._fit.get_experiment_param(self._experiment)
+        # Use the FitContainer instance to get the experiment properties that
+        # can be set
         self._experiment_settable = self._fit.get_experiment_settable(self._experiment)
 
         self.layout()
@@ -41,14 +41,10 @@ class ExperimentOptionsDialog(QW.QDialog):
         """
         Construct the widget.
         """
-    
-        model_params = list(self._fit_param_info.keys())
-        model_name = model_params.remove("model_name")
-        model_params.sort()
-
         self._main_layout = QW.QVBoxLayout(self)
-       
+
         # ------------ Fit parameters --------------- 
+
         self._fit_param_box = QW.QGroupBox("Fit Parameters") 
         self._fit_param_layout = QW.QGridLayout()
 
@@ -61,10 +57,16 @@ class ExperimentOptionsDialog(QW.QDialog):
         self._fit_param_layout.addWidget(QW.QLabel("upper"), 0,5) 
 
         # Build widgets for each fittable parameter
+        self._fit_param_info = self._fit.get_experiment_param(self._experiment)
+
+        model_params = list(self._fit_param_info.keys())
+        model_name = model_params.remove("model_name")
+        model_params.sort()
         self._param_widgets = []           
         for i, k in enumerate(model_params):
 
-            self._param_widgets.append(FitParamWrapper(self,self._fit,
+            self._param_widgets.append(FitParamWrapper(self,
+                                                       self._fit,
                                                        self._experiment,
                                                        self._fit_param_info[k]))
  
@@ -74,6 +76,9 @@ class ExperimentOptionsDialog(QW.QDialog):
             self._fit_param_layout.addWidget(self._param_widgets[-1].fixed_widget,i+1,3)
             self._fit_param_layout.addWidget(self._param_widgets[-1].lower_widget,i+1,4)
             self._fit_param_layout.addWidget(self._param_widgets[-1].upper_widget,i+1,5)
+
+        self._num_param_rows = len(model_params) + 1
+        self._num_local_param_widgets = self._num_param_rows*6
 
         self._fit_param_box.setLayout(self._fit_param_layout)
         self._main_layout.addWidget(self._fit_param_box)
@@ -110,26 +115,122 @@ class ExperimentOptionsDialog(QW.QDialog):
             self._expt_widgets.append(QW.QLabel(" "))
 
         counter = 0
-        num_rows = int(round((len(self._expt_widgets)+1)/3))
-        for i in range(num_rows):
+        self._num_exp_rows = int(round((len(self._expt_widgets)+1)/3))
+        for i in range(self._num_exp_rows):
             for j in range(3):
                 self._experiment_settable_layout.addWidget(self._expt_widgets[counter],i,j)
                 counter += 1
 
         self._experiment_settable_box.setLayout(self._experiment_settable_layout)
         self._main_layout.addWidget(self._experiment_settable_box)
-    
-    def show(self):
-        """
-        When the dialog box is shown, update all of the widgets with whatever
-        values are currently in the fitter.
-        """
 
+        # Dictionaries to hold widgets for global connectors
+        self._connector_widgets = {}
+        self._meta_widgets = {}
+
+
+    def update(self):
+        
+        # Update parameter and experimental widgets
         for p in self._param_widgets:
             p.update()
 
         for e in self._expt_widgets:
             e.update()
 
+        # Update connector-associated widgets
+    
+        self._fit.pause_updates(True)
+
+        # Grab connector fit parameters and required meta data associated with
+        # this experiment 
+        required_meta, connector_param = self._fit.get_experiment_connector(self._experiment)
+      
+        # ----------- connector parameters --------------
+ 
+        # Build connector widgets for associated parameters  
+        connector_keys = list(connector_param.keys())
+        connector_keys.sort()
+        to_layout = []
+        for k in connector_keys:
+            
+            try:
+                self._connector_widgets[k].update()
+            except KeyError:
+                self._connector_widgets[k] = FitParamWrapper(self,
+                                                             self._fit,
+                                                             self._experiment,
+                                                             connector_param[k])
+            to_layout.append(self._connector_widgets[k])
+
+        # Delete any existing connector fit parameter widgets from layout
+        widget_indexes = list(range(self._num_local_param_widgets,
+                              self._fit_param_layout.count()))
+
+        widget_indexes.reverse()
+        for i in widget_indexes:
+            self._fit_param_layout.itemAt(i).widget().setParent(None)
+
+        # Add associated connector fit parameter widgets to layout
+        for i, w in enumerate(to_layout): 
+ 
+            r = i + self._num_param_rows
+
+            self._fit_param_layout.addWidget(QW.QLabel(w.name),r,0)
+            self._fit_param_layout.addWidget(w.guess_widget,r,1)
+            self._fit_param_layout.addWidget(w.alias_widget,r,2)
+            self._fit_param_layout.addWidget(w.fixed_widget,r,3)
+            self._fit_param_layout.addWidget(w.lower_widget,r,4)
+            self._fit_param_layout.addWidget(w.upper_widget,r,5)
+
+        # ------------- required experiment metadata -----------------
+ 
+        required_meta_keys = list(required_meta.keys())
+        required_meta_keys.sort()
+        to_layout = [] 
+        for m in required_meta_keys:
+            try:
+                self._meta_widgets[m].update()
+            except KeyError:
+                self._meta_widgets[m] = ExperimentMetaWrapper(self,
+                                                              self._fit,
+                                                              self._experiment,
+                                                              m)
+            to_layout.append(self._meta_widgets[m])       
+
+        # Delete existing widgets from layout
+        widget_indexes = list(range(self._num_exp_rows*3,
+                                    self._experiment_settable_layout.count()))
+        widget_indexes.reverse()
+        for i in widget_indexes:
+            try:
+                self._experiment_settable_layout.itemAt(i).widget().setParent(None)
+            except AttributeError:
+                pass
+        
+        # Add dummy widgets to fill out grid 
+        while len(to_layout) % 3 != 0:
+            to_layout.append(QW.QLabel(" "))
+
+        # Lay out the connector widgets in rows of 3.
+        counter = 0
+        num_rows = int(round((len(to_layout)+1)/3))
+        for i in range(num_rows):
+            for j in range(3):
+                self._experiment_settable_layout.addWidget(to_layout[counter],i,j)
+                counter += 1
+
+        self._fit.pause_updates(False)
+  
+        # Set size 
+        self.adjustSize()
+ 
+    def show(self):
+        """
+        When the dialog box is shown, update all of the widgets with whatever
+        values are currently in the fitter.
+        """
+    
+        self.update()
         super().show() 
         
