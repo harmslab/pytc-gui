@@ -26,6 +26,8 @@ class ExperimentBox(QW.QWidget):
 
         self._experiments_shown = {}
 
+        self._fit.fit_changed_signal.connect(self.fit_has_changed_slot)
+
         self.layout()
         self.update()
 
@@ -84,3 +86,12 @@ class ExperimentBox(QW.QWidget):
             except AttributeError:
                 pass
     
+    @QC.pyqtSlot(bool)
+    def fit_has_changed_slot(self,val):
+        """
+        Slot that looks for emission from FitContainer saying that it changed
+        in some way.
+        """
+
+        # Update all of the widgets
+        self.update()

@@ -6,7 +6,8 @@ __author__ = "Hiranmayi Duvvuri"
 __date__ = "2017-06-03"
 
 import PyQt5.QtWidgets as QW
-from io import StringIO
+import PyQt5.QtCore as QC
+#from io import StringIO
 import seaborn
 
 class ParameterBox(QW.QTableWidget):
@@ -24,6 +25,8 @@ class ParameterBox(QW.QTableWidget):
         self._header = []
         self._col_name = []
         self._data = []
+
+        self._fit.fit_changed_signal.connect(self.fit_has_changed_slot)
 
         self.layout()
 
@@ -43,12 +46,11 @@ class ParameterBox(QW.QTableWidget):
         self._col_name = []
         self._data = []
 
-           
-        file_data = self._fit.fitter.fit_as_csv
-        string_file = StringIO(file_data)
+        string_file = self._fit.fitter.fit_as_csv
+        #string_file = StringIO(file_data)
 
         # break up the file data
-        for i in string_file:
+        for i in string_file.split("\n"):
             if i.startswith("#"):
                 self._header.append(i.rstrip())
             elif i.startswith("type"):
@@ -58,9 +60,9 @@ class ParameterBox(QW.QTableWidget):
                 i = i.rstrip().split(',')
                 self._data.append(i)
 
+        self._fit.event_logger.emit("Fit stats:","normal")
         for l in self._header:
-            print(l)
-        print("\n")
+            self._fit.event_logger.emit(l[1:].strip(),"normal")
 
     def update(self):
         """
@@ -94,3 +96,13 @@ class ParameterBox(QW.QTableWidget):
         self._col_name = []
         self._data = []
         self.layout()
+
+    @QC.pyqtSlot(bool)
+    def fit_has_changed_slot(self,val):
+        """
+        Slot that looks for emission from FitContainer saying that it changed
+        in some way.
+        """
+
+        # Update all of the widgets
+        self.update()

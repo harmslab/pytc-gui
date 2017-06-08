@@ -23,11 +23,14 @@ class MessageBox(QW.QTextEdit):
         self._fit = fit
 
         self._fit.event_logger.connect(self.write_message)
-        self._line_template = "<p style=\"{}\">{}</p><br/><br/>"
+        self._line_template = "<span style=\"{}\">&#9642; {}</span>"
         self.setReadOnly(True)
 
         self._message_format = {"warning":"color:red;",
-                                "info":"color:gray; font-style:italic"}
+                                "info":"color:gray; font-style:italic;",
+                                "fit_start":"color:blue; font-weight:bold;",
+                                "happy":"color:green; font-weight:bold;",
+                                "normal":"color:black;"}
 
     def write_message(self,message,message_class):
         """
@@ -40,5 +43,7 @@ class MessageBox(QW.QTextEdit):
             fmt = ""
 
         self.insertHtml(self._line_template.format(fmt,message))
+        self.insertPlainText("\n")
         self.verticalScrollBar().setValue(self.verticalScrollBar().maximum())
 
+        self.update()

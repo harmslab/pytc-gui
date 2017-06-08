@@ -84,9 +84,9 @@ class ExperimentWidget(QW.QFrame):
                                                  QW.QMessageBox.Yes|QW.QMessageBox.No)
 
         if warning_message == QW.QMessageBox.Yes:
-
             try:
                 self._options_diag.hide()
+                self._options_diag.deleteLater()
             except AttributeError:
                 pass
             
@@ -98,3 +98,4 @@ class ExperimentWidget(QW.QFrame):
 
         self._fit.emit_changed()
 
+    

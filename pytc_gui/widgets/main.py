@@ -28,11 +28,6 @@ class MainWidgets(QW.QWidget):
         self._parent = parent
         self._fit = fit
 
-        # Connect emission from FitContainer to the update function
-        self._fit.fit_changed_signal.connect(self.fit_has_changed_slot)
-
-        self._fitter_list = parent._fitter_list
-
         # Create a dictionary of GlobalFitOptions
         fit_args = inspect.getargspec(pytc.global_fit.GlobalFit().fit)
         self._global_fit_options = {arg: param for arg, param
@@ -64,8 +59,8 @@ class MainWidgets(QW.QWidget):
                               self._param_box]
 
         # ------------ "Do fit" button -------------------
-        do_fit_button = QW.QPushButton("Do fit", self)
-        do_fit_button.clicked.connect(self.do_fit_callback)
+        self._do_fit_button = QW.QPushButton("Do fit", self)
+        self._do_fit_button.clicked.connect(self.do_fit_callback)
 
         # Split up the main window in a useful way
 
@@ -90,17 +85,7 @@ class MainWidgets(QW.QWidget):
         # Now add the split up window.
         main_layout = QW.QVBoxLayout(self)
         main_layout.addWidget(h_splitter)
-        main_layout.addWidget(do_fit_button)
-
-    @QC.pyqtSlot(bool)
-    def fit_has_changed_slot(self,val):
-        """
-        Slot that looks for emission from FitContainer saying that it changed
-        in some way.
-        """
-
-        # Update all of the widgets
-        self.update()
+        main_layout.addWidget(self._do_fit_button)
 
     def update(self):
         """
@@ -109,7 +94,6 @@ class MainWidgets(QW.QWidget):
         for w in self._core_widgets:
             w.update()
 
-
     def clear(self):
         """
         Clear all widgets.
@@ -117,26 +101,28 @@ class MainWidgets(QW.QWidget):
         for w in self._core_widgets:
             w.clear()
 
-    def update_fit_options(self, options_dict):
-        """
-        """
-        self._global_fit_options = options_dict
-
-    def _perform_fit(self):
-        """
-        XXX MJH TEMPORARY BRIDGE DURING REFACTOR XXX
-        """
-
-        #self._exp_box.update_exp()
-        self._fit.fitter.fit(**self._global_fit_options)
-        self._fit.emit_changed()
-
     def do_fit_callback(self):
         """
+        Do the fit.
         """
-        self._perform_fit()
-        self._plot_box.update()
-        self._param_box.update()
+
+        # Make sure experiments are loaded
+        if len(self._fit.experiments) == 0:
+            warn = "Load experiments before fitting."
+            error_message = QW.QMessageBox.warning(self, "warning", warn, QW.QMessageBox.Ok)
+            return
+
+        self._do_fit_button.setText("Fit running...")
+        self._do_fit_button.setDisabled(True)
+        self._do_fit_button.repaint()
+        self._do_fit_button.update()
+
+        self._fit.do_fit()
+            
+        self._do_fit_button.setText("Do fit")
+        self._do_fit_button.setDisabled(False)
+        self._do_fit_button.repaint()
+        self._do_fit_button.update()
 
     @property
     def parent(self):

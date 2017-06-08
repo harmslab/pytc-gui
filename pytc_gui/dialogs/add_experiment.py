@@ -260,7 +260,6 @@ class AddExperiment(QW.QDialog):
             exp_label = self._enter_exp_label.text()
             self._fit.add_experiment(exp_label,self._exp_file,self._exp_model,**exp_param,**model_param)
 
-            self._fit.event_logger.emit("Experiment {} loaded as {}".format(self._exp_file,exp_label),"info")
 
             self.close()
         else:

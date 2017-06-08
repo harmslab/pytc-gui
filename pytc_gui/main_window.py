@@ -156,8 +156,10 @@ class MainWindow(QW.QMainWindow):
         try:
             self._aic_dialog.show()
         except AttributeError:
-            self._aic_dialog = dialogs.AICTest(self)
+            self._aic_dialog = dialogs.AICTest(self,self._fit)
             self._aic_dialog.show()
+    
+        self._aic_dialog.raise_()
 
     def fit_options_dialog(self):
         """
@@ -168,9 +170,10 @@ class MainWindow(QW.QMainWindow):
         try:
             self._fit_options_dialog.show()
         except AttributeError:
-            self._fit_options_dialog = dialogs.FitOptions(self._fit.fitter, self._fitter_list)
-            self._fit_options_dialog.options_signal.connect(self._main_widgets.update_fit_options)
+            self._fit_options_dialog = dialogs.FitOptions(self, self._fit)
             self._fit_options_dialog.show()
+
+        self._fit_options_dialog.raise_()
 
     def save_fitter_dialog(self):
         """
@@ -226,9 +229,10 @@ class MainWindow(QW.QMainWindow):
 
     def do_fit_callback(self):
         """
-        fitting shortcut
+        Do the fit.
         """
         self._main_widgets.do_fit_callback()
+
 
     def new_session_callback(self):
         """

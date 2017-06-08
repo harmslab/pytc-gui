@@ -10,21 +10,23 @@ from pytc import util
 from PyQt5.QtCore import pyqtSlot
 from PyQt5 import QtWidgets as QW
 
-import sys, logging, copy
+import copy, re
 
 class AICTest(QW.QDialog):
     """
     AIC test dialog for pytc-gui.
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent, fit):
         """
         Initialize class.
         """
         super().__init__()
 
-        self._fitter_list = parent._fitter_list
-        self._fitter = parent._fitter
+        self._parent = parent
+        self._fit = fit
+
+        self._fit_snapshot_dict = {}
 
         self.layout()
 
@@ -32,6 +34,7 @@ class AICTest(QW.QDialog):
         """
         Lay out the dialog.
         """
+
         main_layout = QW.QVBoxLayout(self)
         test_layout = QW.QHBoxLayout()
         button_layout = QW.QVBoxLayout()
@@ -39,7 +42,7 @@ class AICTest(QW.QDialog):
         self._fitter_select = QW.QListWidget()
         self._fitter_select.setSelectionMode(QW.QAbstractItemView.ExtendedSelection)
 
-        for k,v in self._fitter_list.items():
+        for k,v in self._fit_snapshot_dict.items():
             self._fitter_select.addItem(k)
 
         self._fitter_select.setFixedSize(150, 100)
@@ -53,11 +56,6 @@ class AICTest(QW.QDialog):
         self._data_out = QW.QTextEdit()
         self._data_out.setReadOnly(True)
         self._data_out.setMinimumWidth(400)
-
-        # redirect stdout to textedit
-        #self._temp = sys.stdout
-        #sys.stdout = OutputStream()
-        #sys.stdout.text_printed.connect(self.read_stdout)
 
         # add buttons to layout
         button_layout.addWidget(ftest_button)
@@ -79,15 +77,17 @@ class AICTest(QW.QDialog):
 
         # save deepcopy of fitter
         if ok:
-            self._fitter_list[text] = copy.deepcopy(self._fitter)
+            self._fit_snapshot_dict[text] = copy.deepcopy(self._fit.fitter)
             self._fitter_select.addItem(text)
-            print("Fitter " + text + " saved to list.")
+            self._fit.event_logger.emit("Fitter {} saved to list.".format(text),"info")
 
     def perform_test(self):
         """
         Take selected objects and use them in AIC test.
         """
-        selected = [self._fitter_list[i.text()] for i in self._fitter_select.selectedItems()] 
+
+        selected_names = [i.text() for i in self._fitter_select.selectedItems()] 
+        selected = [self._fit_snapshot_dict[n] for n in selected_names]
 
         if len(selected) < 2:
             err = "You must select at least two fits to compare.\n"
@@ -96,20 +96,64 @@ class AICTest(QW.QDialog):
 
         output, plots = util.compare_models(*selected)
 
-        # translate output
-        print("\n")
+        test = []
+        best_model = []
+        weights = []
         for o, v in output.items():
-            print("Value: ", o)
-            print("Best Model: ", v[0])
-            print("Weights: ", v[1], "\n")
+            test.append(o)
+            best_model.append(v[0])
+            weights.append(v[1]) 
 
-    @pyqtSlot(str)
-    def read_stdout(self, text):
-        """
-        """
-        self._data_out.insertPlainText(text)
+        # Figure out if there is a best model by consensus
+        best_overall = [(best_model.count(a),a) for a in set(best_model)] 
+        best_overall.sort(reverse=True)
 
-    def closeEvent(self, evnt):
-        """
-        """
-        sys.stdout = self._temp
+        # If one guy one all the time or the best model is found better more times,
+        # it's the best
+        if len(best_overall) == 1 or best_overall[0][0] > best_overall[1][0]:
+            final_best = best_overall[0][1]
+        else:
+            final_best = -1
+
+        # Write out header
+        s_head = "<span style=\"font-family:courier; font-weight:bold\">{}</span>"
+
+        tmp = "{:10s}".format("fit")
+        tmp = re.sub(" ","&#160;",tmp)
+        line = [s_head.format(tmp)] 
+        for j in range(len(test)):
+            tmp = "{:7s}".format(test[j])
+            tmp = re.sub(" ","&#160;",tmp)
+            line.append(s_head.format(tmp)) 
+
+        out = "".join(line)
+        self._data_out.insertHtml(out)
+        self._data_out.insertPlainText("\n") 
+        self._data_out.verticalScrollBar().setValue(self._data_out.verticalScrollBar().maximum())
+
+        # Write out result
+        s = "<span style=\"font-family:courier;\">{}</span>"
+        s_bold = "<span style=\"font-family:courier; font-weight:bold; color:blue\">{}</span>"
+
+        for i in range(len(selected)):
+            tmp = "{:10s}".format(selected_names[i])
+            tmp = re.sub(" ","&#160;",tmp)
+            if i == final_best:
+                line = [s_bold.format(tmp)]
+            else:
+                line = [s.format(tmp)]
+            for j in range(len(test)):
+                tmp = "{:7.3f}".format(weights[j][i])
+                tmp = re.sub(" ","&#160;",tmp)
+
+                if best_model[j] == i:
+                    line.append(s_bold.format(tmp))
+                else:
+                    line.append(s.format(tmp))
+
+            out = "".join(line)
+           
+            self._data_out.insertHtml(out)
+            self._data_out.insertPlainText("\n") 
+            self._data_out.verticalScrollBar().setValue(self._data_out.verticalScrollBar().maximum())
+

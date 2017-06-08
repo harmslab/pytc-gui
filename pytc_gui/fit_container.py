@@ -28,6 +28,7 @@ class FitContainer(QW.QWidget):
     def __init__(self,default_units="cal/mol",
                       default_model="Single Site",
                       default_shot_start=1,
+                      default_fitter="ML",
                       continuous_update=True,
                       verbose=True):
         """
@@ -44,11 +45,13 @@ class FitContainer(QW.QWidget):
         self._default_units = default_units
         self._default_model = default_model
         self._default_shot_start = default_shot_start
+        self._default_fitter = default_fitter
         self._continuous_update = continuous_update
         self._verbose = verbose
 
         # This is the main fitting object used throughout the session
         self._fitter = pytc.GlobalFit()
+        self._fit_engine = None
 
         # This holds all experiments
         self._experiments = []
@@ -108,6 +111,8 @@ class FitContainer(QW.QWidget):
         if len(self._experiments) == 1:
             self._fit_units = self._experiments[0].units
 
+        self.event_logger.emit("Loaded experiment {} as {}".format(args[0],name),"info")
+
         # Indicate the fit changed
         self.emit_changed()
 
@@ -117,12 +122,13 @@ class FitContainer(QW.QWidget):
         """
 
         try:
-            self._experiment_labels.pop(experiment)
+            name = self._experiment_labels.pop(experiment)
 
             index = self._experiments.index(experiment)
             to_remove = self._experiments.pop(index)
-
-            self._fitter.remove_experiment(to_remove)
+            self._fitter.remove_experiment(experiment)
+        
+            self.event_logger.emit("Removed experiment {}".format(name),"info")
         except ValueError:
             err = "experiment {} not found\n".format(experiment)
             raise ValueError(err) 
@@ -250,6 +256,7 @@ class FitContainer(QW.QWidget):
 
         self._connectors.append(connector)
         self._connector_labels[self._connectors[-1]] = name
+        self.event_logger.emit("Connector {} created".format(name),"info")
 
     def remove_connector(self,c):
         """
@@ -257,7 +264,7 @@ class FitContainer(QW.QWidget):
         """
 
         try:
-            self._connector_labels.pop(c)
+            name = self._connector_labels.pop(c)
 
             index = self._connnectors.index(c)
             to_remove = self._connectors.pop(index)
@@ -265,6 +272,8 @@ class FitContainer(QW.QWidget):
             # Remove all links to experiments
             for k in c.params.keys():
                 self._fitter.remove_global(k)
+
+            self.event_logger.emit("Connector {} remove".format(name),"info")
 
         except IndexError:
             err = "No connector with index {} found\n".format(c)
@@ -290,15 +299,28 @@ class FitContainer(QW.QWidget):
 
         return meta  
 
-    @property
-    def connector_methods(self):
+    def do_fit(self):
+        """
+        Actually do the global fit.
+        """
 
-        out = {}        
-        for c in self._connectors:
-            for k in c.local_methods:
-                out[k] = c.local_methods[k]
+        try:
+            if self._fit_engine is None:
+                self._fitter.fit()
+            else:
+                self._fitter.fit(fitter=self._fit_engine)
+        
+        except Exception as ex:
+            s = "Fit failed. pytc threw <br/>\"\"\"{0} Args: {1!r}\"\"\""
+            err = s.format(type(ex).__name__,ex.args)
+            self.event_logger.emit(err,"warning")
 
-        return out
+        self.emit_changed()
+
+        if self._fitter.fit_success:
+            self.event_logger.emit("Fit successful.","happy")
+        else:
+            self.event_logger.emit("Fit failed.","warning")
 
 
     def pause_updates(self,value):
@@ -317,7 +339,19 @@ class FitContainer(QW.QWidget):
         self.__init__(self._default_units,
                       self._default_model,
                       self._default_shot_start,
-                      self._continuous_update)
+                      self._default_fitter,
+                      self._continuous_update,
+                      self._verbose)
+
+    @property
+    def connector_methods(self):
+
+        out = {}        
+        for c in self._connectors:
+            for k in c.local_methods:
+                out[k] = c.local_methods[k]
+
+        return out
 
     @property
     def global_param(self):
@@ -393,7 +427,8 @@ class FitContainer(QW.QWidget):
 
         tmp = {"model":self._default_model,
                "units":self._default_units,
-               "shot_start":self._default_shot_start}
+               "shot_start":self._default_shot_start,
+               "default_fitter":self._default_fitter}
 
         return tmp
 
@@ -411,3 +446,19 @@ class FitContainer(QW.QWidget):
         How verbose to be in output.
         """
         return self._verbose
+
+    @property
+    def fit_engine(self):
+        """
+        Fitting engine (ML, Baysian, etc.).  This is an instance of pytc.Fitter
+        class.
+        """
+        return self._fit_engine
+
+    @fit_engine.setter
+    def fit_engine(self,value):
+        """
+        Fitting engine (ML, Baysian, etc.).  This is an instance of pytc.Fitter
+        class.
+        """
+        self._fit_engine = value

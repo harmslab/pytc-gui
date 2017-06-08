@@ -17,15 +17,13 @@ class FitOptions(QW.QDialog):
     Fit options dialog for pytc-gui.
     """
 
-    options_signal = pyqtSignal(dict)
-
-    def __init__(self, fitter,fitter_list,default_fitter="ML"):
+    def __init__(self, parent, fit):
         """
         """
         super().__init__()
-        self._fitter = fitter
-        self._fitter_list = fitter_list
-        self._default_fitter = default_fitter
+
+        self._parent = parent
+        self._fit = fit
 
         self.layout()
 
@@ -107,7 +105,7 @@ class FitOptions(QW.QDialog):
 
         # Select the default fitter
         try:
-            default_index = self._fitter_name_to_index[self._default_fitter]
+            default_index = self._fitter_name_to_index[self._fit.defaults["default_fitter"]]
         except KeyError:
             default_index = 0
         self._current_selection = default_index 
@@ -146,8 +144,6 @@ class FitOptions(QW.QDialog):
         for k, v in self._fitter_vars[self._current_selection].items():
             kwargs[k] = ast.literal_eval(v.text())
 
-        fitter_instance = self._fitter_classes[self._current_selection](**kwargs)        
-    
-        self.options_signal.emit({"fitter":fitter_instance})
+        self._fit.fit_engine = self._fitter_classes[self._current_selection](**kwargs)
 
         self.hide()
