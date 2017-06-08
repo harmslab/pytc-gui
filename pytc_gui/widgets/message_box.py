@@ -10,7 +10,7 @@ from PyQt5 import QtWidgets as QW
 
 import sys, os
 
-class MessageBox(QW.QScrollArea):
+class MessageBox(QW.QTextEdit):
     """
     Widget for holding the message box.
     """
@@ -21,69 +21,24 @@ class MessageBox(QW.QScrollArea):
 
         self._parent = parent
         self._fit = fit
-        self.layout()
 
-    def layout(self):
+        self._fit.event_logger.connect(self.write_message)
+        self._line_template = "<p style=\"{}\">{}</p><br/><br/>"
+        self.setReadOnly(True)
 
-        self._main_layout = QW.QVBoxLayout(self)
+        self._message_format = {"warning":"color:red;",
+                                "info":"color:gray; font-style:italic"}
 
-        self._text = QW.QTextEdit(self)
-        self.setWidget(self._text)
-        self.setWidgetResizable(True)
-        self._text.setReadOnly(True)
-
-        # redirect stdout to the message box
-        self._temp = sys.stdout
-        sys.stdout = OutputStream()
-        sys.stdout.text_printed.connect(self._read_stdout_callback)
-        
-        self._main_layout.addWidget(self._text)
-
-    def clear(self):
+    def write_message(self,message,message_class):
         """
-        Clear the widget.
+        Write a message to the message window.
         """
 
-        self._text.clear()
-    
-    @QC.pyqtSlot(str)
-    def _read_stdout_callback(self, text):
-        """
-        Write standard out to the main message box, automatically scrolling to
-        the bottom.
-        """
-        self._text.insertPlainText(text)
-        self._text.verticalScrollBar().setValue(self._text.verticalScrollBar().maximum())
+        try:
+            fmt = self._message_format[message_class]
+        except KeyError:
+            fmt = ""
 
-    @property
-    def parent(self):
-        return self._parent
+        self.insertHtml(self._line_template.format(fmt,message))
+        self.verticalScrollBar().setValue(self.verticalScrollBar().maximum())
 
-
-class OutputStream(QC.QObject):
-
-    text_printed = QC.pyqtSignal(str)
-
-    def __init__(self):
-        """
-        redirect print statements to text edit
-        """
-        super().__init__()
-
-    def write(self, text):
-        """
-        Write standard out to the text box
-        """
-   
-        # Print everything except blank lines
-        text = str(text)
-        if text.strip() == "":
-            return
-
-        self.text_printed.emit(text) 
-        self.text_printed.emit(os.linesep)
-
-    def flush(self):
-        """
-        """
-        pass

@@ -4,10 +4,9 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 import seaborn
-
 import sys
 
-class PlotBox(QW.QWidget):
+class PlotBox(QW.QTabWidget):
     """
     Hold the plot widget.
     """
@@ -19,47 +18,41 @@ class PlotBox(QW.QWidget):
 
         self._parent = parent
         self._fit = fit
-        self.layout()
-
-    def layout(self):
-        """
-        Create layout for plot.
-        """
-        self._main_layout = QW.QVBoxLayout(self)
+        
+        self._err_template = "Could not generate plot. pytc threw <br/>\"\"\"{0} Args: {1!r}\"\"\"<br/>"
 
     def update(self):
         """
-        clear main layout and add new graph to layout
+        Clear tabs and repopulate given the current state of the fit.
         """
 
         self.clear()
     
-        tabs = QW.QTabWidget()
-
+        # Main plot
         try:
-            self._figure, self._ax = self._fit.fitter.plot()
-        except:
-            err = "Warning: Could not update plot ({})".format(sys.exc_info()[0])
-            print(err)
-            return
+            self._main_fig, self._main_ax = self._fit.fitter.plot()
 
-        plot_figure = FigureCanvas(self._figure)
-        tabs.addTab(plot_figure, "Main")
+        except Exception as ex:
+            err = self._err_template.format(type(ex).__name__,ex.args)
+            if self._fit.verbose:
+                self._fit.event_logger.emit(err,"warning")
 
+            self._main_fig = Figure()
+            self._main_ax = self._main_fig.add_subplot(111)
+
+        self.addTab(FigureCanvas(self._main_fig), "Main")
+
+        # Corner plot
         try: 
             self._corner_fig = self._fit.fitter.corner_plot()
-        except:
+
+        except Exception as ex:
+            err = self._err_template.format(type(ex).__name__,ex.args)
+            if self._fit.verbose:
+                self._fit.event_logger.emit(err,"warning")
+
             self._corner_fig = Figure()
-            corner_ax = self._corner_fig.add_subplot(111)
+            self._corner_ax = self._corner_fig.add_subplot(111)
 
-        corner_plot = FigureCanvas(self._corner_fig)
-        tabs.addTab(corner_plot, "Corner Plots")
+        self.addTab(FigureCanvas(self._corner_fig), "Corner Plots")
     
-        self._main_layout.addWidget(tabs)
-
-    def clear(self):
-        """
-        clear table
-        """
-        for i in range(self._main_layout.count()): 
-            self._main_layout.itemAt(i).widget().deleteLater()

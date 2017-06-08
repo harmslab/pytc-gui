@@ -23,17 +23,20 @@ class FitContainer(QW.QWidget):
     """
 
     fit_changed_signal = QC.pyqtSignal(bool)
+    event_logger = QC.pyqtSignal(str,str)
 
     def __init__(self,default_units="cal/mol",
                       default_model="Single Site",
                       default_shot_start=1,
-                      continuous_update=True):
+                      continuous_update=True,
+                      verbose=True):
         """
         default_units: default units for heats
         default_model: default model for fits
         default_shot_start: default start for shots
         continuous_update: whether or not to update graph and params as
                            parameters are modified
+        verbose: how much output to write out
         """
 
         super().__init__()
@@ -42,6 +45,7 @@ class FitContainer(QW.QWidget):
         self._default_model = default_model
         self._default_shot_start = default_shot_start
         self._continuous_update = continuous_update
+        self._verbose = verbose
 
         # This is the main fitting object used throughout the session
         self._fitter = pytc.GlobalFit()
@@ -401,3 +405,9 @@ class FitContainer(QW.QWidget):
 
         return self._continuous_update
 
+    @property
+    def verbose(self):
+        """
+        How verbose to be in output.
+        """
+        return self._verbose

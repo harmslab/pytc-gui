@@ -59,7 +59,7 @@ class AddExperiment(QW.QDialog):
         self._exp_label = QW.QLabel("...", self)
 
         gen_exp = QW.QPushButton("OK", self)
-        gen_exp.clicked.connect(self.generate)
+        gen_exp.clicked.connect(self._ok_handler)
 
         # add to layout
         self._form_layout.addRow(load_exp, self._exp_label)
@@ -226,7 +226,7 @@ class AddExperiment(QW.QDialog):
             self._enter_exp_label.setText(exp_name)
 
 
-    def generate(self):
+    def _ok_handler(self):
         """
         """
         if self._exp_file != None:
@@ -259,6 +259,8 @@ class AddExperiment(QW.QDialog):
 
             exp_label = self._enter_exp_label.text()
             self._fit.add_experiment(exp_label,self._exp_file,self._exp_model,**exp_param,**model_param)
+
+            self._fit.event_logger.emit("Experiment {} loaded as {}".format(self._exp_file,exp_label),"info")
 
             self.close()
         else:
