@@ -7,7 +7,7 @@ from .experiment_dialog import ExperimentOptionsDialog
 
 import os
 
-class ExperimentWidget(QW.QWidget):
+class ExperimentWidget(QW.QFrame):
 
     def __init__(self,parent,fit,experiment):
 
@@ -16,7 +16,11 @@ class ExperimentWidget(QW.QWidget):
         self._parent = parent
         self._fit = fit
         self._experiment = experiment
-        self._expt_label = self._fit.experiment_labels[experiment]
+        
+        if self._experiment is not None:
+            self._expt_label = self._fit.experiment_labels[experiment]
+        else:
+            self._expt_label = "dummy"
 
         self._image_base = os.path.split(os.path.realpath(__file__))[0]
 
@@ -28,12 +32,11 @@ class ExperimentWidget(QW.QWidget):
         Layout the row for this experiment.
         """
 
-        self._main_layout = QW.QHBoxLayout(self)
+        self._main_layout = QW.QGridLayout(self)
 
         # Construct the header for the experiment
-        self._label = QW.QLabel(self._expt_label)
-        self._main_layout.addWidget(self._label)
-
+        self._main_layout.addWidget(QW.QLabel(self._expt_label),0,0)
+ 
         # -------------- Buttons --------------------
 
         # Button to show experiment options
@@ -42,7 +45,7 @@ class ExperimentWidget(QW.QWidget):
         self._show_options_button.setIcon(QG.QIcon(os.path.join(self._image_base,"icons","more-info.png")))
         self._show_options_button.setIconSize(QC.QSize(21,21))
         self._show_options_button.setFixedWidth(30)
-        self._main_layout.addWidget(self._show_options_button)
+        self._main_layout.addWidget(self._show_options_button,0,1)
 
         # Button to remove experiment
         self._remove_button = QW.QPushButton("", self)
@@ -50,10 +53,13 @@ class ExperimentWidget(QW.QWidget):
         self._remove_button.setIcon(QG.QIcon(os.path.join(self._image_base,"icons","delete-icon.png")))
         self._remove_button.setIconSize(QC.QSize(21,21))
         self._remove_button.setFixedWidth(30)
-        self._main_layout.addWidget(self._remove_button)
+        self._main_layout.addWidget(self._remove_button,0,2)
 
-        self._main_layout.setGeometry(QC.QRect(0,0,200,30))
-        self._main_layout.setSpacing(0)
+        self.setFrameShape(QW.QFrame.StyledPanel)
+
+        if self._experiment is None:
+            self._show_options_button.setDisabled(True)
+            self._remove_button.setDisabled(True)
 
     def _options_callback(self): 
         """
