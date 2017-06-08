@@ -131,7 +131,6 @@ class ExperimentOptionsDialog(QW.QDialog):
 
     def update(self):
 
-        
         # Update parameter and experimental widgets
         for p in self._param_widgets:
             p.update()
@@ -139,7 +138,6 @@ class ExperimentOptionsDialog(QW.QDialog):
             e.update()
 
         # Update connector-associated widgets
-    
         self._fit.pause_updates(True)
 
         # Grab connector fit parameters and required meta data associated with
@@ -221,7 +219,7 @@ class ExperimentOptionsDialog(QW.QDialog):
                 counter += 1
 
         self._fit.pause_updates(False)
- 
+         
         # Set size 
         self.adjustSize()
  

@@ -8,7 +8,7 @@ __date__ = "2017-06-06"
 
 from PyQt5 import QtWidgets as QW
 
-import random, string, inspect
+import inspect
 
 class AddConnectorDialog(QW.QDialog):
     """
@@ -53,8 +53,7 @@ class AddConnectorDialog(QW.QDialog):
 
         # Input box holding name
         self._connector_name_input = QW.QLineEdit(self)
-        random_name = "".join([random.choice(string.ascii_letters) for i in range(3)])
-        self._connector_name_input.setText(random_name)
+        self._connector_name_input.setText("connector")
         self._connector_name_input.textChanged.connect(self._update_connector_name)
 
         # Final OK button

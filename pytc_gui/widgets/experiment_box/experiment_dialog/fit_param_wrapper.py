@@ -216,7 +216,10 @@ class FitParamWrapper(QW.QWidget):
     def _alias_handler(self,value):
         """
         """
+
         value = self._alias.currentText()
+
+        # unlink variable
         if value == "Unlink":
 
             # Remove current global link, if present
@@ -225,31 +228,51 @@ class FitParamWrapper(QW.QWidget):
             except (KeyError,ValueError):
                 pass
 
+            self.set_as_connected(False)
             self._fit.emit_changed()
 
+        # add new global parameter
         elif value == "Add global":
             self._tmp = AddGlobalDialog(self,self._fit,self._experiment,self._p)
             self._tmp.show() 
+
+        # add new connector
         elif value == "Add connector":
             self._tmp = AddConnectorDialog(self,self._fit,self._experiment,self._p)
             self._tmp.show()
 
-        else:
+        # variable connected programmatically, not by user.  change nothing
+        elif value == "connected":
+            return
 
+        # They've selected something dynamically added to the ComboBox
+        else:
+    
+            # They've selected an existing global variable
             if value in self._fit.fitter.global_param.keys():
+
                 # Remove current global link, if present
                 try:
                     self._fit.fitter.unlink_from_global(self._experiment,self._p.name)
                 except (KeyError,ValueError):
                     pass
                 self._fit.fitter.link_to_global(self._experiment,self._p.name,value) 
+
+            # They've selected an existing connector method
             else:
 
+                # Remove current global link, if present
+                #try:
+                #    self._fit.fitter.unlink_from_global(self._experiment,self._p.name)
+                #except (KeyError,ValueError):
+                #    pass
+
+                # Create new connection
                 method = self._fit.connector_methods[value]
                 self._fit.fitter.link_to_global(self._experiment,self._p.name,method)
                 self.set_as_connected(True)
 
-            self._fit.emit_changed()
+        self._fit.emit_changed()
        
     @QC.pyqtSlot(bool)
     def fit_has_changed_slot(self):
@@ -263,10 +286,10 @@ class FitParamWrapper(QW.QWidget):
         # Pause updates while all of these widgets update
         self._fit.pause_updates(True)
 
-        # Do not update gues, lower, upper, or fixed if this parameter is 
-        # connected to a global_connector method
+        # Update guess, lower, upper, and fixed.  This is not done for
+        # parameters that are linked to connector methods.
         if not self._is_connected:
-
+        
             # --------------- Guess -----------------
             if self._p.guess < 1/self._float_view_cutoff or self._p.guess > self._float_view_cutoff:
                 guess_str = "{:.8e}".format(self._p.guess)
@@ -291,68 +314,73 @@ class FitParamWrapper(QW.QWidget):
             # --------------- Fixed -----------------
             self._fixed.setChecked(self._p.fixed)
 
-        # Do not update the alias if this is a connector parameter
+        # Update the alias ComboBox.  This is not done if the parameter is a 
+        # connector fit parameter.
         if not self._is_connector_param:       
  
             # ------------- alias -----------------
 
             global_param = list(self._fit.global_param.keys())
 
+            # global variables we *don't* want in our alias dropdown.  They
+            # are tied into connector instance.
+            global_connector_variables = [] 
+
             # Go through all connectors
-            params_to_keep = []  
+            params_to_keep = [] 
             for c in self._fit.connectors:
           
-                dropdown_options = []
-                dropdown_options.extend(c.local_methods.keys())
-                dropdown_options.extend(c.params.keys())
+                connector_methods = []
+                connector_methods.extend(c.local_methods.keys())
+                global_connector_variables.extend(c.params.keys())
 
-                # If any of the connector_params are in global_param, keep all of
-                # them.
+                # If any of the global_connector_variables are in the 
+                # global_params, it says that the connector is still alive.  
+                # That means keep the connector.
                 connector_found = False
-                for p in dropdown_options:
+                for p in global_connector_variables:
                     if p in global_param:
                         params_to_keep.extend(c.local_methods.keys())
-                        connector_found = True
-                        break
-
-                # If the connector isn't actually connected to any experiment, 
-                # remove it.
-                #if not connector_found:
-                #    self._fit.remove_connector(c)
-       
-            global_param.extend(params_to_keep)
 
             # These guys should always be kept
-            global_param.append("Unlink")
-            global_param.append("Add global")
-            global_param.append("Add connector")
-    
-            # Make sure global_param are unique after that
-            global_param = list(set(global_param))
+            params_to_keep.append("Unlink")
+            params_to_keep.append("Add global")
+            params_to_keep.append("Add connector")
+  
+            # Grab every global parameter that is *not* a global connector 
+            # parameter
+            for p in global_param:
+                if p not in global_connector_variables:
+                    params_to_keep.append(p)
+ 
+            # Make sure params_to_keep are unique after all that
+            params_to_keep = list(set(params_to_keep))
     
             # Make sure all of the global parameters are in the dropdown
-            for k in global_param:
-                if self._alias.findText(k) == -1:
-                    self._alias.addItem(k)
+            for p in params_to_keep:
+                if self._alias.findText(p) == -1:
+                    self._alias.addItem(p)
     
-            # Remove anything *not* in global_param
+            # Remove anything not in params_to_keep
             indexes = list(range(self._alias.count()))
             indexes.reverse() 
             for i in indexes:
                 item_text = self._alias.itemText(i)
-                if item_text not in global_param:
+                if item_text not in params_to_keep:
                     self._alias.removeItem(i)
 
             # Now grab the current alias for this parameter
-            param_aliases = self._fit.fitter.param_aliases[1][self._expt_index]   
+            param_aliases = self._fit.fitter.param_aliases[1][self._expt_index]
             try:
                 current_alias = param_aliases[self._p.name]
                 if type(current_alias) is not str:
+
+                    # if the alias is not a string, it is a connector method
                     current_alias = "{}.{}".format(current_alias.__self__.name,
                                                    current_alias.__name__)
-
             except KeyError:
                 current_alias = "Unlink"
+                self.set_as_connected(False)
 
             # Update the dropdown so it points to the correct parameter
             alias_index = self._alias.findText(current_alias) 
@@ -391,6 +419,10 @@ class FitParamWrapper(QW.QWidget):
         is_connected: bool (whether in this state or not)
         """
 
+        # Only do this if the status is changing
+        if self._is_connected == is_connected:
+            return
+
         self._is_connected = is_connected
 
         if self._is_connected:
@@ -412,19 +444,19 @@ class FitParamWrapper(QW.QWidget):
 
         else:
             self._guess.setText("")
-            self._guess.setDisabled(True)
+            self._guess.setDisabled(False)
 
             self._fixed.setChecked(False)
-            self._fixed.setDisabled(True)
+            self._fixed.setDisabled(False)
 
             self._lower.setText("")
-            self._lower.setDisabled(True)
+            self._lower.setDisabled(False)
 
             self._upper.setText("")
-            self._upper.setDisabled(True)
-     
- 
+            self._upper.setDisabled(False)
 
+            self.update()
+     
     @property
     def guess_widget(self):
         return self._guess

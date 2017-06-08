@@ -39,7 +39,7 @@ class AddGlobalDialog(QW.QDialog):
 
         # Input box holding name
         self._global_var_input = QW.QLineEdit(self)
-        self._global_var_input.setText("GLOBAL")
+        self._global_var_input.setText("global")
         self._global_var_input.textChanged.connect(self._check_name)
 
         # Final OK button
