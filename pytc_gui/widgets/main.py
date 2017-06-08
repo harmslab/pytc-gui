@@ -73,7 +73,7 @@ class MainWidgets(QW.QWidget):
         left_column = QW.QSplitter(QC.Qt.Vertical)
         left_column.addWidget(self._plot_box)
         left_column.addWidget(self._exp_box)
-        left_column.setSizes([300, 50])
+        left_column.setSizes([200, 50])
 
         # right column
         right_column = QW.QSplitter(QC.Qt.Vertical)

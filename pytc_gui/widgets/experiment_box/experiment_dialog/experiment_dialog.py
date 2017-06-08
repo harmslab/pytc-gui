@@ -11,6 +11,7 @@ from .fit_param_wrapper import FitParamWrapper
 from .experiment_settable import ExperimentSettableWrapper
 
 from PyQt5 import QtWidgets as QW
+from PyQt5 import QtCore as QC
 
 class ExperimentOptionsDialog(QW.QDialog):
     """
@@ -18,11 +19,12 @@ class ExperimentOptionsDialog(QW.QDialog):
     and some experiment connectordata.
     """
 
-    def __init__(self,parent,fit,experiment):
+    def __init__(self,parent,fit,experiment,num_exp_columns=3):
         """
         parent: parent widget
         fit: FitContainer instance
         experiment: pytc.ITCExperimentInstance
+        num_exp_columns: number of columns of ExperimentSettableWidgets
         """
 
         super().__init__()
@@ -30,10 +32,10 @@ class ExperimentOptionsDialog(QW.QDialog):
         self._parent = parent
         self._fit = fit
         self._experiment = experiment
+        self._num_exp_columns = num_exp_columns
+        
+        self._fit.fit_changed_signal.connect(self.fit_has_changed_slot)
 
-        # Use the FitContainer instance to get the experiment properties that
-        # can be set
-        self._experiment_settable = self._fit.get_experiment_settable(self._experiment)
 
         self.layout()
 
@@ -89,6 +91,9 @@ class ExperimentOptionsDialog(QW.QDialog):
         self._main_layout.addWidget(hline)
 
         # ---------- Experiment information ------------      
+
+        self._experiment_settable = self._fit.get_experiment_settable(self._experiment)
+
         expt_keys = list(self._experiment_settable.keys())
         expt_keys.sort()
  
@@ -110,15 +115,33 @@ class ExperimentOptionsDialog(QW.QDialog):
         self._experiment_settable_box = QW.QGroupBox("Experiment information") 
         self._experiment_settable_layout = QW.QGridLayout()
 
-        # Lay out the experimental widgets in rows of 3.
-        while len(self._expt_widgets) % 3 != 0:
-            self._expt_widgets.append(QW.QLabel(" "))
+        # Lay out the experimental widgets in rows of self._num_exp_columns.
+        to_layout = [w for w in self._expt_widgets]
+
+
+        # Add dummy widgets to fill out grid 
+        hider = QW.QSizePolicy()
+        hider.setRetainSizeWhenHidden(True)
+        dummies = []
+        counter = 0
+        while len(to_layout) % self._num_exp_columns != 0:
+    
+            # Add fake widget
+            dummies.append(ExperimentSettableWrapper(self,self._fit,
+                                                     self._experiment,
+                                                    "dummy{}".format(counter),
+                                                    "",str,None))
+            dummies[-1].setSizePolicy(hider)
+            to_layout.append(dummies[-1])
+            to_layout[-1].hide()
+
+            counter += 1
 
         counter = 0
-        self._num_exp_rows = int(round((len(self._expt_widgets)+1)/3))
+        self._num_exp_rows = int(round((len(to_layout)+1)/self._num_exp_columns))
         for i in range(self._num_exp_rows):
-            for j in range(3):
-                self._experiment_settable_layout.addWidget(self._expt_widgets[counter],i,j)
+            for j in range(self._num_exp_columns):
+                self._experiment_settable_layout.addWidget(to_layout[counter],i,j)
                 counter += 1
 
         self._experiment_settable_box.setLayout(self._experiment_settable_layout)
@@ -128,6 +151,9 @@ class ExperimentOptionsDialog(QW.QDialog):
         self._connector_widgets = {}
         self._meta_widgets = {}
 
+    @QC.pyqtSlot(bool)
+    def fit_has_changed_slot(self):
+        self.update()
 
     def update(self):
 
@@ -206,21 +232,36 @@ class ExperimentOptionsDialog(QW.QDialog):
            self._experiment_settable_layout.itemAt(i).widget().setParent(None)
         
         # Add dummy widgets to fill out grid 
-        while len(to_layout) % 3 != 0:
-            to_layout.append(QW.QLabel(" "))
-
-        # Lay out the connector widgets in rows of 3.
+        hider = QW.QSizePolicy()
+        hider.setRetainSizeWhenHidden(True)
+        dummies = []
         counter = 0
-        num_rows = int(round((len(to_layout)+1)/3))
+        while len(to_layout) % self._num_exp_columns != 0:
+    
+            # Add fake widget
+            dummies.append(ExperimentSettableWrapper(self,self._fit,
+                                                     self._experiment,
+                                                    "dummy{}".format(counter),
+                                                    "",str,None))
+            dummies[-1].setSizePolicy(hider)
+            to_layout.append(dummies[-1])
+            to_layout[-1].hide()
+
+            counter += 1
+
+        # Lay out the connector widgets in rows of num_exp_columns.
+        counter = 0
+        num_rows = int(round((len(to_layout)+1)/self._num_exp_columns))
         for i in range(num_rows):
             r = i + self._num_exp_rows
-            for j in range(3):
+            for j in range(self._num_exp_columns):
                 self._experiment_settable_layout.addWidget(to_layout[counter],r,j)
                 counter += 1
 
         self._fit.pause_updates(False)
          
-        # Set size 
+        # Set size (for some reason, must be called twice to take in all cases)
+        self.adjustSize()
         self.adjustSize()
  
     def show(self):

@@ -16,7 +16,9 @@ class ExperimentBox(QW.QWidget):
     """
 
     def __init__(self,parent,fit):
-    
+        """
+        """   
+ 
         super().__init__()
 
         self._parent = parent
@@ -28,22 +30,10 @@ class ExperimentBox(QW.QWidget):
         self.update()
 
     def layout(self):
+        """
+        """
 
         self._main_layout = QW.QGridLayout(self)
-
-        #self._exp_content = QW.QWidget()
-
-        # scroll box for experiments
-        #self._scroll = QW.QScrollArea(self)
-        #self._scroll.setWidget(self._exp_content)
-        #self._scroll.setWidgetResizable(True)
-
-        #self._experiment_box = QW.QVBoxLayout(self._exp_content)
-        #self._experiment_box.setAlignment(QC.Qt.AlignTop)
-
-        #self._main_layout = QW.QVBoxLayout(self)
-        #self._main_layout.addWidget(self._scroll)
-
 
     def update(self):
         """
@@ -83,13 +73,12 @@ class ExperimentBox(QW.QWidget):
                 self._main_layout.addWidget(to_layout[counter],i,j)
                 counter += 1
         
-          
     def clear(self):
         """
         Clear the widget.
         """
 
-        for i in reversed(range(self._experiment_box.count())): 
+        for i in reversed(range(self._main_layout.count())): 
             try:
                 self._main_layout.itemAt(i).widget().setParent(None)
             except AttributeError:

@@ -5,6 +5,8 @@ from matplotlib.figure import Figure
 
 import seaborn
 
+import sys
+
 class PlotBox(QW.QWidget):
     """
     Hold the plot widget.
@@ -36,8 +38,8 @@ class PlotBox(QW.QWidget):
 
         try:
             self._figure, self._ax = self._fit.fitter.plot()
-        except AttributeError:
-            err = "Warning: Could not update plot."
+        except:
+            err = "Warning: Could not update plot ({})".format(sys.exc_info()[0])
             print(err)
             return
 

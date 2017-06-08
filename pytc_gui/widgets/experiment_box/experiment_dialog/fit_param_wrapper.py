@@ -215,6 +215,7 @@ class FitParamWrapper(QW.QWidget):
 
     def _alias_handler(self,value):
         """
+        Handle changes to alias ComboBox.
         """
 
         value = self._alias.currentText()
@@ -254,21 +255,32 @@ class FitParamWrapper(QW.QWidget):
                 # Remove current global link, if present
                 try:
                     self._fit.fitter.unlink_from_global(self._experiment,self._p.name)
-                except (KeyError,ValueError):
+                except KeyError:
                     pass
                 self._fit.fitter.link_to_global(self._experiment,self._p.name,value) 
 
             # They've selected an existing connector method
             else:
-
+                
                 # Remove current global link, if present
-                #try:
-                #    self._fit.fitter.unlink_from_global(self._experiment,self._p.name)
-                #except (KeyError,ValueError):
-                #    pass
+                try:
+                    self._fit.fitter.unlink_from_global(self._experiment,self._p.name)
+                except KeyError:
+                    pass
+
+                method = self._fit.connector_methods[value]
+                if method in self._experiment.model.param_aliases.values():
+
+                    warn = "connector method can only be assigned to one parameter per experiment."
+                    error_message = QW.QMessageBox.warning(self, "warning", warn, QW.QMessageBox.Ok)
+
+                    alias_index = self._alias.findText("Unlink") 
+                    self._alias.setCurrentIndex(alias_index)
+                    self.set_as_connected(False)
+                    self._fit.emit_changed()
+                    return
 
                 # Create new connection
-                method = self._fit.connector_methods[value]
                 self._fit.fitter.link_to_global(self._experiment,self._p.name,method)
                 self.set_as_connected(True)
 

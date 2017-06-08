@@ -92,7 +92,7 @@ class AddGlobalDialog(QW.QDialog):
         # Remove link, if present
         try:
             self._fit.fitter.unlink_from_global(self._experiment,self._p.name)
-        except (KeyError,ValueError):
+        except KeyError:
             pass
 
         # Update fit

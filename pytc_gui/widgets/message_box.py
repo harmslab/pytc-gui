@@ -82,7 +82,6 @@ class OutputStream(QC.QObject):
 
         self.text_printed.emit(text) 
         self.text_printed.emit(os.linesep)
-       
 
     def flush(self):
         """
