@@ -355,6 +355,19 @@ class FitContainer(QW.QWidget):
              
         return final_required, final_fit_param
 
+    def get_experiment_aliases(self,e):
+        """
+        Return aliases associated with this experiment.
+        """      
+ 
+        try:
+            index = self._experiments.index(e)
+        except ValueError:
+            err = "experiment {} not loaded".format(e)
+            raise ValueError(err)
+            
+        return self._fitter.param_aliases[1][index]
+
     def get_connector_param(self,avail_name):
         """
         Look up parameters for a initializing a connector.

@@ -37,9 +37,6 @@ class FitParamWrapper(QW.QWidget):
         self._p = fit_param
         self._float_view_cutoff = float_view_cutoff       
 
-        # This is the index for the experiment in the global fit object
-        self._expt_index = self._fit.experiments.index(self._experiment)
- 
         self._is_connector_param = False
         self._is_connected = False
 
@@ -174,8 +171,8 @@ class FitParamWrapper(QW.QWidget):
  
         # Make sure the guess is okay before setting to true
         else:
-            self._guess_check_handler()
             if self._current_guess_is_good:
+
                 fixed_value = float(self._guess.text()) 
             
                 self._p.fixed = True
@@ -186,6 +183,8 @@ class FitParamWrapper(QW.QWidget):
                 err = "Fixing variable requires valid guess. (Guess will become fixed value).\n"
                 error_message = QW.QMessageBox.warning(self._parent,"warning",err,QW.QMessageBox.Ok)
                 self._fixed.setCheckState(False)
+
+        self._fit.emit_changed()
 
         self._current_fixed = self._current_fixed
 
@@ -228,8 +227,8 @@ class FitParamWrapper(QW.QWidget):
 
             # They've selected an existing global variable
             try:
-                self._fit.fitter.global_param[value]
-                self._fit.fitter.link_to_global(self._experiment,self._p.name,value) 
+                self._fit.global_param[value]
+                self._fit.link_to_global(self._experiment,self._p.name,value) 
 
             # They've selected an existing connector method
             except KeyError:
@@ -252,7 +251,7 @@ class FitParamWrapper(QW.QWidget):
                     return
 
                 # Create new connection
-                self._fit.fitter.link_to_global(self._experiment,self._p.name,method)
+                self._fit.link_to_global(self._experiment,self._p.name,method)
                 self.set_as_connected(True)
 
         value = self._alias.currentText()
@@ -352,7 +351,7 @@ class FitParamWrapper(QW.QWidget):
                     self._alias.removeItem(i)
 
             # Now grab the current alias for this parameter
-            param_aliases = self._fit.fitter.param_aliases[1][self._expt_index]
+            param_aliases = self._fit.get_experiment_aliases(self._experiment)
             try:
                 current_alias = param_aliases[self._p.name]
                 if type(current_alias) is not str:

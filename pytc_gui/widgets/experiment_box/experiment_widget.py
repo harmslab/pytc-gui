@@ -95,8 +95,7 @@ class ExperimentWidget(QW.QFrame):
 
         if warning_message == QW.QMessageBox.Yes:
             try:
-                self._options_diag.hide()
-                self._options_diag.deleteLater()
+                self.deleteLater()
             except AttributeError:
                 pass
             

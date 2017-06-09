@@ -159,11 +159,3 @@ class MainWidgets(QW.QWidget):
         """
         return self._param_box
 
-    @property
-    def fitter(self):
-        """
-        Main fitter object.
-        """
-        return self._fit.fitter
-
-
