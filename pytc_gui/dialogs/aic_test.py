@@ -142,7 +142,7 @@ class AICTest(QW.QDialog):
         tmp = re.sub(" ","&#160;",tmp)
         line = [s_head.format(tmp)] 
         for i in range(len(test)):
-            tmp = "{:7>s}".format(test[i])
+            tmp = "{:7s}".format(test[i])
             tmp = re.sub(" ","&#160;",tmp)
             line.append(s_head.format(tmp)) 
 

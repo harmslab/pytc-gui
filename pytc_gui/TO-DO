@@ -1,4 +1,1 @@
-make so "New Session" actually works (or emove)
-remove save/open fitter
-improve export code
-adding experiment-specific metadata too flippy
+small bug on removing nitpic (check loader again)

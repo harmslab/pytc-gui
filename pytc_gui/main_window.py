@@ -16,6 +16,7 @@ from PyQt5 import QtWidgets as QW
 from matplotlib.backends.backend_pdf import PdfPages
 import sys, pkg_resources, pickle
 
+import os
 
 class MainWindow(QW.QMainWindow):
     """
@@ -86,24 +87,24 @@ class MainWindow(QW.QMainWindow):
 
         file_menu.addSeparator()
 
-        save_fitter = QW.QAction("Save Fitter", self)
-        save_fitter.setShortcut("Ctrl+Shift+S")
-        save_fitter.triggered.connect(self.save_fitter_dialog)
-        file_menu.addAction(save_fitter)
+        #save_fitter = QW.QAction("Save Fitter", self)
+        #save_fitter.setShortcut("Ctrl+Shift+S")
+        #save_fitter.triggered.connect(self.save_fitter_dialog)
+        #file_menu.addAction(save_fitter)
 
-        open_fitter = QW.QAction("Open Fitter", self)
-        open_fitter.setShortcut("Ctrl+O")
-        open_fitter.triggered.connect(self.open_fitter_dialog)
-        file_menu.addAction(open_fitter)
+        #open_fitter = QW.QAction("Open Fitter", self)
+        #open_fitter.setShortcut("Ctrl+O")
+        #open_fitter.triggered.connect(self.open_fitter_dialog)
+        #file_menu.addAction(open_fitter)
 
         file_menu.addSeparator()
 
-        new_session = QW.QAction("New Session", self)
-        new_session.setShortcut("Ctrl+N")
-        new_session.triggered.connect(self.new_session_callback)
-        file_menu.addAction(new_session)
+        #new_session = QW.QAction("New Session", self)
+        #new_session.setShortcut("Ctrl+N")
+        #new_session.triggered.connect(self.new_session_callback)
+        #file_menu.addAction(new_session)
 
-        close_window = QW.QAction("Close Window", self)
+        close_window = QW.QAction("Exit", self)
         close_window.setShortcut("Ctrl+W")
         close_window.triggered.connect(self.close_program_callback)
         file_menu.addAction(close_window)
@@ -112,10 +113,10 @@ class MainWindow(QW.QMainWindow):
         self.addAction(add_exp)
         self.addAction(do_fit)
         self.addAction(export_results)
-        self.addAction(new_session)
+        #self.addAction(new_session)
         self.addAction(close_window)
-        self.addAction(save_fitter)
-        self.addAction(open_fitter)
+        #self.addAction(save_fitter)
+        #self.addAction(open_fitter)
 
         # Set up central widget
         self._main_widgets = widgets.MainWidgets(self,self._fit)
@@ -181,7 +182,7 @@ class MainWindow(QW.QMainWindow):
         """
 
         file_name, _ = QW.QFileDialog.getSaveFileName(self, "Save Global Fit", "", "Pickle Files (*.pkl);;")
-        pickle.dump([self._fit.fitter, self._version], open(file_name, "wb"))
+        pickle.dump([self._fit,self._version], open(file_name, "wb"))
  
     def open_fitter_dialog(self):
         """
@@ -191,8 +192,8 @@ class MainWindow(QW.QMainWindow):
 
         opened_fitter, version = pickle.load(open(file_name, "rb"))
         if self._version == version:
-            self._fit.fitter = opened_fitter
-            self.fit_signal.emit(opened_fitter)
+            self._fit = opened_fitter
+            self._fit.emit_changed()
         else:
             err = "Could not load fit. Current version is {}, but file version is {}.".format(self._version,version)
             error_message = QW.QMessageBox.warning(self,err, QW.QMessageBox.Ok)
@@ -202,27 +203,33 @@ class MainWindow(QW.QMainWindow):
         Bring up transient dialog for exporting results.
         """
 
-        file_name, _ = QW.QFileDialog.getSaveFileName(self, "Export Experiment Output", "", "Text Files (*.txt);;CSV Files (*.csv)")
-        plot_name = file_name.split(".")[0] + "_plot.pdf"
-        corner_plot_name = file_name.split(".")[0] + "_corner_plot.pdf"
+        out_dir, _ = QW.QFileDialog.getSaveFileName(self, "Export Experiment Output", "", "*")
 
         try:
-            data_file = open(file_name, "w")
+
+            os.mkdir(out_dir) 
+
+            data_file = open(os.path.join(out_dir,"fit_param.csv"), "w")
             data_file.write(self._fit.fitter.fit_as_csv)
             data_file.close()
 
-            plot_save = PdfPages(plot_name)
+            plot_save = PdfPages(os.path.join(out_dir,"main_plot.pdf"))
             fig, ax = self._fit.fitter.plot()
             plot_save.savefig(fig)
             plot_save.close()
 
-            plot_save = PdfPages(corner_plot_name)
+            plot_save = PdfPages(os.path.join(out_dir,"corner_plot.pdf"))
             fig = self._fit.fitter.corner_plot()
             plot_save.savefig(fig)
             plot_save.close()
 
-        except Exception as ex:
+            log_save = open(os.path.join(out_dir,"session.log"),"w")
+            spew = self._main_widgets.message_box.toPlainText()
+            log_save.write(spew)
+            log_save.close()
 
+
+        except Exception as ex:
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
             err = template.format(type(ex).__name__,ex.args)
             error_message = QW.QMessageBox.warning(self,err, QW.QMessageBox.Ok)
@@ -251,9 +258,14 @@ class MainWindow(QW.QMainWindow):
         """
         Close the program out.
         """
-        self._main_widgets.clear()
-        self._app.instance().closeAllWindows()
-        self.close()
+        if len(self._fit.experiments) > 0:
+            warning = "Are you sure you want to quit?"
+            warning_message = QW.QMessageBox.warning(self, "warning!",warning, 
+                                                     QW.QMessageBox.Yes | QW.QMessageBox.No)
+            if warning_message == QW.QMessageBox.Yes:
+                self._main_widgets.clear()
+                self._app.instance().closeAllWindows()
+                self.close()
 
     
     def closeEvent(self,event):
