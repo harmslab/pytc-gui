@@ -28,6 +28,9 @@ class FitOptions(QW.QDialog):
         self.layout()
 
     def _load_fitter_info(self):
+        """
+        Load fitter info from pytc.
+        """
 
         # get list of Fitter subclasses, sorted by name
         objects = []
@@ -66,14 +69,17 @@ class FitOptions(QW.QDialog):
                 self._fitter_defaults.append({arg: param for arg, param in
                                               zip(args.args[1:], args.defaults)})
 
+            fitter_keys = list(self._fitter_defaults[-1].keys())
+            fitter_keys.sort()
+
             # Append fit option
             self._fitter_vars.append({})    
-            for n, v in self._fitter_defaults[-1].items():
+            for n in fitter_keys:
 
                 label_name = str(n).replace("_", " ") + ": "
                 label = QW.QLabel(label_name.title(), self)
                 entry = QW.QLineEdit(self)
-                entry.setText(str(v))
+                entry.setText(str(self._fitter_defaults[-1][n]))
 
                 self._fitter_vars[-1][n] = entry
                 self._fitter_options[-1].addRow(label, entry)
@@ -84,6 +90,7 @@ class FitOptions(QW.QDialog):
  
     def layout(self):
         """
+        Create widget layout.
         """
     
         # Load possible fitters
@@ -117,7 +124,7 @@ class FitOptions(QW.QDialog):
       
         # Add OK button 
         OK_button = QW.QPushButton("OK", self)
-        OK_button.clicked.connect(self.initialize)
+        OK_button.clicked.connect(self._ok_handler)
         main_layout.addWidget(OK_button)
 
     def _select_fit(self):
@@ -136,8 +143,9 @@ class FitOptions(QW.QDialog):
 
         self.adjustSize()
 
-    def initialize(self):
+    def _ok_handler(self):
         """
+        Handle okay, updating self._fit with new fitter.
         """
 
         kwargs = {}

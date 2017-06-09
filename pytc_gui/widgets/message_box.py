@@ -34,7 +34,8 @@ class MessageBox(QW.QTextEdit):
 
     def write_message(self,message,message_class):
         """
-        Write a message to the message window.
+        Write a message to the message window.  If the message is blank, 
+        append a new line.
         """
 
         try:
@@ -42,7 +43,9 @@ class MessageBox(QW.QTextEdit):
         except KeyError:
             fmt = ""
 
-        self.insertHtml(self._line_template.format(fmt,message))
+        if message != "":
+            self.insertHtml(self._line_template.format(fmt,message))
+
         self.insertPlainText("\n")
         self.verticalScrollBar().setValue(self.verticalScrollBar().maximum())
 

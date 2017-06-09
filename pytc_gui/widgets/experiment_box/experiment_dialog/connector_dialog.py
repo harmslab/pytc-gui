@@ -238,28 +238,11 @@ class AddConnectorDialog(QW.QDialog):
         # Create connector
         self._fit.add_connector(self._connector_name,self._selected_connector)
 
-        # Remove link, if present
-        try:
-            self._fit.fitter.unlink_from_global(self._experiment,self._p.name)
-        except (KeyError,ValueError):
-            pass
-
-        # Update fit
-        self._fit.fitter.link_to_global(self._experiment,
-                                        self._p.name,
-                                        self._selected_connector.local_methods[var_name])
+        self._fit.link_to_global(self._experiment,
+                                 self._p.name,
+                                 self._selected_connector.local_methods[var_name])
 
         self._parent.set_as_connected(True)
 
-        self._fit.emit_changed()
-
-
-        self.close()
+        self.accept()
    
-    def reject(self):
-        """
-        Update widgets with the rejection. (e.g. user hit "X" in top corner)
-        """
-
-        self._fit.emit_changed()
-        super().reject() 

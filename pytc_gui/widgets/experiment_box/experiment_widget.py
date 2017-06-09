@@ -1,3 +1,10 @@
+__description__ = \
+"""
+Class for holding onto an experiment, allowing deletion and access to fitting
+parameters.
+"""
+__author__ = "Hiranmayi Duvvuri, Michael J. Harms"
+__date__ = "2017-06-01"
 
 from PyQt5 import QtWidgets as QW
 from PyQt5 import QtGui as QG
@@ -8,6 +15,9 @@ from .experiment_dialog import ExperimentOptionsDialog
 import os
 
 class ExperimentWidget(QW.QFrame):
+    """
+    Pointer to experiment.  Has name, settings button, and delete button.
+    """
 
     def __init__(self,parent,fit,experiment):
 
@@ -96,6 +106,4 @@ class ExperimentWidget(QW.QFrame):
                 err = "Experiment already deleted.\n"
                 sys.stderr.write(err)
 
-        self._fit.emit_changed()
 
-    

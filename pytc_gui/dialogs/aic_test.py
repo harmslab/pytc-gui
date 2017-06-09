@@ -73,13 +73,28 @@ class AICTest(QW.QDialog):
         """
         Add current fitter to list for testing
         """
+
+        # Check to make sure the fit being added has the some number of
+        # observations of the previous fit
+        if len(self._fit_snapshot_dict) > 0:
+
+            k = list(self._fit_snapshot_dict.keys())[0]
+            other_num_obs = self._fit_snapshot_dict[k].fit_num_obs
+
+            current_num_obs = self._fit.fitter.fit_num_obs
+
+            if current_num_obs != other_num_obs:
+                err = "AIC (and related) tests are only valid for fits using identical input data."
+                QW.QMessageBox.warning(self, "warning", err, QW.QMessageBox.Ok)
+                return
+
         text, ok = QW.QInputDialog.getText(self, 'Save Fitter', 'Enter Name:')
 
         # save deepcopy of fitter
         if ok:
             self._fit_snapshot_dict[text] = copy.deepcopy(self._fit.fitter)
             self._fitter_select.addItem(text)
-            self._fit.event_logger.emit("Fitter {} saved to list.".format(text),"info")
+            self._fit.event_logger.emit("Fitter {} saved to AIC list.".format(text),"info")
 
     def perform_test(self):
         """
@@ -94,7 +109,12 @@ class AICTest(QW.QDialog):
             QW.QMessageBox.warning(self, "warning", err, QW.QMessageBox.Ok)
             return 
 
+        # Do AIC
         output, plots = util.compare_models(*selected)
+
+        # Code below is *ugly* but gives pretty AIC output
+        self._data_out.clear()
+        
 
         test = []
         best_model = []
@@ -121,8 +141,8 @@ class AICTest(QW.QDialog):
         tmp = "{:10s}".format("fit")
         tmp = re.sub(" ","&#160;",tmp)
         line = [s_head.format(tmp)] 
-        for j in range(len(test)):
-            tmp = "{:7s}".format(test[j])
+        for i in range(len(test)):
+            tmp = "{:7>s}".format(test[i])
             tmp = re.sub(" ","&#160;",tmp)
             line.append(s_head.format(tmp)) 
 

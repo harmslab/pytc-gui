@@ -36,13 +36,16 @@ class ExperimentOptionsDialog(QW.QDialog):
         
         self._fit.fit_changed_signal.connect(self.fit_has_changed_slot)
 
-
         self.layout()
 
     def layout(self):
         """
         Construct the widget.
         """
+
+        name = self._fit.experiment_labels[self._experiment]
+        self.setWindowTitle("{} fit parameters".format(name)) 
+
         self._main_layout = QW.QVBoxLayout(self)
 
         # ------------ Fit parameters --------------- 
@@ -151,9 +154,6 @@ class ExperimentOptionsDialog(QW.QDialog):
         self._connector_widgets = {}
         self._meta_widgets = {}
 
-    @QC.pyqtSlot(bool)
-    def fit_has_changed_slot(self):
-        self.update()
 
     def update(self):
 
@@ -162,9 +162,6 @@ class ExperimentOptionsDialog(QW.QDialog):
             p.update()
         for e in self._expt_widgets:
             e.update()
-
-        # Update connector-associated widgets
-        self._fit.pause_updates(True)
 
         # Grab connector fit parameters and required meta data associated with
         # this experiment 
@@ -258,8 +255,6 @@ class ExperimentOptionsDialog(QW.QDialog):
                 self._experiment_settable_layout.addWidget(to_layout[counter],r,j)
                 counter += 1
 
-        self._fit.pause_updates(False)
-         
         # Set size (for some reason, must be called twice to take in all cases)
         self.adjustSize()
         self.adjustSize()
@@ -272,4 +267,7 @@ class ExperimentOptionsDialog(QW.QDialog):
     
         self.update()
         super().show() 
-        
+       
+    @QC.pyqtSlot(bool)
+    def fit_has_changed_slot(self):
+        self.update()

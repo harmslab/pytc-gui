@@ -9,11 +9,13 @@ from .connector_dialog import AddConnectorDialog
 from .global_dialog import AddGlobalDialog
 
 from PyQt5 import QtWidgets as QW
-from PyQt5 import QtCore as QC
 
 class FitParamWrapper(QW.QWidget):
     """
     This class wraps a single fit parameter with a gui. 
+
+    Is not sensitive to fit changed missions.  Its parent (ExperimentDialog) is
+    and should update accordingly.
     """
 
     def __init__(self,parent,fit,experiment,fit_param,float_view_cutoff=100000.):
@@ -35,8 +37,6 @@ class FitParamWrapper(QW.QWidget):
         self._p = fit_param
         self._float_view_cutoff = float_view_cutoff       
 
-        self._fit.fit_changed_signal.connect(self.fit_has_changed_slot)
-
         # This is the index for the experiment in the global fit object
         self._expt_index = self._fit.experiments.index(self._experiment)
  
@@ -50,40 +50,38 @@ class FitParamWrapper(QW.QWidget):
 
         # --------------- Guess -----------------       
         self._guess = QW.QLineEdit()
-        self._guess.textChanged.connect(self._guess_check_handler)
-        self._guess.editingFinished.connect(self._guess_final_handler)
+        self._guess.editingFinished.connect(self._guess_handler)
+        self._current_guess = None
 
         # --------------- Lower -----------------       
         self._lower = QW.QLineEdit()
-        self._lower.textChanged.connect(self._lower_check_handler)
-        self._lower.editingFinished.connect(self._lower_final_handler)
+        self._lower.editingFinished.connect(self._lower_handler)
+        self._current_lower = None
                
         # --------------- Upper -----------------       
         self._upper = QW.QLineEdit()
-        self._upper.textChanged.connect(self._upper_check_handler)
-        self._upper.editingFinished.connect(self._upper_final_handler)
+        self._upper.editingFinished.connect(self._upper_handler)
+        self._current_upper = None
 
         # --------------- Fixed -----------------
         self._fixed = QW.QCheckBox()
         self._fixed.stateChanged.connect(self._fixed_handler)
+        self._current_fixed = None
        
         # --------------- Alias -----------------
         self._alias = QW.QComboBox()
         self._alias.addItem("Unlink")
         self._alias.addItem("Add global")
         self._alias.addItem("Add connector")
-
         self._alias.currentIndexChanged.connect(self._alias_handler)
+        self._current_alias = None
     
         # Load in parameters from FitParameter object
         self.update()
-        
 
-    def _guess_check_handler(self,set_value=False):
+    def _guess_handler(self):
         """
         Handle guess entries.  Turn pink of the value is bad.  
-
-        set_value: whether to set the underlying value.
         """
 
         success = True 
@@ -101,10 +99,10 @@ class FitParamWrapper(QW.QWidget):
 
         self._guess.setStyleSheet("QLineEdit {{ background-color: {} }}".format(color))
 
-        if success and set_value:
+        if success:
             self._p.guess = value
-            if self._fit.continuous_update:
-                self._fit.emit_changed()
+            self._current_guess = value
+            self._fit.emit_changed()
 
         # Record instance-wide value indiciating whether the current guess is 
         # valid or not. 
@@ -113,18 +111,9 @@ class FitParamWrapper(QW.QWidget):
         else:
             self._current_guess_is_good = False
 
-    def _guess_final_handler(self):
-        """
-        Run check, then set value.
-        """
-
-        self._guess_check_handler(set_value=True) 
-        
-    def _lower_check_handler(self,set_value=False):
+    def _lower_handler(self):
         """
         Handle lower bound entries.  Turn pink of the value is bad.  
-
-        set_value: whether to set the underlying value.
         """
 
         success = True 
@@ -142,22 +131,14 @@ class FitParamWrapper(QW.QWidget):
 
         self._lower.setStyleSheet("QLineEdit {{ background-color: {} }}".format(color))
 
-        if success and set_value:
+        if success:
             self._p.bounds = [value,self._p.bounds[1]]
-            if self._fit.continuous_update:
-                self._fit.emit_changed()
+            self._current_lower = value
+            self._fit.emit_changed()
 
-    def _lower_final_handler(self):
-        """
-        Run check, then set value.
-        """
-        self._lower_check_handler(set_value=True)
-
-    def _upper_check_handler(self,set_value=False):
+    def _upper_handler(self):
         """
         Handle upper bound entries.  Turn pink of the value is bad.  
-
-        set_value: whether to set the underlying value.
         """
 
         success = True 
@@ -175,17 +156,11 @@ class FitParamWrapper(QW.QWidget):
 
         self._upper.setStyleSheet("QLineEdit {{ background-color: {} }}".format(color))
      
-        if success and set_value:
+        if success:
             self._p.bounds = [self._p.bounds[0],value] 
-            if self._fit.continuous_update:
-                self._fit.emit_changed()
+            self._current_upper = value
+            self._fit.emit_changed()
     
-    def _upper_final_handler(self):
-        """
-        Run check, then set value.
-        """
-        self._upper_check_handler(set_value=True)
- 
     def _fixed_handler(self):
         """
         Handle fixing parameters.
@@ -196,10 +171,9 @@ class FitParamWrapper(QW.QWidget):
         # If false, immediately record    
         if not value:
             self._p.fixed = value
-    
+ 
+        # Make sure the guess is okay before setting to true
         else:
-            
-            # Make sure the guess is okay before setting to true
             self._guess_check_handler()
             if self._current_guess_is_good:
                 fixed_value = float(self._guess.text()) 
@@ -213,6 +187,8 @@ class FitParamWrapper(QW.QWidget):
                 error_message = QW.QMessageBox.warning(self._parent,"warning",err,QW.QMessageBox.Ok)
                 self._fixed.setCheckState(False)
 
+        self._current_fixed = self._current_fixed
+
     def _alias_handler(self,value):
         """
         Handle changes to alias ComboBox.
@@ -222,25 +198,26 @@ class FitParamWrapper(QW.QWidget):
 
         # unlink variable
         if value == "Unlink":
-
-            # Remove current global link, if present
-            try:
-                self._fit.fitter.unlink_from_global(self._experiment,self._p.name)
-            except (KeyError,ValueError):
-                pass
-
+            self._fit.unlink_from_global(self._experiment,self._p.name)
             self.set_as_connected(False)
-            self._fit.emit_changed()
 
         # add new global parameter
         elif value == "Add global":
             self._tmp = AddGlobalDialog(self,self._fit,self._experiment,self._p)
             self._tmp.show() 
-
+   
+            if self._tmp.result() != QW.QDialog.Accepted:
+                alias_index = self._alias.findText("Unlink") 
+                self._alias.setCurrentIndex(alias_index)
+             
         # add new connector
         elif value == "Add connector":
             self._tmp = AddConnectorDialog(self,self._fit,self._experiment,self._p)
             self._tmp.show()
+
+            if self._tmp.result() != QW.QDialog.Accepted:
+                alias_index = self._alias.findText("Unlink") 
+                self._alias.setCurrentIndex(alias_index)
 
         # variable connected programmatically, not by user.  change nothing
         elif value == "connected":
@@ -248,89 +225,82 @@ class FitParamWrapper(QW.QWidget):
 
         # They've selected something dynamically added to the ComboBox
         else:
-    
-            # They've selected an existing global variable
-            if value in self._fit.fitter.global_param.keys():
 
-                # Remove current global link, if present
-                try:
-                    self._fit.fitter.unlink_from_global(self._experiment,self._p.name)
-                except KeyError:
-                    pass
+            # They've selected an existing global variable
+            try:
+                self._fit.fitter.global_param[value]
                 self._fit.fitter.link_to_global(self._experiment,self._p.name,value) 
 
             # They've selected an existing connector method
-            else:
-                
-                # Remove current global link, if present
-                try:
-                    self._fit.fitter.unlink_from_global(self._experiment,self._p.name)
-                except KeyError:
-                    pass
-
+            except KeyError:
+               
                 method = self._fit.connector_methods[value]
+              
+                # AddConnectorDialog triggers this handler, so check to see if 
+                # the method isn't actually new.
+                if self._p.alias == method:
+                    return
+ 
                 if method in self._experiment.model.param_aliases.values():
 
-                    warn = "connector method can only be assigned to one parameter per experiment."
+                    warn = "Connector method can only be assigned to one parameter per experiment."
                     error_message = QW.QMessageBox.warning(self, "warning", warn, QW.QMessageBox.Ok)
 
                     alias_index = self._alias.findText("Unlink") 
                     self._alias.setCurrentIndex(alias_index)
-                    self.set_as_connected(False)
-                    self._fit.emit_changed()
+
                     return
 
                 # Create new connection
                 self._fit.fitter.link_to_global(self._experiment,self._p.name,method)
                 self.set_as_connected(True)
 
-        self._fit.emit_changed()
-       
-    @QC.pyqtSlot(bool)
-    def fit_has_changed_slot(self):
-        self.update()
+        value = self._alias.currentText()
+        self._current_aliase = value
+        
 
     def update(self):
         """
         Update all of the widgets.
         """
 
-        # Pause updates while all of these widgets update
-        self._fit.pause_updates(True)
-
         # Update guess, lower, upper, and fixed.  This is not done for
         # parameters that are linked to connector methods.
         if not self._is_connected:
-        
+     
             # --------------- Guess -----------------
-            if self._p.guess < 1/self._float_view_cutoff or self._p.guess > self._float_view_cutoff:
-                guess_str = "{:.8e}".format(self._p.guess)
-            else:
-                guess_str = "{:.8f}".format(self._p.guess)
-            self._guess.setText(guess_str)
+            if self._current_guess != self._p.guess:
+ 
+                if self._p.guess < 1/self._float_view_cutoff or self._p.guess > self._float_view_cutoff:
+                    guess_str = "{:.8e}".format(self._p.guess)
+                else:
+                    guess_str = "{:.8f}".format(self._p.guess)
+                self._guess.setText(guess_str)
 
             # --------------- Lower -----------------
-            if self._p.bounds[0] < 1/self._float_view_cutoff or self._p.bounds[0] > self._float_view_cutoff:
-                lower_str = "{:.8e}".format(self._p.bounds[0])
-            else:
-                lower_str = "{:.8f}".format(self._p.bounds[0])
-            self._lower.setText(lower_str)
+            if self._current_lower != self._p.bounds[0]:
+                if self._p.bounds[0] < 1/self._float_view_cutoff or self._p.bounds[0] > self._float_view_cutoff:
+                    lower_str = "{:.8e}".format(self._p.bounds[0])
+                else:
+                    lower_str = "{:.8f}".format(self._p.bounds[0])
+                self._lower.setText(lower_str)
 
             # --------------- Upper -----------------
-            if self._p.bounds[1] < 1/self._float_view_cutoff or self._p.bounds[1] > self._float_view_cutoff:
-                upper_str = "{:.8e}".format(self._p.bounds[1])
-            else:
-                upper_str = "{:.8f}".format(self._p.bounds[1])
-            self._upper.setText(upper_str)
+            if self._current_upper != self._p.bounds[1]:
+                if self._p.bounds[1] < 1/self._float_view_cutoff or self._p.bounds[1] > self._float_view_cutoff:
+                    upper_str = "{:.8e}".format(self._p.bounds[1])
+                else:
+                    upper_str = "{:.8f}".format(self._p.bounds[1])
+                self._upper.setText(upper_str)
 
             # --------------- Fixed -----------------
             self._fixed.setChecked(self._p.fixed)
 
         # Update the alias ComboBox.  This is not done if the parameter is a 
         # connector fit parameter.
-        if not self._is_connector_param:       
- 
-            # ------------- alias -----------------
+
+        # ------------- alias -----------------
+        if not self._is_connector_param and self._current_alias != self._alias.currentText():
 
             global_param = list(self._fit.global_param.keys())
 
@@ -398,9 +368,6 @@ class FitParamWrapper(QW.QWidget):
             alias_index = self._alias.findText(current_alias) 
             self._alias.setCurrentIndex(alias_index)
 
-        # Resume updates
-        self._fit.pause_updates(False)
-
     def set_as_connector_param(self,is_connector_param):
         """
         Configure the widget as a connector parameter (cannot change global
@@ -422,6 +389,7 @@ class FitParamWrapper(QW.QWidget):
             if index != -1:
                 self._alias.removeItem(index)
             self._alias.setDisabled(False)
+            self.update()
 
     def set_as_connected(self,is_connected):
         """

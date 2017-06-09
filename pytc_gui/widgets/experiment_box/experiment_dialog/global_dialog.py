@@ -40,7 +40,7 @@ class AddGlobalDialog(QW.QDialog):
         # Input box holding name
         self._global_var_input = QW.QLineEdit(self)
         self._global_var_input.setText("global")
-        self._global_var_input.textChanged.connect(self._check_name)
+        self._global_var_input.editingFinished.connect(self._check_name)
 
         # Final OK button
         self._OK_button = QW.QPushButton("OK", self)
@@ -55,7 +55,6 @@ class AddGlobalDialog(QW.QDialog):
 
         self.setWindowTitle("Add new global variable")
 
-    
     def _check_name(self):
         """
         Turn bad name pink.
@@ -87,24 +86,8 @@ class AddGlobalDialog(QW.QDialog):
         if value in self._fit.global_param.keys():
             warn = "{} already defined.".format(value)
             err = QW.QMessageBox.warning(self, "warning", warn, QW.QMessageBox.Ok)
-            return 
+            return
 
-        # Remove link, if present
-        try:
-            self._fit.fitter.unlink_from_global(self._experiment,self._p.name)
-        except KeyError:
-            pass
+        self._fit.link_to_global(self._experiment,self._p.name,value)
 
-        # Update fit
-        self._fit.fitter.link_to_global(self._experiment,self._p.name,value)
-        self._fit.emit_changed()
-
-        self.close()
-   
-    def reject(self):
-        """
-        Update widgets with the rejection. (e.g. user hit "X" in top corner)
-        """
-
-        self._fit.emit_changed()
-        super().reject() 
+        self.accept()

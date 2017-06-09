@@ -53,7 +53,7 @@ class AddExperiment(QW.QDialog):
         model_select.activated[str].connect(self.model_select)
 
         # set up load file
-        load_exp = QW.QPushButton("Load File", self)
+        load_exp = QW.QPushButton("Select file", self)
         load_exp.clicked.connect(self.add_file)
 
         self._exp_label = QW.QLabel("...", self)
@@ -263,5 +263,5 @@ class AddExperiment(QW.QDialog):
 
             self.close()
         else:
-            error_message = QW.QMessageBox.warning(self, "warning", "No .DH file provided", QW.QMessageBox.Ok)
+            error_message = QW.QMessageBox.warning(self, "warning", "No heat file provided", QW.QMessageBox.Ok)
             

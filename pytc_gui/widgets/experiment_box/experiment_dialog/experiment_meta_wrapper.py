@@ -11,6 +11,8 @@ from PyQt5 import QtCore as QC
 class ExperimentMetaWrapper(QW.QWidget):
     """
     This class wraps a single piece of fit meta data with a gui.
+    
+    Must be updated by parent dialog box when fit changes.
     """
 
     def __init__(self,parent,fit,experiment,meta_name,float_view_cutoff=100000.):
@@ -32,10 +34,9 @@ class ExperimentMetaWrapper(QW.QWidget):
         self._meta_name = meta_name
         self._float_view_cutoff = float_view_cutoff       
 
-        self._fit.fit_changed_signal.connect(self.fit_has_changed_slot)
+        self._current_value = None
 
         self.layout()
-
 
     def layout(self):
         """
@@ -55,13 +56,11 @@ class ExperimentMetaWrapper(QW.QWidget):
         # Load in parameters from FitParameter object
         self.update()
         
-
     def _meta_handler(self):
         """
         Handle meta entries.  Turn pink of the value is bad.  
         """
 
-        success = True 
         try:
             value = float(self._meta.text())
             setattr(self._experiment,self._meta_name,value)
@@ -71,27 +70,22 @@ class ExperimentMetaWrapper(QW.QWidget):
 
         self._meta.setStyleSheet("QLineEdit {{ background-color: {} }}".format(color))
 
-    @QC.pyqtSlot(bool)
-    def fit_has_changed_slot(self):
-        self.update()
-
     def update(self):
         """
         Update the widgets.
         """
 
-        # Pause updates while all of these widgets update
-        self._fit.pause_updates(True)
+        value = getattr(self._experiment,self._meta_name)
 
-        try:
-            value = getattr(self._experiment,self._meta_name)
-            if value < 1/self._float_view_cutoff or value > self._float_view_cutoff:
-                value_str = "{:.8e}".format(value)
-            else:
-                value_str = "{:.8f}".format(value)
-            self._meta.setText(value_str)
-        except TypeError:
-            self._meta.setText("")
+        if value != self._current_value:
+            try:
+                if value < 1/self._float_view_cutoff or value > self._float_view_cutoff:
+                    value_str = "{:.8e}".format(value)
+                else:
+                    value_str = "{:.8f}".format(value)
+                self._meta.setText(value_str)
+            except TypeError:
+                self._meta.setText("")
         
-        self._meta_handler()
-
+            color = "#FFFFFF"
+            self._meta.setStyleSheet("QLineEdit {{ background-color: {} }}".format(color))

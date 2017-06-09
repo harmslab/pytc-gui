@@ -86,15 +86,39 @@ class FitContainer(QW.QWidget):
         conn_subclasses = pytc.global_connectors.GlobalConnector.__subclasses__()
         self._avail_connectors = dict([(s.__name__,s) for s in conn_subclasses])
 
-        self._paused = False
-
     def emit_changed(self):
         """
         Emit a signal saying that the fit changed.
         """
 
-        if not self._paused:
-            self.fit_changed_signal.emit(True)
+        self.fit_changed_signal.emit(True)
+
+    def do_fit(self):
+        """
+        Actually do the global fit.
+        """
+
+        self.event_logger.emit("","")
+        self.event_logger.emit("Attempting fit","fit_start")
+
+        try:
+            if self._fit_engine is None:
+                self._fitter.fit()
+            else:
+                self._fitter.fit(fitter=self._fit_engine)
+
+        except Exception as ex:
+            s = "Fit failed. pytc threw <br/>\"\"\"{0} Args: {1!r}\"\"\""
+            err = s.format(type(ex).__name__,ex.args)
+            self.event_logger.emit(err,"warning")
+
+        self.emit_changed()
+
+        self.event_logger.emit("","")
+        if self._fitter.fit_success:
+            self.event_logger.emit("Fit successful.","happy")
+        else:
+            self.event_logger.emit("Fit failed.","warning")
 
 
     def add_experiment(self,name,*args,**kwargs):
@@ -129,6 +153,7 @@ class FitContainer(QW.QWidget):
             self._fitter.remove_experiment(experiment)
         
             self.event_logger.emit("Removed experiment {}".format(name),"info")
+            self.emit_changed()
         except ValueError:
             err = "experiment {} not found\n".format(experiment)
             raise ValueError(err) 
@@ -137,7 +162,88 @@ class FitContainer(QW.QWidget):
         # left.
         if len(self._experiments) == 0:
             del self._fit_units
- 
+
+    def add_connector(self,name,connector):
+        """
+        Add a connector.
+        """
+
+        self._connectors.append(connector)
+        self._connector_labels[self._connectors[-1]] = name
+        self.event_logger.emit("Connector {} created".format(name),"info")
+        self.emit_changed()
+
+    def remove_connector(self,c):
+        """
+        Remove a connector.
+        """
+
+        try:
+            name = self._connector_labels.pop(c)
+
+            index = self._connnectors.index(c)
+            to_remove = self._connectors.pop(index)
+
+            # Remove all links to experiments
+            for k in c.params.keys():
+                self._fitter.remove_global(k)
+
+            self.event_logger.emit("Connector {} remove".format(name),"info")
+            self.emit_changed()
+
+        except IndexError:
+            err = "No connector with index {} found\n".format(c)
+            raise IndexError(err) 
+
+    def link_to_global(self,e,param_name,global_param):
+        """
+        link parameter (param_name) from experiment (e) to the global_param.
+        """
+
+        # Remove link, if present
+        try:
+            self._fitter.unlink_from_global(e,param_name)
+        except KeyError:
+            pass
+
+        # Update fit
+        self._fitter.link_to_global(e,param_name,global_param)
+        self.emit_changed()
+
+    def unlink_from_global(self,e,param_name):
+        """
+        Unlink paramter from global.
+        
+        e: ITCExperiment instance
+        param_name: local param name
+        """
+    
+        try:
+            self._fitter.unlink_from_global(e,param_name)
+            self.emit_changed()
+        except KeyError:
+            pass
+        
+    def set_experiment_attr(self,e,attr,value,purge_fit=False):
+        """
+        Set an experimental attribute.
+        
+        e: ITCExperiment instance
+        attr: attribute
+        value: value to set attribute to.
+
+        purge_fit: whether or not to delete existing fit in the GlobalFit 
+                   instance
+        """
+
+        setattr(e,attr,value)
+        if purge_fit:
+            self._fitter.delete_current_fit()
+
+        self.emit_changed()
+
+
+
     def get_experiment_param(self,e):
         """
         Return the fittable parameters of an experiment.
@@ -249,36 +355,6 @@ class FitContainer(QW.QWidget):
              
         return final_required, final_fit_param
 
-    def add_connector(self,name,connector):
-        """
-        Add a connector.
-        """
-
-        self._connectors.append(connector)
-        self._connector_labels[self._connectors[-1]] = name
-        self.event_logger.emit("Connector {} created".format(name),"info")
-
-    def remove_connector(self,c):
-        """
-        Remove a connector.
-        """
-
-        try:
-            name = self._connector_labels.pop(c)
-
-            index = self._connnectors.index(c)
-            to_remove = self._connectors.pop(index)
-
-            # Remove all links to experiments
-            for k in c.params.keys():
-                self._fitter.remove_global(k)
-
-            self.event_logger.emit("Connector {} remove".format(name),"info")
-
-        except IndexError:
-            err = "No connector with index {} found\n".format(c)
-            raise IndexError(err) 
-
     def get_connector_param(self,avail_name):
         """
         Look up parameters for a initializing a connector.
@@ -298,38 +374,6 @@ class FitContainer(QW.QWidget):
                 meta[k] = None
 
         return meta  
-
-    def do_fit(self):
-        """
-        Actually do the global fit.
-        """
-
-        try:
-            if self._fit_engine is None:
-                self._fitter.fit()
-            else:
-                self._fitter.fit(fitter=self._fit_engine)
-        
-        except Exception as ex:
-            s = "Fit failed. pytc threw <br/>\"\"\"{0} Args: {1!r}\"\"\""
-            err = s.format(type(ex).__name__,ex.args)
-            self.event_logger.emit(err,"warning")
-
-        self.emit_changed()
-
-        if self._fitter.fit_success:
-            self.event_logger.emit("Fit successful.","happy")
-        else:
-            self.event_logger.emit("Fit failed.","warning")
-
-
-    def pause_updates(self,value):
-        """
-        Pause updates. value is True (pause) or False (unpause).  This disables
-        self.emit_changed() calls.  This is useful to allow for changes to a
-        bunch of widgets at once. 
-        """        
-        self._paused = value
 
     def clear(self):
         """

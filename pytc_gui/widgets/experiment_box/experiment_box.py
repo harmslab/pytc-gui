@@ -40,14 +40,19 @@ class ExperimentBox(QW.QWidget):
     def update(self):
         """
         """
+    
+        # Wipe out grid
+        self.clear()
 
         # Delete widgets for experiments in that aren't in the FitContainer
         all_exp = list(self._experiments_shown.keys())
         for e in all_exp:
             if e not in self._fit.experiments:
-                self._experiments_shown[e].deleteLater()
-                self._experiments_shown.pop(e)
-
+                try:
+                    self._experiments_shown[e].deleteLater()
+                    self._experiments_shown.pop(e)
+                except KeyError:
+                    pass
 
         # Make sure that all experiments in the FitContainer are shown
         to_layout = []
@@ -74,12 +79,11 @@ class ExperimentBox(QW.QWidget):
             for j in range(3):
                 self._main_layout.addWidget(to_layout[counter],i,j)
                 counter += 1
-        
+       
     def clear(self):
         """
         Clear the widget.
         """
-
         for i in reversed(range(self._main_layout.count())): 
             try:
                 self._main_layout.itemAt(i).widget().setParent(None)
@@ -92,6 +96,4 @@ class ExperimentBox(QW.QWidget):
         Slot that looks for emission from FitContainer saying that it changed
         in some way.
         """
-
-        # Update all of the widgets
         self.update()
