@@ -11,7 +11,7 @@ packages = ["pytc_gui"]
 # Need to add all dependencies to setup as we go!
 setup(name='pytc-gui',
       packages=packages,
-      version='1.1.0',
+      version='1.2.0',
       description="PyQt5 GUI for pytc API",
       long_description=open("README.rst").read(),
       author='Hiranmayi Duvvuri',
