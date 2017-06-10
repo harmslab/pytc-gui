@@ -120,7 +120,6 @@ class FitContainer(QW.QWidget):
         else:
             self.event_logger.emit("Fit failed.","warning")
 
-
     def add_experiment(self,name,*args,**kwargs):
         """
         Add an experiment to the FitContainer. 
@@ -242,7 +241,11 @@ class FitContainer(QW.QWidget):
 
         self.emit_changed()
 
+    def set_fix_parameter(self,e,param_name,param_value):
 
+        self._fitter.delete_current_fit()
+        self._fitter.update_fixed(param_name,param_value,e) 
+        self.emit_changed()
 
     def get_experiment_param(self,e):
         """

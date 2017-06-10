@@ -103,10 +103,9 @@ class FitParamWrapper(QW.QWidget):
 
         # Record instance-wide value indiciating whether the current guess is 
         # valid or not. 
+        self._current_guess_is_good = False
         if success:
             self._current_guess_is_good = True
-        else:
-            self._current_guess_is_good = False
 
     def _lower_handler(self):
         """
@@ -167,24 +166,17 @@ class FitParamWrapper(QW.QWidget):
  
         # If false, immediately record    
         if not value:
-            self._p.fixed = value
+            self._fit.set_fix_parameter(self._experiment,self._p.name,None)
  
         # Make sure the guess is okay before setting to true
         else:
             if self._current_guess_is_good:
-
                 fixed_value = float(self._guess.text()) 
-            
-                self._p.fixed = True
-                self._p.guess = fixed_value
-                self._p.value = fixed_value
-
+                self._fit.set_fix_parameter(self._experiment,self._p.name,fixed_value)
             else:
                 err = "Fixing variable requires valid guess. (Guess will become fixed value).\n"
                 error_message = QW.QMessageBox.warning(self._parent,"warning",err,QW.QMessageBox.Ok)
                 self._fixed.setCheckState(False)
-
-        self._fit.emit_changed()
 
         self._current_fixed = self._current_fixed
 
@@ -275,6 +267,7 @@ class FitParamWrapper(QW.QWidget):
                 else:
                     guess_str = "{:.8f}".format(self._p.guess)
                 self._guess.setText(guess_str)
+                self._current_guess_is_good = True
 
             # --------------- Lower -----------------
             if self._current_lower != self._p.bounds[0]:

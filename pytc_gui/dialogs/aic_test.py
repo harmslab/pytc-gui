@@ -88,6 +88,11 @@ class AICTest(QW.QDialog):
                 QW.QMessageBox.warning(self, "warning", err, QW.QMessageBox.Ok)
                 return
 
+        if not self._fit.fitter.fit_success:
+            err = "Fit must be performed and successful before it can be added to the AIC list."
+            QW.QMessageBox.warning(self, "warning", err, QW.QMessageBox.Ok)
+            return
+
         text, ok = QW.QInputDialog.getText(self, 'Save Fitter', 'Enter Name:')
 
         # save deepcopy of fitter
@@ -116,19 +121,25 @@ class AICTest(QW.QDialog):
         self._data_out.clear()
         
 
+        to_sort = []
+        for o, v in output.items():
+            to_sort.append((o,v[0],v[1]))
+        to_sort.sort()
+
         test = []
         best_model = []
         weights = []
-        for o, v in output.items():
-            test.append(o)
-            best_model.append(v[0])
-            weights.append(v[1]) 
+        for e in to_sort:
+            test.append(e[0])
+            best_model.append(e[1])
+            weights.append(e[2]) 
+
 
         # Figure out if there is a best model by consensus
         best_overall = [(best_model.count(a),a) for a in set(best_model)] 
         best_overall.sort(reverse=True)
 
-        # If one guy one all the time or the best model is found better more times,
+        # If one guy won all the time or the best model is found better more times,
         # it's the best
         if len(best_overall) == 1 or best_overall[0][0] > best_overall[1][0]:
             final_best = best_overall[0][1]
@@ -142,7 +153,7 @@ class AICTest(QW.QDialog):
         tmp = re.sub(" ","&#160;",tmp)
         line = [s_head.format(tmp)] 
         for i in range(len(test)):
-            tmp = "{:7s}".format(test[i])
+            tmp = "{:>7s}".format(test[i])
             tmp = re.sub(" ","&#160;",tmp)
             line.append(s_head.format(tmp)) 
 

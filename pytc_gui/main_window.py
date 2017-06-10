@@ -33,6 +33,8 @@ class MainWindow(QW.QMainWindow):
         self._fitter_list = {}
         self._version = pkg_resources.require("pytc-gui")[0].version
 
+        self._accept_exit_program = False
+
         self.layout()
 
     def layout(self):
@@ -258,23 +260,34 @@ class MainWindow(QW.QMainWindow):
         """
         Close the program out.
         """
-        if len(self._fit.experiments) > 0:
-            warning = "Are you sure you want to quit?"
-            warning_message = QW.QMessageBox.warning(self, "warning!",warning, 
-                                                     QW.QMessageBox.Yes | QW.QMessageBox.No)
-            if warning_message == QW.QMessageBox.Yes:
-                self._main_widgets.clear()
-                self._app.instance().closeAllWindows()
-                self.close()
 
-    
+        ret = QW.QMessageBox.Ok
+        if not self._accept_exit_program:
+            if len(self._fit.experiments) > 0:
+                m = QW.QMessageBox()
+                m.setText("Are you sure you want to exit?")
+                m.setIcon(QW.QMessageBox.Warning)
+                m.setStandardButtons(QW.QMessageBox.Ok  | QW.QMessageBox.Cancel)
+                m.setDefaultButton(QW.QMessageBox.Cancel)
+                ret = m.exec_()
+
+        if ret == QW.QMessageBox.Ok:
+            self._accept_exit_program = True
+            self._main_widgets.clear()
+            self._app.instance().closeAllWindows()
+        else:
+            self._accept_exit_program = False
+
     def closeEvent(self,event):
         """
         Override closeEvent so all windows close and clean up.
         """
-        
         self.close_program_callback()
-        event.accept()
+
+        if self._accept_exit_program:
+            event.accept()
+        else:
+            event.ignore()
  
 
 def main():
