@@ -17,9 +17,10 @@ setup(name='pytc-gui',
       author='Hiranmayi Duvvuri',
       author_email='hiranmayid8@gmail.com',
       url='https://github.com/harmslab/pytc-gui',
-      download_url='https://github.com/harmslab/pytc-gui/tarball/1.1.0',
+      download_url='https://github.com/harmslab/pytc-gui/tarball/1.2.0',
       zip_safe=False,
-      install_requires=["pytc-fitter","seaborn","pyqt5"],
+      install_requires=["pytc-fitter>=1.1.4","seaborn","pyqt5"],
+      package_data={"pytc_gui":["*.png","widgets/experiment_box/icons/*.png"]},
       classifiers=['Programming Language :: Python'],
       entry_points = {
             'gui_scripts': [
