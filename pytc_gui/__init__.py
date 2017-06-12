@@ -1,14 +1,4 @@
 __author__ = "Hiranmayi Duvvuri"
 __date__ = "2017-01-08"
-__all__ = ["sliders", "exp_frames", "slider_popup"]
 
-from . import sliders
-from . import exp_frames
-from . import slider_popup
-
-from .exp_setup import AddExperimentWindow
-from .main_window import *
-from .fit_update import *
-from .sliders import *
-from .exp_frames import *
-from .slider_popup import *
+__all__  = ["dialogs","fit_container","main_window","widgets"]
