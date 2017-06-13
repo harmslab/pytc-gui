@@ -101,8 +101,11 @@ class ExperimentWidget(QW.QFrame):
         Delete widgets.
         """
 
-        self._options_diag.delete()
-        self._options_diag.setParent(None)
+        try:
+            self._options_diag.delete()
+            self._options_diag.setParent(None)
+        except AttributeError:
+            pass
 
         self.setParent(None)
 

@@ -101,10 +101,10 @@ class MainWindow(QW.QMainWindow):
 
         file_menu.addSeparator()
 
-        #new_session = QW.QAction("New Session", self)
-        #new_session.setShortcut("Ctrl+N")
-        #new_session.triggered.connect(self.new_session_callback)
-        #file_menu.addAction(new_session)
+        new_session = QW.QAction("New Session", self)
+        new_session.setShortcut("Ctrl+N")
+        new_session.triggered.connect(self.new_session_callback)
+        file_menu.addAction(new_session)
 
         close_window = QW.QAction("Exit", self)
         close_window.setShortcut("Ctrl+W")
@@ -115,7 +115,7 @@ class MainWindow(QW.QMainWindow):
         self.addAction(add_exp)
         self.addAction(do_fit)
         self.addAction(export_results)
-        #self.addAction(new_session)
+        self.addAction(new_session)
         self.addAction(close_window)
         #self.addAction(save_fitter)
         #self.addAction(open_fitter)
@@ -254,7 +254,8 @@ class MainWindow(QW.QMainWindow):
         if warning_message == QW.QMessageBox.Yes:
             self._fit.clear()
             self._fit.fitter_list = {}
-            self._main_widgets.clear()
+            self._main_widgets.delete()
+            self.__init__(self._app)
 
     def close_program_callback(self):
         """
