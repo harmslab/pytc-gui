@@ -7,7 +7,6 @@ __date__ = "2017-06-03"
 
 import PyQt5.QtWidgets as QW
 import PyQt5.QtCore as QC
-#from io import StringIO
 import seaborn
 
 class ParameterBox(QW.QTableWidget):
@@ -47,7 +46,6 @@ class ParameterBox(QW.QTableWidget):
         self._data = []
 
         string_file = self._fit.fitter.fit_as_csv
-        #string_file = StringIO(file_data)
 
         # break up the file data
         for i in string_file.split("\n"):
@@ -96,6 +94,14 @@ class ParameterBox(QW.QTableWidget):
         self._col_name = []
         self._data = []
         self.layout()
+
+    def delete(self):
+        """
+        Delete the widget.
+        """
+
+        self.clear()
+        self.setParent(None)
 
     @QC.pyqtSlot(bool)
     def fit_has_changed_slot(self,val):

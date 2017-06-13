@@ -94,15 +94,24 @@ class ExperimentWidget(QW.QFrame):
                                                  QW.QMessageBox.Yes|QW.QMessageBox.No)
 
         if warning_message == QW.QMessageBox.Yes:
-            try:
-                self.deleteLater()
-            except AttributeError:
-                pass
-            
-            try:
-                self._fit.remove_experiment(self._experiment)
-            except ValueError:
-                err = "Experiment already deleted.\n"
-                sys.stderr.write(err)
+            self.delete()
+           
+    def delete(self):
+        """
+        Delete widgets.
+        """
 
+        try:
+            self._options_diag.delete()
+            self._options_diag.setParent(None)
+        except AttributeError:
+            pass
+
+        self.setParent(None)
+
+        # Remove experiment -- unless already removed
+        try:
+            self._fit.remove_experiment(self._experiment)
+        except ValueError:
+            pass
 

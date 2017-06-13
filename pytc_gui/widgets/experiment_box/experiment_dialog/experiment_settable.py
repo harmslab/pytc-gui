@@ -183,3 +183,14 @@ class ExperimentSettableWrapper(QW.QWidget):
 
                 self._select_widget.setText(val_str)
 
+    def delete(self):
+        """
+        Clear the widgets.
+        """
+ 
+        widget_indexes = list(range(self._main_layout.count()))
+        widget_indexes.reverse()
+        for i in widget_indexes:
+            self._main_layout.itemAt(i).widget().setParent(None)
+  
+        

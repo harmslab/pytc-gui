@@ -184,7 +184,7 @@ class FitParamWrapper(QW.QWidget):
         """
         Handle changes to alias ComboBox.
         """
-
+ 
         value = self._alias.currentText()
 
         # unlink variable
@@ -346,6 +346,8 @@ class FitParamWrapper(QW.QWidget):
             # Now grab the current alias for this parameter
             param_aliases = self._fit.get_experiment_aliases(self._experiment)
             try:
+                if param_aliases is None:
+                    raise KeyError
                 current_alias = param_aliases[self._p.name]
                 if type(current_alias) is not str:
 
@@ -428,7 +430,24 @@ class FitParamWrapper(QW.QWidget):
             self._upper.setDisabled(False)
 
             self.update()
-     
+    
+    def delete(self):
+        """
+        Delete the widget and its properties.
+        """
+
+        try:
+            self._tmp = None
+        except AttributeError:
+            pass
+
+        self._guess.setParent(None)
+        self._lower.setParent(None)
+        self._upper.setParent(None)
+        self._fixed.setParent(None)
+        self._alias.setParent(None)
+
+ 
     @property
     def guess_widget(self):
         return self._guess
@@ -452,3 +471,4 @@ class FitParamWrapper(QW.QWidget):
     @property
     def name(self):
         return self._p.name
+

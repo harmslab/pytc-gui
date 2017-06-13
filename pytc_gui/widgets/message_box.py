@@ -50,3 +50,14 @@ class MessageBox(QW.QTextEdit):
         self.verticalScrollBar().setValue(self.verticalScrollBar().maximum())
 
         self.update()
+
+    def delete(self):
+        """
+        Delete with widget.
+        """
+
+        self.clear()
+        self.setParent(None)  
+     
+          
+        

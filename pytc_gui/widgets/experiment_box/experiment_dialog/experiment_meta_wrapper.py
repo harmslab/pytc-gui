@@ -89,3 +89,14 @@ class ExperimentMetaWrapper(QW.QWidget):
         
             color = "#FFFFFF"
             self._meta.setStyleSheet("QLineEdit {{ background-color: {} }}".format(color))
+
+    def delete(self):
+        """
+        Deleting widgets.
+        """
+ 
+        widget_indexes = list(range(self._main_layout.count()))
+        widget_indexes.reverse()
+        for i in widget_indexes:
+            self._main_layout.itemAt(i).widget().setParent(None)
+

@@ -278,7 +278,35 @@ class ExperimentOptionsDialog(QW.QDialog):
     
         self.update()
         super().show() 
-       
+
+    def delete(self):
+        """
+        Close the dialog, clearing widgets and deleting objects.
+        """
+
+        meta_widgets = list(self._meta_widgets.keys())
+        for m in meta_widgets:
+            self._meta_widgets[m].delete()
+            self._meta_widgets.pop(m)
+
+        indexes = list(range(len(self._param_widgets)))
+        indexes.reverse()
+        for i in indexes:
+            self._param_widgets[i].delete()
+            self._param_widgets.pop(i)
+
+        indexes = list(range(len(self._expt_widgets)))
+        indexes.reverse()
+        for i in indexes:
+            self._expt_widgets[i].delete()
+            self._expt_widgets.pop(i)
+            
+        widget_indexes = list(range(self._main_layout.count()))
+        widget_indexes.reverse()
+        for i in widget_indexes:
+            self._main_layout.itemAt(i).widget().setParent(None)
+
+ 
     @QC.pyqtSlot(bool)
     def fit_has_changed_slot(self):
         self.update()

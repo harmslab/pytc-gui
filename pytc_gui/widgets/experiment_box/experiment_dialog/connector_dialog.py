@@ -245,4 +245,3 @@ class AddConnectorDialog(QW.QDialog):
         self._parent.set_as_connected(True)
 
         self.accept()
-   
