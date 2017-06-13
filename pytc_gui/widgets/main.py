@@ -101,6 +101,15 @@ class MainWidgets(QW.QWidget):
         for w in self._core_widgets:
             w.clear()
 
+    def delete(self):
+        """
+        Delete this widget.
+        """
+    
+        for w in self._core_widgets:
+            w.delete()
+        self.setParent(None)
+
     def do_fit_callback(self):
         """
         Do the fit.

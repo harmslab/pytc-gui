@@ -89,7 +89,19 @@ class ExperimentBox(QW.QWidget):
                 self._main_layout.itemAt(i).widget().setParent(None)
             except AttributeError:
                 pass
-    
+   
+    def delete(self):
+        """
+        Delete widgets.
+        """       
+ 
+        experiments_shown = list(self._experiments_shown.keys())
+        for e in experiments_shown:
+            self._experiments_shown[e].delete()
+            self._experiments_shown.pop(e)
+     
+        self.clear()
+ 
     @QC.pyqtSlot(bool)
     def fit_has_changed_slot(self,val):
         """

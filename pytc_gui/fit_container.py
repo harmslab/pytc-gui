@@ -127,6 +127,7 @@ class FitContainer(QW.QWidget):
  
         # Add the experiment 
         self._experiments.append(pytc.ITCExperiment(*args,**kwargs))
+
         self._fitter.add_experiment(self._experiments[-1])
         self._experiment_labels[self._experiments[-1]] = name 
 
@@ -146,21 +147,28 @@ class FitContainer(QW.QWidget):
 
         try:
             name = self._experiment_labels.pop(experiment)
+        except KeyError:
+            pass
 
+        try:
             index = self._experiments.index(experiment)
             to_remove = self._experiments.pop(index)
             self._fitter.remove_experiment(experiment)
-        
             self.event_logger.emit("Removed experiment {}".format(name),"info")
             self.emit_changed()
         except ValueError:
-            err = "experiment {} not found\n".format(experiment)
-            raise ValueError(err) 
+            pass
+            #err = "experiment {} not found\n".format(experiment)
+            #raise ValueError(err) 
  
         # We no longer have a fixed set of units if there is no experiment
         # left.
         if len(self._experiments) == 0:
-            del self._fit_units
+
+            try:
+                del self._fit_units
+            except AttributeError:
+                pass
 
     def add_connector(self,name,connector):
         """
@@ -322,8 +330,9 @@ class FitContainer(QW.QWidget):
 
         # Make sure the experiment is loaded
         if e not in self._experiments:
-            err = "experiment {} not loaded".format(e)
-            raise ValueError(err)
+            return {}, {}
+            #err = "experiment {} not loaded".format(e)
+            #raise ValueError(err)
 
         # Look through parameter aliases, searching for connector classes
         required_data = []
@@ -365,11 +374,13 @@ class FitContainer(QW.QWidget):
  
         try:
             index = self._experiments.index(e)
+            return self._fitter.param_aliases[1][index]
         except ValueError:
-            err = "experiment {} not loaded".format(e)
-            raise ValueError(err)
+            self.remove_experiment(e)
+            #err = "experiment {} not loaded".format(e)
+            #raise ValueError(err)
             
-        return self._fitter.param_aliases[1][index]
+        return None
 
     def get_connector_param(self,avail_name):
         """

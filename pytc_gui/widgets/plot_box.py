@@ -75,7 +75,20 @@ class PlotBox(QW.QTabWidget):
             self._corner_ax = self._corner_fig.add_subplot(111)
 
         self.addTab(FigureCanvas(self._corner_fig), "Corner Plot")
-    
+
+    def delete(self):
+        """
+        Delete the widget.
+        """
+
+        try:
+            plt.close(self._main_fig)
+            plt.close(self._corner_fig)
+        except AttributeError:
+            pass
+
+        self.setParent(None)
+
     @QC.pyqtSlot(bool)
     def fit_has_changed_slot(self,val):
         """
