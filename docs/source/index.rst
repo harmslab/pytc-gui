@@ -13,9 +13,8 @@ a flexible package for fitting Isothermal Titration Calorimetry data.
 Start-up
 ========
 
-either:
 + double-click the icon for the installed program 
-+ run :code:`pytc-gui` on command line
++ run :code:`pytc-gui` on command line 
 
 Workflow
 ========

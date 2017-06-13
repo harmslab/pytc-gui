@@ -30,9 +30,10 @@ For performing a single-site model fit to a single experiment.
 This can be repeated for more experiments.  Any new experiments you load will be
 added to the GUI. 
 
-Sliders
-=======
-Each loaded experiment has a model with associated fit parameters.  These 
+Changing fit 
+============
+Each loaded experiment has a model with associated fit parameters.  The parameter
+guesses, 
 parameters can be maniuplated using a set of "sliders".  These have the
 same general layout. Each time a value is changed on a slider, the graph 
 is updated with the new guesses.   The graph will update to show the fit
