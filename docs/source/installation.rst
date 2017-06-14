@@ -6,14 +6,15 @@ Installation
 addition to the GUI, we recommend installing the python scientific computing
 stack and then installing pytc-gui via the `pip` method.  
 
-Demo heat files are `here <https://github.com/harmslab/pytc-demos`_.
 
 Windows or Mac installation
 ===========================
 **For users who only want to use the GUI**
 
-+ **Windows**: download the `installation file <https://github.com/hrmyd/pytc-gui/blob/master/pytc_install/pytc-gui_v1.0.1_setup.exe?raw=true>`_ and follow the prompts for the installer. 
-+ **Mac**: download the `dmg file <https://github.com/hrmyd/pytc-gui/blob/master/pytc_install/pytc-gui_v1.0.1_osx.dmg?raw=true>`_, unpack it, and then drag the pytc icon into the Applications folder.  
++ **Windows**: download the `installation file <http://spock.uoregon.edu/pytc-gui_latest_setup.exe>`_
+  and follow the prompts for the installer. 
++ **Mac**: download the `dmg file <http://spock.uoregon.edu/pytc-gui_latest_osx.dmg>`_, unpack it,
+  and then drag the pytc icon into the Applications folder.  
 
 It will install its own mini python scientific computing stack, independent of
 other python distributions installed on the system.

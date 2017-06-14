@@ -6,34 +6,36 @@ pytc-gui documentation
 a flexible package for fitting Isothermal Titration Calorimetry data.  
 
 + `Installation <installation.html>`_
-+ `Basic fits <how_to_img.html>`_
-+ `Video examples <videos.html>`_
++ `How to do fits <how_to_img.html>`_
 + `Full pytc docs <https://pytc.readthedocs.io/>`_
 
 Start-up
 ========
 
-+ double-click the icon for the installed program 
++ Double-click the icon for the installed program OR
 + run :code:`pytc-gui` on command line 
 
 Workflow
 ========
 
-+ load experiments
-+ link individual fit parameters to global parameters
-+ set fit parameter guesses
-+ fit the model to the data
-+ export the results, which will save a csv file with the fit parameters and a
-  pdf showing the fit
+Demo heat files are `here <https://github.com/harmslab/pytc-demos>`_.
+
++ Integrate raw power curves using Origin or NITPIC, creating files containing heats per shot.
++ Load heat files and `choose model describing experiment <https://pytc.readthedocs.io/en/latest/indiv_models.html>`_.
++ Choose the `fitter <https://pytc.readthedocs.io/en/latest/fitters.html>`_.
++ Link individual fit parameters to `global parameters <https://pytc.readthedocs.io/en/latest/global_models.html>`_.
++ Fit the model to the data
++ Evaluate the `fit statistics <https://pytc.readthedocs.io/en/latest/statistics.html>`_.
++ Export the results, which will save a csv file and pdf files showing the fit and corner plot
+
+Reference
+=========
+
++ `Programming reference <programming.html>`_
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
-   installation.rst
-   how_to_img.rst
-   videos.rst
-   gui_module.rst
 
 Indices and tables
 ==================

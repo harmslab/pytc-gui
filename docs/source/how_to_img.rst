@@ -2,139 +2,117 @@
 How-To: Basic Fits with GUI
 ===========================
 
-Setting Up
-==========
+Workflow
+========
 
-Single-Site Model
------------------
-For performing a single-site model fit to a single experiment.
++ Integrate raw power curves using Origin or `NITPIC  <http://biophysics.swmed.edu/MBR/software.html>`_,
+  creating files containing heats per shot.
++ Load heat files and `choose model describing experiment <https://pytc.readthedocs.io/en/latest/indiv_models.html>`_.
++ Choose the `fitter <https://pytc.readthedocs.io/en/latest/fitters.html>`_.
++ Link individual fit parameters to `global parameters <https://pytc.readthedocs.io/en/latest/global_models.html>`_.
++ Fit the model to the data.
++ Evaluate the `fit statistics <https://pytc.readthedocs.io/en/latest/statistics.html>`_.
++ Export the results, which will save a csv file and pdf files showing the fit and corner plot.
 
-.. figure:: /screenshots/fitting/01.png
-    :width: 40%
+Example fit
+===========
+
+The following shows an example fit to :math:`Ca^{2+}` binding to :math:`EDTA`. 
+The data file can be found `here <https://github.com/harmslab/pytc-demos/blob/master/ca-edta/hepes-01.DH>`_.  
+
+.. figure:: /screenshots/fit_steps/0.png
     :figclass: align-center
 
-    First, go to :code:`File -> Add Experiment`. Select the model, load in the
-    file, and select the shot start. 
+    To load an experiment, go to :code:`File -> Add Experiment`. 
 
-.. figure:: /screenshots/fitting/02.png
+.. figure:: /screenshots/fit_steps/1.png
+    :figclass: align-center
+
+    Select the heat file, select the model and set the experiment parameters.
+
+.. figure:: /screenshots/fit_steps/2.png
     :figclass: align-center
 
     Before fitting, the graph shows the model calculated using the parameter
     guesses.
 
-.. figure:: /screenshots/fitting/03.png
+.. figure:: /screenshots/fit_steps/3.png
     :figclass: align-center
 
-    To fit the model, go to :code:`Fitting -> Fit Experiments.`
+    To alter the fit parameters, click the button next to the experiment.
+
+.. figure:: /screenshots/fit_steps/4.png
+    :figclass: align-center
+
+    In the window that opens, you can set parameter guess, link the fit 
+    parameters to global parameters, fix them, and set fit bounds.
+
+.. figure:: /screenshots/fit_steps/5.png
+    :figclass: align-center
+
+    Click the "Do Fit" button to do the fit.
+
+.. figure:: /screenshots/fit_steps/6.png
+    :figclass: align-center
+
+    The fit now appears, with residuals, fit statistics, and parameter values.
+
+.. figure:: /screenshots/fit_steps/7.png
+    :figclass: align-center
+
+    The "Corner Plot" tab shows the uncertainty and covariation between the fit
+    parameters.
+
+.. figure:: /screenshots/fit_steps/8.png
+    :figclass: align-center
+
+    The fit results can be exported by going to File->Export Results.
 
 This can be repeated for more experiments.  Any new experiments you load will be
 added to the GUI. 
 
-Changing fit 
-============
-Each loaded experiment has a model with associated fit parameters.  The parameter
-guesses, 
-parameters can be maniuplated using a set of "sliders".  These have the
-same general layout. Each time a value is changed on a slider, the graph 
-is updated with the new guesses.   The graph will update to show the fit
-results once the fit is performed. 
+Videos of fits
+==============
 
-.. figure:: /screenshots/general/01.png
-    :width: 80%
-    :figclass: align-center
+**Maximum likelihood single-site fit**
 
-    The general layout for each slider. Global parameters are similar except they exclude the dropdown menu.
+.. raw:: html
 
-    +-----------------------+-------------------------------------------------------------+
-    |                       | Use                                                         |
-    +=======================+=============================================================+
-    | Fix                   | When checked, allows you to enter a fixed parameter value   |
-    +-----------------------+-------------------------------------------------------------+
-    | Slider                | Changes the parameter guess value.                          |
-    +-----------------------+-------------------------------------------------------------+
-    | Dropdown              | | Allows you to link and unlink parameters from global      |
-    |                       | | parameters as well as creation of new global parameters or|
-    |                       | | connectors.                                               |
-    +-----------------------+-------------------------------------------------------------+
-    | Min/Max               | | Allows you to change the bounds of allowed values for a   |
-    |                       | | parameter.                                                |
-    +-----------------------+-------------------------------------------------------------+
+    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+        <iframe src="//www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+    </div>
 
-Global Variables
-================
+**Bayesian single-site fit**
 
-Simple Global
--------------
-For using a global variable that is shared across multiple experiments.
+.. raw:: html
 
-.. figure:: /screenshots/global_var/01.png
-    :width: 60%
-    :figclass: align-center
+    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+        <iframe src="//www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+    </div>
 
-    :code:`pytc-gui` uses sliders to select guesses for each fit parameter.  To
-    get to the sliders for an experiment, click on the **Show Sliders** button
-    next to the experiment name. Each pop-up has the same basic layout. 
+**Model selection using an AIC test**
 
-    To add a new global variable, select **Add Global Var** from the dropdown
-    menu.
+.. raw:: html
 
-.. figure:: /screenshots/global_var/02.png
-    :width: 40%
-    :figclass: align-center
+    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+        <iframe src="//www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+    </div>
 
-    The pop-up allows you to create a new global variable.
+**Simple global fit**
 
-.. figure:: /screenshots/global_var/03.png
-    :width: 60%
-    :figclass: align-center
+.. raw:: html
 
-    Once a global variable is made, it can be linked to any parameter by
-    selecting it from the dropdown menu for that parameter.
+    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+        <iframe src="//www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+    </div>
 
-.. figure:: /screenshots/global_var/04.png
-    :figclass: align-center
+**Van't Hoff connector fit**
 
-    A new entry is made for the global variable. After this select
-    :code:`Fitting -> Fit Experiments.` This will fit the new global model to 
-    the data an update the graph and parameter list.
+.. raw:: html
 
-Connectors
-----------
-For defining more complex linkages between experiments (such as a van't Hoff
-relationship).  
-
-.. figure:: /screenshots/global_var/05.png
-    :figclass: align-center
-
-    Fit using a temperature dependant experiment.
-
-.. figure:: /screenshots/global_var/06.png
-    :width: 40%
-    :figclass: align-center
-
-    Connectors are linked in a similar way to global variables, except select 
-    **Add Connector** from the dropdown menu rather than **Add Global Var**. 
-    A new pop-up will come up allowing you to select the type of connector you'd
-    like to make, the name of the connector, and nay variables linked to that 
-    connector. 
-
-.. figure:: /screenshots/global_var/07.png
-    :width: 60%
-    :figclass: align-center
-
-    As with global variables, link parameters to a connector parameter by
-    selecting the connector from the dropdown menu.
-
-.. figure:: /screenshots/global_var/08.png
-    :figclass: align-center
-
-    Some connectors might require experimental metadata (temperature, ionization
-    enthalpy, etc.).  These need to be defined before performing the new fit.
-
-.. figure:: /screenshots/global_var/09.png
-    :figclass: align-center
-
-    Once everything is set, perform the new fit.
+    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+        <iframe src="//www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+    </div>
 
 Indices and tables
 ==================
