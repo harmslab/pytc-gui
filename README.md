@@ -1,31 +1,32 @@
 # pytc-gui
-PyQt5 GUI for pytc
+PyQt5 GUI wrapping [pytc](https://github.com/harmslab/pytc)
 
-![screenshot](https://pytc.readthedocs.io/en/latest/_images/gui_02.png)
+![screenshot](https://pytc.readthedocs.io/en/latest/_images/pytc-gui-animation.gif)
 
  + [Documentation](https://pytc-gui.readthedocs.io/en/latest/)
  + [pytc](https://github.com/harmslab/pytc)
 
 ## Installation Files
 
- + [mac](https://github.com/hrmyd/pytc-gui/blob/master/pytc_install/pytc-gui_v1.0.1_osx.dmg?raw=true)
- + [windows](https://github.com/hrmyd/pytc-gui/blob/master/pytc_install/pytc-gui_v1.0.1_setup.exe?raw=true)
- + [demo files](https://github.com/hrmyd/pytc-gui/blob/master/pytc_install/pytc_demos.zip?raw=true)
+ + [mac](https://github.com/harmslab/pytc-gui/releases/download/1.2.2/pytc-gui_v1.2.2.dmg)
+ + [windows](https://github.com/harmslab/pytc-gui/releases/download/1.2.2/pytc-gui_v1.2.2_setup.exe)
+ + linux: install via `pip`
+ + [demo files](https://github.com/harmslab/pytc-demos)
 
- instructions can be found [here](https://pytc-gui.readthedocs.io/en/latest/installation.html)
+Instructions can be found [here](https://pytc-gui.readthedocs.io/en/latest/installation.html)
 
-## quick terminal install
+## Quick terminal install
 
-the pytc GUI is available for pip install:
+The pytc GUI is available for pip install:
 
 	```
-	pip install pytc-gui
+	pip3 install pytc-gui
 	```
 
-you can also clone from github and install from setup.py:
+You can also clone from github and install from setup.py:
 
 	```
     git clone https://github.com/harmslab/pytc-gui.git
     cd pytc-gui
-    pip install .
+    pip3 install .
     ```

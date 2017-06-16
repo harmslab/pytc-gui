@@ -1,11 +1,13 @@
+:orphan:
+
 ==============================
 pytc-gui programming reference
 ==============================
 
 pytc-gui is written using :code:`pyqt5`.  
 
-Coding guidelines
------------------
+Widget coding guidelines
+------------------------
 
 .. sourcecode:: python
 
@@ -40,6 +42,12 @@ Coding guidelines
 
             pass
 
+        def delete(self):
+            """
+            Delete the widget.
+            """
+
+            pass
 
 + :code:`self._parent` is the parent widget to the current widget.
 + :code:`self._fit` is the :code:`FitContainer` instance created by the initial

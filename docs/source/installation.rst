@@ -1,3 +1,5 @@
+:orphan:
+
 ============
 Installation 
 ============
@@ -6,15 +8,15 @@ Installation
 addition to the GUI, we recommend installing the python scientific computing
 stack and then installing pytc-gui via the `pip` method.  
 
-Demo heat files for testing the GUI are 
-`here <https://github.com/hrmyd/pytc-gui/blob/master/pytc_install/pytc_demos.zip?raw=true>`_.
 
 Windows or Mac installation
 ===========================
 **For users who only want to use the GUI**
 
-+ **Windows**: download the `installation file <https://github.com/hrmyd/pytc-gui/blob/master/pytc_install/pytc-gui_v1.0.1_setup.exe?raw=true>`_ and follow the prompts for the installer. 
-+ **Mac**: download the `dmg <https://github.com/hrmyd/pytc-gui/blob/master/pytc_install/pytc-gui_v1.0.1_osx.dmg?raw=true>`_, unpack it, and then drag the pytc icon into the Applications folder.  
++ **Windows**: download the `installation file <https://github.com/harmslab/pytc-gui/releases/download/1.2.2/pytc-gui_v1.2.2_setup.exe>`_
+  and follow the prompts for the installer. 
++ **Mac**: download the `dmg file <https://github.com/harmslab/pytc-gui/releases/download/1.2.2/pytc-gui_v1.2.2.dmg>`_, unpack it,
+  and then drag the pytc icon into the Applications folder.  
 
 It will install its own mini python scientific computing stack, independent of
 other python distributions installed on the system.
@@ -49,8 +51,6 @@ You can obtain python3 from the following sources:
   windows.
 * Package managers (linux and mac). For example, the Ubuntu command would be: 
   :code:`sudo apt-get install python3 python3-pip`
-* `python.org <https://www.python.org/downloads/>`_. The main python binary for
-  windows, mac, and linux. 
 
 Indices and tables
 ==================
