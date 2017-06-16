@@ -1,3 +1,5 @@
+:orphan:
+
 ===========================
 How-To: Basic Fits with GUI
 ===========================
@@ -6,7 +8,8 @@ Workflow
 ========
 
 + Integrate raw power curves using Origin or `NITPIC  <http://biophysics.swmed.edu/MBR/software.html>`_,
-  creating files containing heats per shot.
+  creating files containing heats per shot.  A collection of demo heat files
+  are available `on github <https://github.com/harmslab/pytc-demos>`_.
 + Load heat files and `choose model describing experiment <https://pytc.readthedocs.io/en/latest/indiv_models.html>`_.
 + Choose the `fitter <https://pytc.readthedocs.io/en/latest/fitters.html>`_.
 + Link individual fit parameters to `global parameters <https://pytc.readthedocs.io/en/latest/global_models.html>`_.
@@ -78,40 +81,40 @@ Videos of fits
 
 .. raw:: html
 
-    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
-        <iframe src="//www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+    <div style="position: relative; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/AebnhMiKwNk" frameborder="0" allowfullscreen></iframe>
     </div>
 
 **Bayesian single-site fit**
 
 .. raw:: html
 
-    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
-        <iframe src="//www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+    <div style="position: relative; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/aH2iv4duoTQ" frameborder="0" allowfullscreen></iframe>
     </div>
 
 **Model selection using an AIC test**
 
 .. raw:: html
 
-    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
-        <iframe src="//www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+    <div style="position: relative; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/pNju0ESpXEo" frameborder="0" allowfullscreen></iframe>
     </div>
 
 **Simple global fit**
 
 .. raw:: html
 
-    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
-        <iframe src="//www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+    <div style="position: relative; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/j_1MEPM6BeU" frameborder="0" allowfullscreen></iframe>
     </div>
 
 **Van't Hoff connector fit**
 
 .. raw:: html
 
-    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
-        <iframe src="//www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+    <div style="position: relative; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/nKFXZrssUm8" frameborder="0" allowfullscreen></iframe>
     </div>
 
 Indices and tables

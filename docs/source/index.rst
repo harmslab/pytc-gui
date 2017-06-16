@@ -12,8 +12,8 @@ a flexible package for fitting Isothermal Titration Calorimetry data.
 Start-up
 ========
 
-+ Double-click the icon for the installed program OR
-+ run :code:`pytc-gui` on command line 
+After the pytc-gui is installed, double-click the icon for the installed program 
+run :code:`pytc-gui` on command line.
 
 Workflow
 ========
@@ -24,7 +24,7 @@ Demo heat files are `here <https://github.com/harmslab/pytc-demos>`_.
 + Load heat files and `choose model describing experiment <https://pytc.readthedocs.io/en/latest/indiv_models.html>`_.
 + Choose the `fitter <https://pytc.readthedocs.io/en/latest/fitters.html>`_.
 + Link individual fit parameters to `global parameters <https://pytc.readthedocs.io/en/latest/global_models.html>`_.
-+ Fit the model to the data
++ Fit the model to the data.
 + Evaluate the `fit statistics <https://pytc.readthedocs.io/en/latest/statistics.html>`_.
 + Export the results, which will save a csv file and pdf files showing the fit and corner plot
 

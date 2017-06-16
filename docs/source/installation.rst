@@ -1,3 +1,5 @@
+:orphan:
+
 ============
 Installation 
 ============
@@ -11,9 +13,9 @@ Windows or Mac installation
 ===========================
 **For users who only want to use the GUI**
 
-+ **Windows**: download the `installation file <http://spock.uoregon.edu/pytc-gui_latest_setup.exe>`_
++ **Windows**: download the `installation file <https://github.com/harmslab/pytc-gui/releases/download/1.2.2/pytc-gui_v1.2.2_setup.exe>`_
   and follow the prompts for the installer. 
-+ **Mac**: download the `dmg file <http://spock.uoregon.edu/pytc-gui_latest_osx.dmg>`_, unpack it,
++ **Mac**: download the `dmg file <https://github.com/harmslab/pytc-gui/releases/download/1.2.2/pytc-gui_v1.2.2.dmg>`_, unpack it,
   and then drag the pytc icon into the Applications folder.  
 
 It will install its own mini python scientific computing stack, independent of
