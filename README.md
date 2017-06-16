@@ -19,14 +19,14 @@ Instructions can be found [here](https://pytc-gui.readthedocs.io/en/latest/insta
 
 The pytc GUI is available for pip install:
 
-	```
-	pip3 install pytc-gui
-	```
+```
+pip3 install pytc-gui
+```
 
 You can also clone from github and install from setup.py:
 
-	```
-    git clone https://github.com/harmslab/pytc-gui.git
-    cd pytc-gui
-    pip3 install .
-    ```
+```
+git clone https://github.com/harmslab/pytc-gui.git
+cd pytc-gui
+pip3 install .
+```
