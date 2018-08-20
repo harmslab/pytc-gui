@@ -2,30 +2,28 @@ name: pytc-gui
 channels:
 - defaults
 dependencies:
-- openssl=1.0.2k=1
-- pip=9.0.1=py36_1
-- python=3.6.1=0
-- readline=6.2=2
-- setuptools=27.2.0=py36_0
-- sqlite=3.13.0=0
-- tk=8.5.18=0
-- wheel=0.29.0=py36_0
-- xz=5.2.2=1
-- zlib=1.2.8=3
+- openssl==1.0.2k
+- pip==10.0.1
+- python==3.6.1
+- readline==6.2
+- setuptools==27.2.0
+- sqlite==3.13.0
+- tk==8.5.18
+- wheel==0.29.0
+- xz==5.2.2
+- zlib==1.2.8
 - pip:
   - cycler==0.10.0
-  - matplotlib==2.0.0
-  - numpy==1.12.1
-  - pandas==0.19.2
+  - matplotlib==2.2.3
+  - numpy==1.15.0
+  - pandas==0.23.4
   - pyparsing==2.2.0
   - pyqt5==5.8.2
-  - pytc-fitter==0.1.3
-  - pytc-gui==1.0.0
+  - pytc-fitter==1.1.5
+  - pytc-gui==1.2.2
   - python-dateutil==2.6.0
   - pytz==2017.2
-  - scipy==0.19.0
-  - seaborn==0.7.1
+  - scipy==1.1.0
+  - seaborn==0.9.0
   - sip==4.19.2
   - six==1.10.0
-prefix: /Users/hrnmy/anaconda3/envs/pytc-gui
-

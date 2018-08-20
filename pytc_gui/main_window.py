@@ -10,7 +10,7 @@ from .fit_container import FitContainer
 
 from pytc.global_fit import GlobalFit
 
-from PyQt5.QtCore import pyqtSignal 
+from PyQt5.QtCore import pyqtSignal
 from PyQt5 import QtWidgets as QW
 
 from matplotlib.backends.backend_pdf import PdfPages
@@ -20,7 +20,7 @@ import os
 
 class MainWindow(QW.QMainWindow):
     """
-    Main fitting window. 
+    Main fitting window.
     """
 
     def __init__(self,app):
@@ -155,13 +155,13 @@ class MainWindow(QW.QMainWindow):
         """
         Load persistent dialog box for doing AIC calculation.
         """
-    
+
         try:
             self._aic_dialog.show()
         except AttributeError:
             self._aic_dialog = dialogs.AICTest(self,self._fit)
             self._aic_dialog.show()
-    
+
         self._aic_dialog.raise_()
 
     def fit_options_dialog(self):
@@ -185,7 +185,7 @@ class MainWindow(QW.QMainWindow):
 
         file_name, _ = QW.QFileDialog.getSaveFileName(self, "Save Global Fit", "", "Pickle Files (*.pkl);;")
         pickle.dump([self._fit,self._version], open(file_name, "wb"))
- 
+
     def open_fitter_dialog(self):
         """
         Open a transient dialog for opening a saved fit object.
@@ -209,7 +209,7 @@ class MainWindow(QW.QMainWindow):
 
         try:
 
-            os.mkdir(out_dir) 
+            os.mkdir(out_dir)
 
             data_file = open(os.path.join(out_dir,"fit_param.csv"), "w")
             data_file.write(self._fit.fitter.fit_as_csv)
@@ -249,7 +249,7 @@ class MainWindow(QW.QMainWindow):
         """
 
         warning = "Are you sure you want to start a new session?"
-        warning_message = QW.QMessageBox.warning(self, "warning!",warning, 
+        warning_message = QW.QMessageBox.warning(self, "warning!",warning,
                                                  QW.QMessageBox.Yes | QW.QMessageBox.No)
         if warning_message == QW.QMessageBox.Yes:
             self._fit.clear()
@@ -289,7 +289,7 @@ class MainWindow(QW.QMainWindow):
             event.accept()
         else:
             event.ignore()
- 
+
 
 def main():
     """
