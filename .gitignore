@@ -1,3 +1,5 @@
+build_installer/pytc-gui_osx/pytc.app/Contents/Resources/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

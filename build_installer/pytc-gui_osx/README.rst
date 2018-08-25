@@ -10,22 +10,62 @@ Resources Used
 
 Updating the Resources folder
 -----------------------------
-The first link describes how to create an app from scratch using an anaconda environment. the pytc.app file is a folder containing all of the necessary information for the app. Updating the app packages is pretty easy on the command line.
+The first link describes how to create an app from scratch using Conda_. If you don't have Conda, first install Miniconda here_.
 
-+ For the mac app only, in the **main_window.py** file under the **Main** class, find the line with :code:`menu.setNativeMenuBar(False)` and set it to :code:`True` before installing it to the environment. You can change it back after installing it to the conda environment.
-+ Download the `environment file <https://github.com/hrmyd/pytc-gui/blob/master/build_installer/pytc-gui_osx/environment.yml?raw=true>`_ for the gui
-+ Create the environment on your computer using the command :code:`conda env create -f environment.yml`
-+ Activate the environment with :code:`source activate pytc-gui`
-+ While in the environment, go to the folder with the **setup.py** file and run :code:`pip install .` to update the version of pytc-fitter and pytc-gui, and anything else that needs to be updated, in the environment.
-+ Deactivate the environment with :code:`source deactivate`
-+ To copy the environment to the resources folder of the .app folder, run :code:`cp -R ~/anaconda3/envs/pytc-gui/* ~/pytc.app/Contents/Resources/` while making sure all paths are correct for your machine.
-+ In the Resources folder, you can safely delete the **conda-meta** and the **include** folders.
-+ Now, just make sure the app properly runs when you double click it 
-+ The Info.plist file under the Contents folder can be easily updated using Xcode
+.. _Conda: https://conda.io/docs/index.html
+.. _here: https://conda.io/miniconda.html
+
+1. For the mac app only, in the **main_window.py** file under the **Main** class, find the line with :code:`menu.setNativeMenuBar(False)` and set it to :code:`True` before installing it to the environment. You can change it back after installing it to the conda environment.
+2. Navigate to the Conda ``environment.yml`` file in ``build_installer/pytc-gui_osx/environment.yml``. Here, you can update dependencies for the GUI. Change the version numbers listed next to each package.
+3. Once you've updated this file, create a new conda environment from this file using the command :code:`conda env create -f environment.yml`
+4. Activate the conda environment with :code:`source activate pytc-gui`
+5. While in the environment, go to the folder with the **setup.py** file and run :code:`pip install .` to install the updated pytc-gui.
+6. Deactivate the environment with :code:`source deactivate`.
+7. Copy the whole environment to the ``Contents/Resources`` folder of the `pytc.app` folder using the following steps:
+
+   1. Run `conda info`.
+
+      .. code-block::
+
+        active environment : pytc-gui
+        active env location : /Users/username/miniconda3/envs/pytc-gui
+        shell level : 1
+        user config file : /Users/username/.condarc
+        populated config files : /Users/username/.condarc
+        conda version : 4.5.9
+        conda-build version : not installed
+        python version : 3.6.3.final.0
+        base environment : /Users/username/miniconda3  (writable)
+        channel URLs : https://repo.anaconda.com/pkgs/main/osx-64
+                       https://repo.anaconda.com/pkgs/main/noarch
+                       https://repo.anaconda.com/pkgs/free/osx-64
+                       https://repo.anaconda.com/pkgs/free/noarch
+                       https://repo.anaconda.com/pkgs/r/osx-64
+                       https://repo.anaconda.com/pkgs/r/noarch
+                       https://repo.anaconda.com/pkgs/pro/osx-64
+                       https://repo.anaconda.com/pkgs/pro/noarch
+        package cache : /Users/username/miniconda3/pkgs
+                        /Users/username/.conda/pkgs
+        envs directories : /Users/username/miniconda3/envs
+                           /Users/username/.conda/envs
+        platform : osx-64
+        netrc file : None
+        offline mode : False
+
+   2. Copy the path next to ``active env location`` (it should end with ``pytc-gui``).
+   3. Copy the contents of this directory into the ``pytc.app/Contents/Resources/`` directory.
+
+      Example:
+
+      .. code-block::
+
+        cp -R /Users/username/miniconda3/envs/pytc-gui/* build_installer/pytc-gui_osx/pytc.app/Contents/Resources/
+
+8. In the Resources folder, you can safely delete the **conda-meta** and the **include** folders.
+9. Check that the app properly runs by double opening ``pytc.app``. Either double click the app, or run ``open pytc.app`` from the command line.
+
 
 Creating the dmg
 ----------------
-+ The dmg was created using **DMG Canvas**
-+ Download the template made `here <https://github.com/hrmyd/pytc-gui/blob/master/build_installer/pytc-gui_osx/installer_template.dmgCanvas?raw=true>`_
-+ To update the dmg, just replace the current pytc.app with the newly updated version and save out/build your dmg
-+ You can also create a dmg by hand using the second link and **Disk Utility**
+
+Following any of the methods here: https://www.wikihow.com/Make-a-DMG-File-on-a-Mac
